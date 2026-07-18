@@ -1,0 +1,13 @@
+.table thead th{vertical-align: middle!important;text-align: center!important;}
+.cpi-logo{background-position: center; background-size: cover; background-repeat: no-repeat; width: 75%; height: 87%; margin: 0 auto; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);}
+
+.breadcrumb{background-color: #4e73df!important;}
+.breadcrumb > .breadcrumb-item a,
+.breadcrumb-item.active,
+.breadcrumb-item+.breadcrumb-item::before{color: #ffffff!important;}
+
+.invalid-feedback p{margin-bottom: 0!important;}
+
+@media(max-width: 768px){
+	.btn-mobile-fixed{position: fixed; width: 100%; padding: 15px 15px; background: #ffffff; left: 0; margin: 0; display: block; bottom: 0; box-shadow: -3px 7px 20px 7px #afafaf;}
+}

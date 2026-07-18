@@ -1,0 +1,67 @@
+/* Buat tabel tetap responsif dan tidak overflow saat zoom */
+.custom-card {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Tabel full lebar, isi menyesuaikan */
+.custom-card table {
+  width: 100%;
+  table-layout: auto;
+  white-space: nowrap;
+}
+
+/* Judul tabel agar rapih */
+.custom-card thead th {
+  vertical-align: middle !important;
+  text-align: center;
+}
+
+/* Padding sel agar tampilan tidak terlalu sempit */
+.custom-card td,
+.custom-card th {
+  padding: 0.75rem 1rem;
+}
+
+/* Responsive dropdown atas tabel */
+.dropdown-container select {
+  min-width: 200px;
+}
+
+/* Atur teks agar tidak terlalu kecil saat di-zoom */
+.custom-card {
+  font-size: 1rem;
+}
+
+/* Jika butuh overflow scroll saat layar sempit */
+@media (max-width: 768px) {
+  .custom-card {
+    overflow-x: scroll;
+  }
+}
+
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 3 kolom per baris */
+    gap: 10px; /* Jarak antar chart */
+    margin-bottom: 10px;
+}
+
+.chart-box {
+    background: #f8f9fc; /* Warna netral */
+    padding: 5px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.chart-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+/*    max-height: 250px; /* Batasi tinggi agar tidak kepanjangan */*/
+}
+
