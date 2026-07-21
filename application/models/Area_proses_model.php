@@ -54,13 +54,13 @@ class Area_proses_model extends CI_Model
 
 	public function update($uuid)
 	{
-		$area = $this->input->post('m_proses'); // mendapatkan data dari input area
+		$area = $this->input->post('area'); // mendapatkan data dari input area
 
 		$data = array( // inisiasi data yang di input ke database
-			'user_uuid' => $this->auth_model->current_user()->uuid,
-			'nama_area' => $area,
-			'username' => $this->auth_model->current_user()->username,
-			'modified_at' => date('Y-m-d h:i:s')
+			'updated_by' => $this->auth_model->current_user()->uuid,
+			'nama_proses' => $area,
+            'kode' => $area,
+			'update_at' => date('Y-m-d h:i:s')
 		);
 
 		$this->db->update('m_proses', $data, array('uuid' => $uuid)); // query update

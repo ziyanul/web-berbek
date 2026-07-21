@@ -32,9 +32,10 @@ class Portal extends CI_Controller
     }
     public function yield()
     {
-        $data = array(
-            'monitoring' => $this->Yield_model->monitoring_bulan(),
-        );
+        $result = $this->Yield_model->monitoring_bulan($bulan=NULL, $tahun=NULL);
+
+$data['monitoring'] = $result['rows'];
+$data['total'] = $result['total'];
 
         $this->load->view('dashboard/dashboard-yield', $data);
     }

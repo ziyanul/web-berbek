@@ -30,9 +30,11 @@ class Badpro_model extends CI_Model
 
 	public function get_all()
 	{
-		$this->db->select('*');
+		$this->db->select('b.*, p.nama_proses');
 		$this->db->from('badpro b');
+		$this->db->join('m_proses p', 'p.uuid = b.proses_uuid', 'left');
 		$this->db->where('b.deleted_at', null);
+		$this->db->order_by('p.nama_proses', 'ASC');
 		$this->db->order_by('b.nama_badpro', 'ASC');
 		$badpro_list = $this->db->get()->result();
 
@@ -88,10 +90,12 @@ class Badpro_model extends CI_Model
 	{
 		$badpro = $this->input->post('badpro');
 		$kategori = $this->input->post('kategori');
+		$proses_uuid = $this->input->post('proses');
 
 		$data = array(
         'nama_badpro' => $badpro, // Nama Badpro
         'kategori' 		=> $kategori,
+        'proses_uuid' => $proses_uuid,
         'updated_at'  => date('Y-m-d H:i:s') // Timestamp
     );
 
@@ -138,6 +142,8 @@ class Badpro_model extends CI_Model
 
 	public function get_proses()
 	{
+		$this->db->where('deleted_at', NULL);
+		$this->db->order_by('nama_proses', 'ASC');
 		return $this->db->get('m_proses')->result();
 	}
 }

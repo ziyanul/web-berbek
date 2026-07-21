@@ -19,7 +19,7 @@ class Varian extends CI_Controller {
             'active_nav' => 'varian'
         );
         
-        $this->load->view('partials/head', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('varian/varian', $data);
         $this->load->view('partials/footer');
     }
@@ -64,7 +64,7 @@ class Varian extends CI_Controller {
             'active_nav' => 'varian'
         );
         
-        $this->load->view('partials/head', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('varian/edit', $data);
         $this->load->view('partials/footer');
     }

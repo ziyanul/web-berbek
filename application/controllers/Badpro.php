@@ -24,7 +24,7 @@ class Badpro extends CI_Controller {
 			'active_nav' => 'm-badpro'
 		);
 		
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-yield', $data);
 		$this->load->view('badpro/master');
 		$this->load->view('partials/footer');
 	}
@@ -51,7 +51,7 @@ class Badpro extends CI_Controller {
 			'active_nav' => 'm-badpro'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-yield', $data);
 		$this->load->view('badpro/tambah-master');
 		$this->load->view('partials/footer');
 	}
@@ -73,11 +73,11 @@ class Badpro extends CI_Controller {
 
 		$data = array(
 			'data' => $this->Badpro_model->get_by_uuid($uuid),
-			'area' => $this->Area_model->get_all(),
+			'proses' => $this->Badpro_model->get_proses(),
 			'active_nav' => 'm-badpro'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-yield', $data);
 		$this->load->view('badpro/edit-master');
 		$this->load->view('partials/footer');
 	}

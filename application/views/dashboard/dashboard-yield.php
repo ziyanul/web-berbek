@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,170 +12,200 @@
     <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
 </head>
 <style>
-    html,
-    body {
-        height: 100%;
-    }
-    body {
-        overflow-x: hidden;
-        overflow-y: hidden;
-        background: #eef2f6;
-        font-size: 12px;
-        font-family: "Segoe UI", Tahoma, sans-serif;
-        color: #2d3436;
-    }
-    /* ========================= */
-    /* LAYOUT */
-    /* ========================= */
-    .container-fluid {
-        padding: 8px 10px;
-    }
-    .dashboard-title {
-        font-size: 22px;
-        font-weight: 700;
-        color: #163d6b;
-        margin-bottom: 8px;
-        letter-spacing: .5px;
-    }
-    /* ========================= */
-    /* CARD */
-    /* ========================= */
-    .card {
-        margin-bottom: 8px;
-        border: 1px solid #18b8e8;
-        border-radius: 3px;
-        box-shadow: none !important;
-    }
-    .card-header {
-        background: #163d6b;
-        color: #fff;
-        padding: 6px 10px;
-        border-bottom: 2px solid #1cc0ef;
-    }
-    .card-header h6 {
-        margin: 0;
-        font-size: 13px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .5px;
-    }
-    .card-body {
-        padding: 0;
-    }
-    /* ========================= */
-    /* TABLE */
-    /* ========================= */
-    .table {
-        margin-bottom: 0;
-    }
-    .table th,
-    .table td {
-        padding: 4px 6px;
-        font-size: 11px;
-        border: 1px solid #d7d7d7;
-        vertical-align: middle;
-        white-space: nowrap;
-        text-align: center;
-    }
-    .table td {
-        font-family: Consolas, monospace;
-    }
-    .table thead th {
-        background: #1e2d3b;
-        color: #fff;
-        border-color: #10212f;
-        text-transform: uppercase;
-        font-size: 10px;
-        letter-spacing: .4px;
-    }
-    .table tbody td:first-child {
-        text-align: left;
-        font-weight: bold;
-        font-family: "Segoe UI", sans-serif;
-    }
-    .table tbody tr:nth-child(even) {
-        background: #fafafa;
-    }
-    .table-hover tbody tr:hover {
-        background: inherit;
-    }
-    /* ========================= */
-    /* TOTAL */
-    /* ========================= */
-    .table tfoot td {
-        background: #dfefff;
-        color: #003b63;
-        font-weight: bold;
-        font-family: "Segoe UI", sans-serif;
-    }
-    /* ========================= */
-    /* STATUS WARNA */
-    /* ========================= */
-    .text-danger {
-        font-weight: bold !important;
-    }
-    .text-success {
-        font-weight: bold !important;
-    }
-    .text-warning {
-        font-weight: bold !important;
-    }
-    /* ========================= */
-    /* BADGE */
-    /* ========================= */
-    .badge {
-        font-size: 11px;
-        padding: 5px 10px;
-    }
-    /* ========================= */
-    /* FOOTER */
-    /* ========================= */
-    footer.sticky-footer {
-        padding: 3px 0 !important;
-        font-size: 10px;
-        color: #999;
-        border-top: 1px solid #dcdcdc;
-    }
-    /* ========================= */
-    /* RESPONSIVE */
-    /* ========================= */
-    .table-responsive {
-        overflow-x: auto;
-    }
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #b8b8b8;
-    }
-    ::-webkit-scrollbar-track {
-        background: #efefef;
-    }
-    .bad-table th:first-child,
-    .bad-table td:first-child {
-        text-align: left;
-        width: 170px;
-        font-weight: 600;
-    }
-    .bad-table th:not(:first-child),
-    .bad-table td:not(:first-child) {
-        width: 70px;
-        text-align: center;
-    }
-    .bad-table tbody tr:hover {
-        background: #f5fbff;
-    }
-    .bad-table tfoot {
-        background: #dfefff;
-        font-weight: bold;
-    }
-    .bad-table td:last-child,
-    .bad-table th:last-child {
-        background: #f7f7f7;
-        font-weight: bold;
-    }
+html,
+body {
+    height: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background: #eef2f6;
+    font-size: 12px;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color: #2d3436;
+}
+
+/* ========================= */
+/* LAYOUT */
+/* ========================= */
+.container-fluid {
+    padding: 8px 10px;
+}
+
+.dashboard-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #163d6b;
+    margin-bottom: 8px;
+    letter-spacing: .5px;
+}
+
+/* ========================= */
+/* CARD */
+/* ========================= */
+.card {
+    margin-bottom: 8px;
+    border: 1px solid #18b8e8;
+    border-radius: 3px;
+    box-shadow: none !important;
+}
+
+.card-header {
+    background: #163d6b;
+    color: #fff;
+    padding: 6px 10px;
+    border-bottom: 2px solid #1cc0ef;
+}
+
+.card-header h6 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.card-body {
+    padding: 0;
+}
+
+/* ========================= */
+/* TABLE */
+/* ========================= */
+.table {
+    margin-bottom: 0;
+}
+
+.table th,
+.table td {
+    padding: 4px 6px;
+    font-size: 11px;
+    border: 1px solid #d7d7d7;
+    vertical-align: middle;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.table td {
+    font-family: Consolas, monospace;
+}
+
+.table thead th {
+    background: #1e2d3b;
+    color: #fff;
+    border-color: #10212f;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: .4px;
+}
+
+.table tbody td:first-child {
+    text-align: left;
+    font-weight: bold;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.table-hover tbody tr:hover {
+    background: inherit;
+}
+
+/* ========================= */
+/* TOTAL */
+/* ========================= */
+.table tfoot td {
+    background: #dfefff;
+    color: #003b63;
+    font-weight: bold;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* ========================= */
+/* STATUS WARNA */
+/* ========================= */
+.text-danger {
+    font-weight: bold !important;
+}
+
+.text-success {
+    font-weight: bold !important;
+}
+
+.text-warning {
+    font-weight: bold !important;
+}
+
+/* ========================= */
+/* BADGE */
+/* ========================= */
+.badge {
+    font-size: 11px;
+    padding: 5px 10px;
+}
+
+/* ========================= */
+/* FOOTER */
+/* ========================= */
+footer.sticky-footer {
+    padding: 3px 0 !important;
+    font-size: 10px;
+    color: #999;
+    border-top: 1px solid #dcdcdc;
+}
+
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+.table-responsive {
+    overflow-x: auto;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #b8b8b8;
+}
+
+::-webkit-scrollbar-track {
+    background: #efefef;
+}
+
+.bad-table th:first-child,
+.bad-table td:first-child {
+    text-align: left;
+    width: 170px;
+    font-weight: 600;
+}
+
+.bad-table th:not(:first-child),
+.bad-table td:not(:first-child) {
+    width: 70px;
+    text-align: center;
+}
+
+.bad-table tbody tr:hover {
+    background: #f5fbff;
+}
+
+.bad-table tfoot {
+    background: #dfefff;
+    font-weight: bold;
+}
+
+.bad-table td:last-child,
+.bad-table th:last-child {
+    background: #f7f7f7;
+    font-weight: bold;
+}
 </style>
+
 <body id="page-top">
     <div id="wrapper">
         <?php
@@ -219,16 +250,16 @@
                                                 Filling Karantina
                                             </th>
                                             <th colspan="3">
-                                                Sortasi
+                                                Sortasi (Box)
                                             </th>
                                             <th colspan="2">
-                                                Bad Produk Filkar
+                                                Bad Produk Filkar (Kg)
                                             </th>
                                             <th colspan="2">
-                                                Bad Produk Sortasi
+                                                Bad Produk Sortasi (Kg)
                                             </th>
                                             <th colspan="2">
-                                                Yield
+                                                Yield (%)
                                             </th>
                                         </tr>
                                         <tr>
@@ -241,46 +272,44 @@
                                             <th>Reject</th>
                                             <th>Rework</th>
                                             <th>Reject</th>
-                                            <th>formula</th>
-                                            <th>rework</th>
+                                            <th>Filkar</th>
+                                            <th>Release</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
                                         foreach ($monitoring as $row) {
                                         ?>
-                                            <tr>
-                                                <td><?= $row->nama_varian ?></td>
-                                                <td><?= $row->adonan_formula ?></td>
-                                                <td><?= $row->filkar_box ?></td>
-                                                <td><?= $row->filkar_kg ?></td>
-                                                <td><?= $row->sortasi_box ?></td>
-                                                <td><?= $row->release_box ?></td>
-                                                <td><?= $row->blm_sortir ?></td>
-                                                <td><?= $row->filkar_rework ?></td>
-                                                <td><?= $row->filkar_reject ?></td>
-                                                <td><?= $row->sortasi_rework ?></td>
-                                                <td><?= $row->sortasi_reject ?></td>
-                                                <td><?= $row->yield_formula ?></td>
-                                                <td><?= $row->yield_rework ?></td>
-                                            </tr>
+                                        <tr>
+                                            <td><?= $row->nama_varian ?></td>
+                                            <td><?= number_format((float)$row->adonan_formula, 2, '.', ',') ?></td>
+                                            <td><?= $row->filkar_box ?></td>
+                                            <td><?= number_format((float)$row->filkar_kg, 2, '.', ',') ?></td>
+                                            <td><?= $row->sortasi_box ?></td>
+                                            <td><?= $row->release_box ?></td>
+                                            <td><?= $row->blm_sortir ?></td>
+                                            <td><?= number_format((float)$row->filkar_rework, 2, '.', ',') ?></td>
+                                            <td><?= number_format((float)$row->filkar_reject, 2, '.', ',') ?></td>
+                                            <td><?= number_format((float)$row->sortasi_rework, 2, '.', ',') ?></td>
+                                            <td><?= number_format((float)$row->sortasi_reject, 2, '.', ',') ?></td>
+                                            <td><?= $row->yield_formula ?></td>
+                                            <td><?= number_format($row->yield_release, 2, ".", ",") ?></td>
+                                        </tr>
                                         <?php } ?>
                                     </tbody>
                                     <tfoot class="bg-light text-center">
                                         <tr>
                                             <td>TOTAL</td>
-                                            <td>4.090</td>
-                                            <td>15.848,75</td>
-                                            <td>4.090</td>
-                                            <td>15.848,75</td>
-                                            <td>3.730</td>
-                                            <td>3.665</td>
-                                            <td class="text-danger">
-                                                360
-                                            </td>
-                                            <td>33</td>
-                                            <td>44</td>
-                                            <td>18</td>
+                                            <td><?= number_format((float)$total->adonan_formula, 3, '.', ',') ?></td>
+                                            <td><?= $total->filkar_box ?></td>
+                                            <td><?= number_format((float)$total->filkar_kg, 3, '.', ',') ?></td>
+                                            <td><?= $total->sortasi_box ?></td>
+                                            <td><?= $total->release_box ?></td>
+                                            <td><?= $total->blm_sortir ?></td>
+                                            <td><?= number_format((float)$total->filkar_rework, 3, '.', ',') ?></td>
+                                            <td><?= number_format((float)$total->filkar_reject, 3, '.', ',') ?></td>
+                                            <td><?= number_format((float)$total->sortasi_rework, 3, '.', ',') ?></td>
+                                            <td><?= number_format((float)$total->sortasi_reject, 3, '.', ',') ?></td>
                                             <td>26</td>
                                             <td>
                                                 98.94%
@@ -683,28 +712,35 @@
                                     </h6>
                                 </div>
                                 <div class="card-body p-0">
-                                    <a href="<?= base_url('filler/planning') ?>" class="btn btn-md btn-block btn-success shadow-sm mb-2 mt-3"><i
+                                    <a href="<?= base_url('filler/planning') ?>"
+                                        class="btn btn-md btn-block btn-success shadow-sm mb-2 mt-3"><i
                                             class="fa fa-list fa-sm text-white mr-2"></i> Planning Produksi</a>
-                                    <a href="<?= base_url('mpusage/') ?>" class="btn btn-md btn-block btn-info shadow-sm mb-2"><i
+                                    <a href="<?= base_url('mpusage/') ?>"
+                                        class="btn btn-md btn-block btn-info shadow-sm mb-2"><i
                                             class="fa fa-list fa-sm text-white mr-2"></i> Data MP</a>
-                                    <a href="<?= base_url('counter/') ?>" class="btn btn-md btn-block btn-warning shadow-sm mb-2"><i
+                                    <a href="<?= base_url('counter/') ?>"
+                                        class="btn btn-md btn-block btn-warning shadow-sm mb-2"><i
+                                            class="fa fa-list fa-sm text-white mr-2"></i> Data Filler</a>
+                                    <a href="<?= base_url('filkar/') ?>"
+                                        class="btn btn-md btn-block btn-primary shadow-sm mb-2"><i
                                             class="fa fa-list fa-sm text-white mr-2"></i> Data Filkar</a>
-                                            <a href="<?= base_url('counter/') ?>" class="btn btn-md btn-block btn-primary shadow-sm mb-2"><i
-                                            class="fa fa-list fa-sm text-white mr-2"></i> Data Packing</a>
-                                            <a href="<?= base_url('counter/') ?>" class="btn btn-md btn-block btn-primary shadow-sm mb-2"><i
-                                            class="fa fa-list fa-sm text-white mr-2"></i> Data Packing</a>
-                                            <a href="<?= base_url('counter/') ?>" class="btn btn-md btn-block btn-primary shadow-sm mb-2"><i
-                                            class="fa fa-list fa-sm text-white mr-2"></i> Data Packing</a>
-                                            <a href="<?= base_url('counter/') ?>" class="btn btn-md btn-block btn-primary shadow-sm mb-2"><i
-                                            class="fa fa-list fa-sm text-white mr-2"></i> Data Packing</a>
-</div>
+                                    <a href="<?= base_url('sortasi/') ?>"
+                                        class="btn btn-md btn-block btn-secondary shadow-sm mb-2"><i
+                                            class="fa fa-list fa-sm text-white mr-2"></i> Data Packing </a>
+                                    <a href="<?= base_url('varian/') ?>"
+                                        class="btn btn-md btn-block btn-primary shadow-sm mb-2"><i
+                                            class="fa fa-list fa-sm text-white mr-2"></i> Master Data Varian</a>
+                                    <a href="<?= base_url('yield/#') ?>"
+                                        class="btn btn-md btn-block btn-danger shadow-sm mb-2"><i
+                                            class="fa fa-list fa-sm text-white mr-2"></i> Tracking</a>
+                                </div>
 
-</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
     </div>
     </div>
@@ -727,19 +763,14 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-    <div class="modal fade"
-        id="logoutModal"
-        tabindex="-1"
-        role="dialog"
-        aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
                         Konfirmasi Logout
                     </h5>
-                    <button class="close"
-                        data-dismiss="modal">
+                    <button class="close" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
                 </div>
@@ -747,12 +778,10 @@
                     Apakah Anda yakin ingin keluar dari sistem?
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary"
-                        data-dismiss="modal">
+                    <button class="btn btn-secondary" data-dismiss="modal">
                         Batal
                     </button>
-                    <a href="<?= base_url('logout') ?>"
-                        class="btn btn-danger">
+                    <a href="<?= base_url('logout') ?>" class="btn btn-danger">
                         Logout
                     </a>
                 </div>
@@ -763,4 +792,5 @@
     <script src="<?= base_url('assets/vendor/jquery-easing/jquery.easing.min.js'); ?>"></script>
     <script src="<?= base_url('assets/js/sb-admin-2.min.js'); ?>"></script>
 </body>
+
 </html>

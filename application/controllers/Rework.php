@@ -22,10 +22,10 @@ class Rework extends CI_Controller {
 	{
 		$data = array(
 			'data' => $this->Rework_model->get_all(),
-			'active_nav' => 'rework-data'
+			'active_nav' => 'rework'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-yield', $data);
 		$this->load->view('rework/rework', $data);
 		$this->load->view('partials/footer');
 	}
@@ -52,7 +52,7 @@ class Rework extends CI_Controller {
            'active_nav' => 'rework'
        );
 
-        $this->load->view('partials/head', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('rework/tambah', $data);
         $this->load->view('partials/footer');
     }
@@ -80,7 +80,7 @@ class Rework extends CI_Controller {
        'active_nav' => 'rework'
    );
 
-    $this->load->view('partials/head', $data);
+    $this->load->view('partials/head-yield', $data);
     $this->load->view('rework/edit', $data);
     $this->load->view('partials/footer');
 }
@@ -92,7 +92,7 @@ public function pemakaian()
    'active_nav' => 'rework'
 );
 
-  $this->load->view('partials/head', $data);
+  $this->load->view('partials/head-yield', $data);
   $this->load->view('rework/pemakaian', $data);
   $this->load->view('partials/footer');
 }
@@ -103,7 +103,7 @@ public function detail($tanggal_kode) {
         'active_nav' => 'rework'
     );
 
-    $this->load->view('partials/head', $data);
+    $this->load->view('partials/head-yield', $data);
     $this->load->view('rework/detail', $data);
     $this->load->view('partials/footer');
 }
@@ -128,7 +128,7 @@ public function tambahpakai() {
             'active_nav' => 'rework'
         );
 
-    $this->load->view('partials/head', $data);
+    $this->load->view('partials/head-yield', $data);
     $this->load->view('rework/tambah-pemakaian', $data);
     $this->load->view('partials/footer');
 }
@@ -155,7 +155,7 @@ public function editpakai($uuid) {
             'active_nav' => 'rework'
         );
 
-    $this->load->view('partials/head', $data);
+    $this->load->view('partials/head-yield', $data);
     $this->load->view('rework/edit-pemakaian', $data);
     $this->load->view('partials/footer');
 }

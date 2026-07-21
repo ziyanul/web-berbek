@@ -19,7 +19,7 @@ class Bahan extends CI_Controller {
             'active_nav' => 'bahan'
         );
         
-        $this->load->view('partials/head', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('bahan/bahan', $data);
         $this->load->view('partials/footer');
     }
@@ -64,8 +64,21 @@ class Bahan extends CI_Controller {
             'active_nav' => 'bahan'
         );
         
-        $this->load->view('partials/head', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('bahan/edit', $data);
         $this->load->view('partials/footer');
     }
+
+    public function hapus($uuid)
+{
+    $delete = $this->Bahan_model->delete($uuid);
+
+    if ($delete) {
+        $this->session->set_flashdata('success_msg', 'Data berhasil dihapus.');
+    } else {
+        $this->session->set_flashdata('error_msg', 'Data gagal dihapus.');
+    }
+
+    redirect('Bahan');
+}
 }

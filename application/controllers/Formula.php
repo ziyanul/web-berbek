@@ -17,7 +17,7 @@ class Formula extends CI_Controller {
 	{
 		$data = array(
 			'data' => $this->Formula_model->get_all(),
-			'active_nav' => 'm_formula'
+			'active_nav' => 'formula'
 		);
 
 		$this->load->view('partials/head-yield', $data);
@@ -29,7 +29,7 @@ class Formula extends CI_Controller {
 	{
 		$data = array(
 			'data' => $this->Formula_model->get_by_uuid($uuid),
-			'active_nav' => 'm_formula'
+			'active_nav' => 'formula'
 		);
 		
 		$this->load->view('partials/head-yield', $data);
@@ -56,7 +56,7 @@ class Formula extends CI_Controller {
 		$data = array(
 			'varian'		=> $this->Varian_model->get_all(),
 			'bahan'		=> $this->Bahan_model->get_all(),
-			'active_nav' 	=> 'm_formula'
+			'active_nav' 	=> 'formula'
 		);
 
 		$this->load->view('partials/head-yield', $data);
@@ -88,7 +88,7 @@ class Formula extends CI_Controller {
 			'data' 			=> $this->Formula_model->get_by_uuid($uuid),
 			'varian'		=> $this->Varian_model->get_all(),
 			'bahan'			=> $this->Bahan_model->get_all(),
-			'active_nav' 	=> 'm_formula'
+			'active_nav' 	=> 'formula'
 		);
 
 		$this->load->view('partials/head-yield', $data);

@@ -18,6 +18,11 @@ class Bahan_model extends CI_Model
 				'label' => 'Bahan',
 				'rules' => 'required'
 			],
+			[
+				'field' => 'kode',
+				'label' => 'Kode',
+				'rules' => 'required'
+			]
 			
 		];
 	}
@@ -63,7 +68,7 @@ class Bahan_model extends CI_Model
 			'nama_bahan' => $bahan,
 			'keterangan' => $keterangan,
 			'kode_bahan' => $kode,
-			'user_uuid'     => $this->auth_model->current_user()->uuid,
+			'created_by'     => $this->auth_model->current_user()->uuid,
 			'modified_at'  => date('Y-m-d h:i:s')
 
 		);	
@@ -75,5 +80,16 @@ class Bahan_model extends CI_Model
 	public function get_by_uuid($uuid)
 	{
 		return $this->db->get_where('m_bahan', array('uuid' => $uuid ))->row();
+	}
+
+	public function delete($uuid)
+	{
+		$data = array(
+			'deleted_at' => date('Y-m-d h:i:s'),
+			'created_by' => $this->auth_model->current_user()->uuid
+		);
+
+		$this->db->update('m_bahan', $data, array('uuid' => $uuid));
+		return ($this->db->affected_rows() > 0) ? true : false;
 	}
 }
