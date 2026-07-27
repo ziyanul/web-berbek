@@ -215,16 +215,21 @@ footer.sticky-footer {
             <div id="content">
                 <div class="container-fluid">
                     <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                    <a href="<?= base_url('portal/') ?>"
+                                        class="badge badge-sm badge-info px-3 py-2"><i
+                                            class="fa fa-arrow-left fa-sm text-white mr-2"></i> Kembali ke PORTAL</a>
+                        </div>
                         <h4 class="font-weight-bold text-dark mb-0">
                             DASHBOARD YIELD PRODUKSI
                         </h4>
                         <div>
                             <span class="badge badge-success px-3 py-2">
-                                JULI 2026
+                            <?= strtoupper(date('d F Y')); ?>
                             </span>
                             <span class="badge badge-primary px-3 py-2 ml-1">
                                 Update :
-                                09:25
+                                <?= date('H:i'); ?>
                             </span>
                         </div>
                     </div>
@@ -234,7 +239,7 @@ footer.sticky-footer {
                     <div class="card shadow border-0">
                         <div class="card-header text-white">
                             <h6>
-                                Monitoring Produksi Bulan Berjalan
+                                Monitoring Produksi <?= bulan_indo(strtoupper(date('F Y'))); ?>
                             </h6>
                         </div>
                         <div class="card-body p-0">

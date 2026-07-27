@@ -233,7 +233,27 @@
             <div id="content">
 
                 <div class="container-fluid px-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
 
+<div>
+    <a href="<?= base_url('portal') ?>" class="badge badge-info px-3 py-2">
+        <i class="fas fa-arrow-left mr-1"></i>
+        Portal
+    </a>
+</div>
+
+<div>
+    <span class="badge badge-success px-3 py-2">
+        <?= strtoupper(date('d F Y')); ?>
+    </span>
+
+    <span class="badge badge-primary px-3 py-2 ml-1">
+        Update :
+        <?= date('H:i'); ?>
+    </span>
+</div>
+
+</div>
                     <!-- HEADER -->
                     <div class="dashboard-header">
 
@@ -251,15 +271,7 @@
                                 </span>
                             </div>
 
-                            <div class="col-md-4 text-md-right">
-
-                                <h5><?= date('d M Y') ?></h5>
-
-                                <div class="refresh-info">
-                                    Auto Refresh per Jam
-                                </div>
-
-                            </div>
+                            
 
                         </div>
 
