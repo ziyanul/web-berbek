@@ -532,6 +532,17 @@ class Yield_model extends CI_Model
         $this->db->order_by('b.kode_batch', 'DESC');
         $rows = $this->db->get()->result();
         foreach ($rows as $r) {
+            $r->adonan                 = (float) ($r->adonan ?? 0);
+    $r->filkar_box             = (float) ($r->filkar_box ?? 0);
+    $r->filkar_kg              = (float) ($r->filkar_kg ?? 0);
+    $r->sortasi_box            = (float) ($r->sortasi_box ?? 0);
+    $r->release_box            = (float) ($r->release_box ?? 0);
+
+    $r->bad_filkar_rework_kg   = (float) ($r->bad_filkar_rework_kg ?? 0);
+    $r->bad_filkar_reject_kg   = (float) ($r->bad_filkar_reject_kg ?? 0);
+    $r->bad_sortasi_rework_kg  = (float) ($r->bad_sortasi_rework_kg ?? 0);
+    $r->bad_sortasi_reject_kg  = (float) ($r->bad_sortasi_reject_kg ?? 0);
+
             $r->belum_sortir =
                 $r->filkar_box - $r->sortasi_box;
             $r->yield_formula =

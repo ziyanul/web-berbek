@@ -1,23 +1,24 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class Cekmesin_retort extends CI_Controller {
+class Cekmesin_retort extends CI_Controller
+{
 
-	public function __construct()
-	{
-		parent::__construct();
-		$this->load->model('am_model');
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('am_model');
         $this->load->model('area_model');
         $this->load->model('cekmesin_retort_model');
         $this->load->model('auth_model');
         $this->load->library('form_validation');
         $this->config->load('relasi_uuid');
-		$this->retort = $this->config->item('retort_uuid');
+        $this->retort = $this->config->item('retort_uuid');
 
-        if(!$this->auth_model->current_user()){
+        if (!$this->auth_model->current_user()) {
             redirect('login');
         }
     }
@@ -29,65 +30,65 @@ class Cekmesin_retort extends CI_Controller {
 
             'active_nav' => 'cekmesin_retort'
         );
-    // echo "<pre>";
-    // print_r ($data);
-    // echo "</pre>";
-        $this->load->view('partials/head', $data);
+        // echo "<pre>";
+        // print_r ($data);
+        // echo "</pre>";
+        $this->load->view('partials/head-form', $data);
         $this->load->view('cekmesin_retort/home', $data);
         $this->load->view('partials/footer');
     }
 
     public function checklist($t_planning_uuid)
     {
-    $this->load->library('form_validation');
+        $this->load->library('form_validation');
 
-    $this->form_validation->set_rules('mesin', 'Mesin', 'required', [
-        'required' => 'Harus memilih mesin.'
-    ]);
+        $this->form_validation->set_rules('mesin', 'Mesin', 'required', [
+            'required' => 'Harus memilih mesin.'
+        ]);
 
-    $this->form_validation->set_rules('kegiatan[]', 'Kegiatan', 'callback_check_kegiatan_keterangan');
+        $this->form_validation->set_rules('kegiatan[]', 'Kegiatan', 'callback_check_kegiatan_keterangan');
 
-    if ($this->form_validation->run() == TRUE) {
-        $insert = $this->cekmesin_retort_model->insert_cek_mesin($t_planning_uuid);
-        if ($insert) {
-            $this->session->set_flashdata('success_msg', 'Data berhasil disimpan.');
-            redirect('cekmesin_retort');
-        } else {
-            $this->session->set_flashdata('error_msg', 'Data gagal disimpan.');
-            redirect('cekmesin_retort');
+        if ($this->form_validation->run() == TRUE) {
+            $insert = $this->cekmesin_retort_model->insert_cek_mesin($t_planning_uuid);
+            if ($insert) {
+                $this->session->set_flashdata('success_msg', 'Data berhasil disimpan.');
+                redirect('cekmesin_retort');
+            } else {
+                $this->session->set_flashdata('error_msg', 'Data gagal disimpan.');
+                redirect('cekmesin_retort');
+            }
         }
-    }
-    $area_uuid = $this->retort;
-    $data = array(
-        'data' => $this->cekmesin_retort_model->get_plan_uuid($t_planning_uuid),
-        'area' => $this->am_model->get_area(),
-        'mesin' => $this->cekmesin_retort_model->get_mesin_with_usage_status($area_uuid, $t_planning_uuid),
-        'active_nav' => 'cekmesin_retort'
-    );
-    // echo "<pre>";
-    // print_r ($data);
-    // echo "</pre>";
-    $this->load->view('partials/head', $data);
-    $this->load->view('cekmesin_retort/checklist', $data);
-    $this->load->view('partials/footer');
+        $area_uuid = $this->retort;
+        $data = array(
+            'data' => $this->cekmesin_retort_model->get_plan_uuid($t_planning_uuid),
+            'area' => $this->am_model->get_area(),
+            'mesin' => $this->cekmesin_retort_model->get_mesin_with_usage_status($area_uuid, $t_planning_uuid),
+            'active_nav' => 'cekmesin_retort'
+        );
+        // echo "<pre>";
+        // print_r ($data);
+        // echo "</pre>";
+        $this->load->view('partials/head-form', $data);
+        $this->load->view('cekmesin_retort/checklist', $data);
+        $this->load->view('partials/footer');
     }
 
     public function check_kegiatan_keterangan($kegiatan)
     {
-    $keterangan = $this->input->post('keterangan');
+        $keterangan = $this->input->post('keterangan');
 
-    if (empty($kegiatan)) {
-        $this->form_validation->set_message('check_kegiatan_keterangan', 'Kegiatan harus dipilih.');
-        return FALSE;
-    }
-
-    foreach ($kegiatan as $key => $value) {
-        if ($value != 2 && empty($keterangan[$key])) {
-            $this->form_validation->set_message('check_kegiatan_keterangan', 'Keterangan wajib di isi jika Kegiatan tidak dipilih.');
+        if (empty($kegiatan)) {
+            $this->form_validation->set_message('check_kegiatan_keterangan', 'Kegiatan harus dipilih.');
             return FALSE;
         }
-    }
-    return TRUE;
+
+        foreach ($kegiatan as $key => $value) {
+            if ($value != 2 && empty($keterangan[$key])) {
+                $this->form_validation->set_message('check_kegiatan_keterangan', 'Keterangan wajib di isi jika Kegiatan tidak dipilih.');
+                return FALSE;
+            }
+        }
+        return TRUE;
     }
 
     public function check_akhir($uuid)
@@ -119,10 +120,10 @@ class Cekmesin_retort extends CI_Controller {
             'nav'  => $this->cekmesin_retort_model->get_by_uuid($t_planning_uuid, $area_uuid),
             'active_nav' => 'cekmesin_retort'
         );
-        // echo "<pre>";
-        // print_r ($data);
-        // echo "</pre>";
-        $this->load->view('partials/head', $data);
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+        $this->load->view('partials/head-form', $data);
         $this->load->view('cekmesin_retort/detail', $data);
         $this->load->view('partials/footer');
     }
@@ -169,30 +170,30 @@ class Cekmesin_retort extends CI_Controller {
     }
 
 
-    public function get_mesin_by_area($area_uuid,$t_planning_uuid)
+    public function get_mesin_by_area($area_uuid, $t_planning_uuid)
     {
-        $data = $this->cekmesin_retort_model->get_mesin_with_usage_status($area_uuid,$t_planning_uuid);
+        $data = $this->cekmesin_retort_model->get_mesin_with_usage_status($area_uuid, $t_planning_uuid);
         echo json_encode($data); // Tambahkan debug di sini
         die();
     }
 
     public function get_kegiatan_by_mesin($mesin_uuid)
     {
-    $data = $this->cekmesin_retort_model->get_kegiatan_by_mesin($mesin_uuid);
-    print_r(json_encode($data));
+        $data = $this->cekmesin_retort_model->get_kegiatan_by_mesin($mesin_uuid);
+        print_r(json_encode($data));
     }
 
     public function form($t_planning_uuid, $area_uuid)
     {
-    $options = new Options();
-    $options->set('isRemoteEnabled', true);
-    $options->set('defaultFont', 'DejaVu Sans');
-    $dompdf = new Dompdf($options);
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'DejaVu Sans');
+        $dompdf = new Dompdf($options);
 
-    $cek_mesin = $this->cekmesin_retort_model->get_area_data($t_planning_uuid, $area_uuid);
-    $logo = base_url("assets/img/cpi-logo.jpg");
+        $cek_mesin = $this->cekmesin_retort_model->get_area_data($t_planning_uuid, $area_uuid);
+        $logo = base_url("assets/img/cpi-logo.jpg");
 
-    $html = '
+        $html = '
     <html>
     <head>
         <title>FR-Prod-14 FORM PENGECEKAN MESIN MP</title>
@@ -218,7 +219,7 @@ class Cekmesin_retort extends CI_Controller {
             <table width="100%">
             <tbody>
             <tr>
-            <td rowspan="2" align="center" valign="middle" style="border:0;"><img src="'.$logo.'" width="110px"></td>
+            <td rowspan="2" align="center" valign="middle" style="border:0;"><img src="' . $logo . '" width="110px"></td>
             </tr>
             </tbody>
             </table>
@@ -241,22 +242,22 @@ class Cekmesin_retort extends CI_Controller {
                 <tr>
                     <td style="border:0;height:30px;">&nbsp;No. Dokumen</td>
                     <td style="border:0;height:30px;">:</td>
-                    <td style="border:0;height:30px;">&nbsp;FR-Prod-14</td> 
+                    <td style="border:0;height:30px;">&nbsp;FR-Prod-14</td>
                 </tr>
                 <tr>
                     <td style="border-left:0;border-right:0;height:30px;">&nbsp;Revisi</td>
                     <td style="border-left:0;border-right:0;height:30px;">:</td>
-                    <td style="border-left:0;border-right:0;height:30px;">&nbsp;1</td> 
+                    <td style="border-left:0;border-right:0;height:30px;">&nbsp;1</td>
                 </tr>
                 <tr>
                     <td style="border-left:0;border-right:0;height:30px;">&nbsp;Tanggal Efektif</td>
                     <td style="border-left:0;border-right:0;height:30px;">:</td>
-					<td style="border-left:0;border-right:0;height:30px;">&nbsp;02/01/2024</td> 
+					<td style="border-left:0;border-right:0;height:30px;">&nbsp;02/01/2024</td>
                 </tr>
                 <tr>
                     <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;Halaman</td>
                     <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">:</td>
-                    <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;5 dari 6</td> 
+                    <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;5 dari 6</td>
                 </tr>
             </tbody>
             </table>
@@ -269,15 +270,15 @@ class Cekmesin_retort extends CI_Controller {
                 <tr>
                     <td style="border:none; width:60px; text-align:left;">Area</td>
                     <td style="border:none; width:10px; text-align:left;">: </td>
-                    <td style="border:none; text-align:left;">'.$cek_mesin[0]->area.'</td>
+                    <td style="border:none; text-align:left;">' . $cek_mesin[0]->area . '</td>
                 </tr>
                 <tr>
                     <td style="border:none; width:60px; text-align:left;">Tanggal</td>
                     <td style="border:none; width:10px; text-align:left;">: </td>
-                    <td style="border:none; text-align:left;">'.$cek_mesin[0]->tgl.'</td>
+                    <td style="border:none; text-align:left;">' . $cek_mesin[0]->tgl . '</td>
                     <td style="border:none; width:60px; text-align:left;">Varian</td>
                     <td style="border:none; width:10px; text-align:left;">: </td>
-                    <td style="border:none; width:450px; text-align:left;">'.$cek_mesin[0]->varian.'</td>
+                    <td style="border:none; width:450px; text-align:left;">' . $cek_mesin[0]->varian . '</td>
             </tr>
             </tbody>
             </table><br>
@@ -307,69 +308,68 @@ class Cekmesin_retort extends CI_Controller {
         </thead>
         <tbody>';
 
-$last_mesin = null;
-$mesin_no = 'A'; // Huruf awal untuk penomoran mesin
-$item_no = 1; // Nomor urut item dalam mesin
+        $last_mesin = null;
+        $mesin_no = 'A'; // Huruf awal untuk penomoran mesin
+        $item_no = 1; // Nomor urut item dalam mesin
 
-foreach ($cek_mesin as $row) {
-    if ($last_mesin !== $row->mesin) {
-        // Tambahkan header untuk mesin baru
-        if ($last_mesin !== null) {
-            $html .= '</tbody>';
+        foreach ($cek_mesin as $row) {
+            if ($last_mesin !== $row->mesin) {
+                // Tambahkan header untuk mesin baru
+                if ($last_mesin !== null) {
+                    $html .= '</tbody>';
+                }
+                $html .= '<tr>';
+                $html .= '<td style="text-align:left; border-right: 3px solid #000000;" colspan="7"><strong>' . $mesin_no . '. ' . htmlspecialchars($row->mesin) . '</strong></td>';
+                $html .= '<td colspan="5"></td>';
+                $html .= '</tr>';
+
+                $last_mesin = $row->mesin;
+                $mesin_no++;
+                $item_no = 1; // Reset nomor item untuk mesin baru
+            }
+
+            // Baris data item
+            $html .= '<tr>';
+            $html .= '<td>' . $item_no . '</td>';
+            $html .= '<td style="text-align:left;">' . htmlspecialchars($row->item) . '</td>';
+            $html .= '<td style="font-size: 12px;">' . ($row->checklist == 2 ? '&check;' : '-') . '</td>';
+            $html .= '<td style="font-size: 12px;">' . ($row->checklist == 0 ? 'x' : '-') . '</td>';
+            $html .= '<td>' . ($row->keterangan ?: '-') . '</td>';
+            $html .= '<td>' . ($row->fullname ?: '') . '</td>';
+            $html .= '<td style="border-right: 3px solid #000000;">' . ($row->paraf_qc ?? '') . '</td>';
+            $html .= '<td style="font-size: 12px;">' . ($row->checklist2 == 2 ? '&check;' : '-') . '</td>';
+            $html .= '<td style="font-size: 12px;">' . ($row->checklist2 == 1 ? 'x' : '-') . '</td>';
+            $html .= '<td>' . ($row->keterangan2 ?: '-') . '</td>';
+            $html .= '<td>' . ($row->paraf_prod ?: '') . '</td>';
+            $html .= '<td>' . ($row->paraf_qc ?? '') . '</td>';
+            $html .= '</tr>';
+
+            $item_no++;
         }
-        $html .= '<tr>';
-        $html .= '<td style="text-align:left; border-right: 3px solid #000000;" colspan="7"><strong>' . $mesin_no . '. ' . htmlspecialchars($row->mesin) . '</strong></td>';
-        $html .= '<td colspan="5"></td>';
-        $html .= '</tr>';
 
-        $last_mesin = $row->mesin;
-        $mesin_no++;
-        $item_no = 1; // Reset nomor item untuk mesin baru
-    }
-
-    // Baris data item
-    $html .= '<tr>';
-    $html .= '<td>' . $item_no . '</td>';
-    $html .= '<td style="text-align:left;">' . htmlspecialchars($row->item) . '</td>';
-    $html .= '<td style="font-size: 12px;">' . ($row->checklist == 2 ? '&check;' : '-'). '</td>';
-    $html .= '<td style="font-size: 12px;">' . ($row->checklist == 0 ? 'x' : '-') . '</td>';
-    $html .= '<td>' . ($row->keterangan ?: '-') . '</td>';
-    $html .= '<td>' . ($row->fullname ?: '') . '</td>';
-    $html .= '<td style="border-right: 3px solid #000000;">' . ($row->paraf_qc ?? '') . '</td>';
-    $html .= '<td style="font-size: 12px;">' . ($row->checklist2 == 2 ? '&check;' : '-') . '</td>';
-    $html .= '<td style="font-size: 12px;">' . ($row->checklist2 == 1 ? 'x' : '-') . '</td>';
-    $html .= '<td>' . ($row->keterangan2 ?: '-') . '</td>';
-    $html .= '<td>' . ($row->paraf_prod ?: '') . '</td>';
-    $html .= '<td>' . ($row->paraf_qc ?? '') . '</td>';
-    $html .= '</tr>';
-
-    $item_no++;
-}
-
-$html .= '</tbody></table>';
-$html .= '<br><table width="100%">
+        $html .= '</tbody></table>';
+        $html .= '<br><table width="100%">
                 <tr>
-                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Diverifikasi Oleh</b></td> 
+                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Diverifikasi Oleh</b></td>
                     <td style="border: none; width: 30px;"></td>
-                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Disetujui Oleh</b></td> 
+                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Disetujui Oleh</b></td>
                 </tr>';
-                $html .='<tr>';
-                    $html .='<td style="text-align: center; height: 50px; width: 200px;">'.$row->foreman.'</td>'; 
-                    $html .='<td style="height: 50px; border: none; width: 80px;"></td>';
-                    $html .='<td style="text-align: center; height: 50px; width: 200px;">'.$row->spv.'</td>'; 
-                $html .='</tr>
+        $html .= '<tr>';
+        $html .= '<td style="text-align: center; height: 50px; width: 200px;">' . $row->foreman . '</td>';
+        $html .= '<td style="height: 50px; border: none; width: 80px;"></td>';
+        $html .= '<td style="text-align: center; height: 50px; width: 200px;">' . $row->spv . '</td>';
+        $html .= '</tr>
                 <tr>
-                    <td style="width: 200px; text-align: center;">Foreman/Lady</td> 
+                    <td style="width: 200px; text-align: center;">Foreman/Lady</td>
                     <td style="border: none; width: 30px;"></td>
-                    <td style="width: 200px; text-align: center;">Spv.Produksi</td> 
+                    <td style="width: 200px; text-align: center;">Spv.Produksi</td>
                 </tr>
             </table>';
 
-    $html .= '</body></html>';
-    $dompdf->loadHtml($html);
-    $dompdf->setPaper('FOLIO', 'portrait');
-    $dompdf->render();
-    $dompdf->stream("FR-Prod-14_FORM_PENGECEKAN_MESIN.pdf", array("Attachment" => false));
-}
-
+        $html .= '</body></html>';
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('FOLIO', 'portrait');
+        $dompdf->render();
+        $dompdf->stream("FR-Prod-14_FORM_PENGECEKAN_MESIN.pdf", array("Attachment" => false));
+    }
 }

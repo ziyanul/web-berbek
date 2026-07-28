@@ -10,215 +10,215 @@
     <title><?= $title ?? ' CPI-Berbek' ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/img/Prod-title.png'); ?>">
 
-    <link href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css');?>" rel="stylesheet">
-    <link href="<?= base_url('assets/css/sb-admin-2.min.css');?>" rel="stylesheet">
+    <link href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
 
-    <script src="<?= base_url('assets/vendor/jquery/jquery.min.js');?>"></script>
+    <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
     <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
     <style>
-    body {
-        background: #f4f6fb;
-    }
+        body {
+            background: #f4f6fb;
+        }
 
-    .dashboard-header {
-        background: linear-gradient(135deg, #224abe, #4e73df);
-        color: #fff;
-        border-radius: 20px;
-        padding: 18px 25px;
-        margin-bottom: 15px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, .1);
-    }
+        .dashboard-header {
+            background: linear-gradient(135deg, #224abe, #4e73df);
+            color: #fff;
+            border-radius: 20px;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .1);
+        }
 
-    .dashboard-header h2 {
-        font-weight: 700;
-        font-size: 28px;
-        margin-bottom: 5px;
-    }
+        .dashboard-header h2 {
+            font-weight: 700;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
 
-    .card-modern {
-        border: none;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
-    }
+        .card-modern {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
+        }
 
-    .card-modern .card-body {
-        padding: 18px;
-    }
+        .card-modern .card-body {
+            padding: 18px;
+        }
 
-    .stat-card {
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
-    }
+        .stat-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
+        }
 
-    .stat-number {
-        font-size: 26px;
-        font-weight: 700;
-    }
+        .stat-number {
+            font-size: 26px;
+            font-weight: 700;
+        }
 
-    .alert-item {
-        display: flex;
-        align-items: center;
-        border-radius: 12px;
-        padding: 8px 12px;
-        margin-bottom: 6px;
-        font-size: 13px;
-    }
+        .alert-item {
+            display: flex;
+            align-items: center;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
 
-    .alert-warning-custom {
-        background: #fff8e6;
-        color: #856404;
-    }
+        .alert-warning-custom {
+            background: #fff8e6;
+            color: #856404;
+        }
 
-    .alert-danger-custom {
-        background: #ffeaea;
-        color: #b02a37;
-    }
+        .alert-danger-custom {
+            background: #ffeaea;
+            color: #b02a37;
+        }
 
-    .timeline {
-        position: relative;
-        padding-left: 25px;
-    }
+        .timeline {
+            position: relative;
+            padding-left: 25px;
+        }
 
-    .timeline:before {
-        content: '';
-        position: absolute;
-        left: 8px;
-        top: 0;
-        width: 3px;
-        height: 100%;
-        background: #dbe4ff;
-    }
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: #dbe4ff;
+        }
 
-    .timeline-item {
-        position: relative;
-        margin-bottom: 20px;
-    }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
 
-    .timeline-item:before {
-        content: '';
-        position: absolute;
-        left: -22px;
-        top: 6px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #4e73df;
-    }
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -22px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4e73df;
+        }
 
-    .timeline-time {
-        font-size: 12px;
-        color: #858796;
-    }
+        .timeline-time {
+            font-size: 12px;
+            color: #858796;
+        }
 
-    .shortcut-card {
-        display: block;
-        text-align: center;
-        background: #fff;
-        border-radius: 15px;
-        padding: 15px 10px;
-        color: #5a5c69;
-        transition: .2s;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, .05);
-        text-decoration: none !important;
-        height: 100%;
-    }
+        .shortcut-card {
+            display: block;
+            text-align: center;
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px 10px;
+            color: #5a5c69;
+            transition: .2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .05);
+            text-decoration: none !important;
+            height: 100%;
+        }
 
-    .shortcut-card:hover {
-        transform: translateY(-5px);
-        color: #4e73df;
-    }
+        .shortcut-card:hover {
+            transform: translateY(-5px);
+            color: #4e73df;
+        }
 
-    .shortcut-title {
-        font-size: 13px;
-        font-weight: 600;
-    }
+        .shortcut-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
 
-    .alert-badge {
-        background: #dc3545;
-        color: #fff;
-        border-radius: 20px;
-        padding: 4px 10px;
-        font-size: 12px;
-        font-weight: 600;
-    }
+        .alert-badge {
+            background: #dc3545;
+            color: #fff;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-    .progress-modern {
-        height: 10px;
-        border-radius: 20px;
-        background: #eaecf4;
-    }
+        .progress-modern {
+            height: 10px;
+            border-radius: 20px;
+            background: #eaecf4;
+        }
 
-    .progress-modern .progress-bar {
-        border-radius: 20px;
-    }
+        .progress-modern .progress-bar {
+            border-radius: 20px;
+        }
 
-    .timeline-item.success:before {
-        background: #1cc88a;
-    }
+        .timeline-item.success:before {
+            background: #1cc88a;
+        }
 
-    .timeline-item.warning:before {
-        background: #f6c23e;
-    }
+        .timeline-item.warning:before {
+            background: #f6c23e;
+        }
 
-    .timeline-item.danger:before {
-        background: #e74a3b;
-    }
+        .timeline-item.danger:before {
+            background: #e74a3b;
+        }
 
-    .timeline-item.primary:before {
-        background: #4e73df;
-    }
+        .timeline-item.primary:before {
+            background: #4e73df;
+        }
 
-    .refresh-info {
-        font-size: 12px;
-        opacity: .85;
-    }
+        .refresh-info {
+            font-size: 12px;
+            opacity: .85;
+        }
 
-    .shortcut-card i {
-        font-size: 18px;
-    }
+        .shortcut-card i {
+            font-size: 18px;
+        }
 
-    .timeline-wrapper {
-        max-height: 140px;
-        overflow-y: auto;
-    }
+        .timeline-wrapper {
+            max-height: 140px;
+            overflow-y: auto;
+        }
 
-    .timeline-item {
-        margin-bottom: 8px;
-        font-size: 12px;
-    }
+        .timeline-item {
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
 
-    .timeline-time {
-        font-size: 11px;
-    }
+        .timeline-time {
+            font-size: 11px;
+        }
 
-    .shortcut-card {
-        padding: 12px 8px;
-    }
+        .shortcut-card {
+            padding: 12px 8px;
+        }
 
-    .shortcut-card i {
-        font-size: 16px;
-        margin-bottom: 4px;
-    }
+        .shortcut-card i {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
 
-    .row-top .card-modern {
-        height: 100%;
-    }
+        .row-top .card-modern {
+            height: 100%;
+        }
 
-    .shortcut-card {
-        border: 1px solid #edf2f9;
-    }
+        .shortcut-card {
+            border: 1px solid #edf2f9;
+        }
 
-    .shortcut-card:hover {
-        border-color: #4e73df;
-        background: #f8faff;
-    }
+        .shortcut-card:hover {
+            border-color: #4e73df;
+            background: #f8faff;
+        }
 
-    .sticky-footer {
-        padding: .5rem 0 !important;
-    }
+        .sticky-footer {
+            padding: .5rem 0 !important;
+        }
     </style>
 
 </head>
@@ -226,34 +226,34 @@
 <body id="page-top">
     <div id="wrapper">
         <?php
-		$subrole  = $this->session->userdata('subrole');
-		?>
+        $subrole  = $this->session->userdata('subrole');
+        ?>
 
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
 
                 <div class="container-fluid px-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
 
-<div>
-    <a href="<?= base_url('portal') ?>" class="badge badge-info px-3 py-2">
-        <i class="fas fa-arrow-left mr-1"></i>
-        Portal
-    </a>
-</div>
+                        <div>
+                            <a href="<?= base_url('portal') ?>" class="badge badge-info px-3 py-2">
+                                <i class="fas fa-arrow-left mr-1"></i>
+                                Portal
+                            </a>
+                        </div>
 
-<div>
-    <span class="badge badge-success px-3 py-2">
-        <?= strtoupper(date('d F Y')); ?>
-    </span>
+                        <div>
+                            <span class="badge badge-success px-3 py-2">
+                                <?= strtoupper(date('d F Y')); ?>
+                            </span>
 
-    <span class="badge badge-primary px-3 py-2 ml-1">
-        Update :
-        <?= date('H:i'); ?>
-    </span>
-</div>
+                            <span class="badge badge-primary px-3 py-2 ml-1">
+                                Update :
+                                <?= date('H:i'); ?>
+                            </span>
+                        </div>
 
-</div>
+                    </div>
                     <!-- HEADER -->
                     <div class="dashboard-header">
 
@@ -271,7 +271,7 @@
                                 </span>
                             </div>
 
-                            
+
 
                         </div>
 
@@ -578,8 +578,7 @@
         <i class="fas fa-angle-up"></i>
     </a>
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -599,13 +598,13 @@
         </div>
     </div>
     <script>
-    setInterval(function() {
-        location.reload();
-    }, 3600000);
+        setInterval(function() {
+            location.reload();
+        }, 3600000);
     </script>
-    <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js');?>"></script>
-    <script src="<?= base_url('assets/vendor/jquery-easing/jquery.easing.min.js');?>"></script>
-    <script src="<?= base_url('assets/js/sb-admin-2.min.js');?>"></script>
+    <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
+    <script src="<?= base_url('assets/vendor/jquery-easing/jquery.easing.min.js'); ?>"></script>
+    <script src="<?= base_url('assets/js/sb-admin-2.min.js'); ?>"></script>
 </body>
 
 </html>

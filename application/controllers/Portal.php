@@ -31,23 +31,23 @@ class Portal extends CI_Controller
         $this->load->view('dashboard/dashboard-maintenance', $data);
     }
     public function yield()
-{
-    $result = $this->Yield_model->get_yield_produksi();
+    {
+        $result = $this->Yield_model->get_yield_produksi();
 
-    $data['monitoring'] = $result['rows'];
-    $data['total']      = $result['total'];
+        $data['monitoring'] = $result['rows'];
+        $data['total']      = $result['total'];
 
-    $data['varian'] = $this->Yield_model->get_varian_yield();
+        $data['varian'] = $this->Yield_model->get_varian_yield();
 
-    $data['bad_produk_varian'] =
-        $this->Yield_model->get_bad_produk_varian();
+        $data['bad_produk_varian'] =
+            $this->Yield_model->get_bad_produk_varian();
 
-    $data['badproduk'] =
-        $this->Yield_model->get_master_bad_produk();
+        $data['badproduk'] =
+            $this->Yield_model->get_master_bad_produk();
 
-    $data['bad_produk_mesin'] =
-        $this->Yield_model->get_bad_produk_mesin();
+        $data['bad_produk_mesin'] =
+            $this->Yield_model->get_bad_produk_mesin();
 
-    $this->load->view('dashboard/dashboard-yield', $data);
-}
+        $this->load->view('dashboard/dashboard-yield', $data);
+    }
 }

@@ -422,9 +422,7 @@
                                         Monitoring produksi realtime.
                                     </p>
 
-                                    <a href="<?= base_url('yieldportal/dashboard'); ?>" target="_blank"
-                                        class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg">
-
+                                    <a href="<?= base_url('yieldportal/dashboard'); ?>" class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
 
                                         OPEN
@@ -469,8 +467,7 @@
                                         Form digital tanpa kertas.
                                     </p>
 
-                                    <a href="<?= base_url('portal/paperless'); ?>" target="_blank"
-                                        class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-cyan-500 to-sky-500 shadow-lg">
+                                    <a href="<?= base_url('portal/paperless'); ?>" class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-cyan-500 to-sky-500 shadow-lg">
 
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
 
@@ -516,8 +513,7 @@
                                         Monitoring Release Produksi & Warehouse.
                                     </p>
 
-                                    <a href="http://cpi.berbek:8000/" target="_blank"
-                                        class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-red-500 to-orange-500 shadow-lg">
+                                    <a href="http://cpi.berbek:8000/" class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-red-500 to-orange-500 shadow-lg">
 
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
 
@@ -567,8 +563,7 @@
 
                                     </p>
 
-                                    <a href="<?= base_url('portal/maintenance'); ?>" target="_blank"
-                                        class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
+                                    <a href="<?= base_url('portal/maintenance'); ?>" class="open-btn rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
 
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
 

@@ -38,6 +38,19 @@
                     <input type="hidden" name="total_counter" id="total_counter">
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-md-2">
+                    <label class="form-label font-weight-bold">Waktu Ganti</label>
+                </div>
+                <div class="col-md-4">
+                <input type="datetime-local"
+       class="form-control"
+       name="waktu_ganti"
+       value="<?= date('Y-m-d\TH:i', strtotime($data[0]->created_at)); ?>"
+       required>
+                </div>
+                
+            </div>
 
             <hr>
 

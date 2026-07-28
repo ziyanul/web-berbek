@@ -5,6 +5,7 @@ class Yieldportal extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('Auth_model');
         $this->load->model('Yield_model');
     }
     public function dashboard()
@@ -23,6 +24,9 @@ class Yieldportal extends CI_Controller
     }
     public function analisa()
     {
+        if(!$this->Auth_model->current_user()){
+			redirect('login');
+		}
         $data['title'] = 'Analisa Yield Produksi';
         // master filter
         $data['varian'] = $this->Yield_model->get_master_varian();

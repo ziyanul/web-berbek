@@ -212,6 +212,7 @@ class Counter_model extends CI_Model
         $device_ids  = $this->input->post('device_id');
         $mesin_uuids = $this->input->post('mesin_uuid');
         $speeds      = $this->input->post('speed');
+        $created_at = $this->input->post('waktu_ganti');
         // Ambil batch lama
         $batch = $this->db
             ->where('uuid', $uuid)
@@ -243,6 +244,7 @@ class Counter_model extends CI_Model
             'batch_ke'         => $batch_ke,
             'total'            => $total_counter,
             'tanggal_produksi' => $tanggal_produksi,
+            'created_at'        => $created_at,
             'modified_at'      => date('Y-m-d H:i:s')
         ];
         $this->db->where('uuid', $uuid);
@@ -314,7 +316,8 @@ class Counter_model extends CI_Model
         tb.kode_batch,
         tb.tanggal_produksi,
         tb.t_planning_uuid,
-        m.nama_mesin
+        m.nama_mesin,
+        tb.created_at
         ');
         $this->db->from('tcounter tc');
         $this->db->join('tbatch tb', 'tb.uuid = tc.tbatch_uuid');

@@ -14,14 +14,14 @@
 
     </div>
 
-    <?php if($this->session->flashdata('success_msg')): ?>
+    <?php if ($this->session->flashdata('success_msg')) : ?>
         <div class="alert alert-success text-center">
             <i class="fas fa-check"></i>
             <?php echo $this->session->flashdata('success_msg'); ?>
         </div>
         <br>
     <?php endif; ?>
-    <?php if($this->session->flashdata('error_msg')): ?>
+    <?php if ($this->session->flashdata('error_msg')) : ?>
         <div class="alert alert-danger  text-center">
             <i class="fas fa-times"></i>
             <?php echo $this->session->flashdata('error_msg'); ?>
@@ -49,40 +49,31 @@
                         <?php
                         $no = 1;
                         foreach ($data as $row) {
-                         ?>
-                         <tr>
-                            <td class="align-middle text-center" width="1"><?= $no ?></td>
-                            <td class="align-middle text-center"><?= $row->tgl ?></td>
-                            <td class="align-middle text-center"><?= $row->varian ?></td>
-                            <td class="align-middle text-center"><?= $row->awal_cek ?></td>
-                            <td class="align-middle text-center"><?= $row->jumlah_mesin ?> dari 14</td>
-                            <td>
-                                <a href="<?= base_url('cekmesin_filler/'.$row->uuid); ?>"
-                                    class="btn btn-md btn-warning shadow-md btn-block font-weight-bold"><i
-                                    class="fa fa-check mr-2 fa-sm text-white"></i>Ceklist Mesin Awal Proses</a>
-                                    <a href="<?= base_url('cekmesin_filler/detail-'.$row->uuid.'/'.$this->filler); ?>"
-                                        class="btn btn-md btn-success shadow-md btn-block font-weight-bold"><i
-                                        class="fa fa-info mr-2 fa-sm text-white"></i>Detail Awal Proses</a>
-                                        <a href="<?= base_url('cekmesin_fillerbatch/detail-'.$row->uuid); ?>"
-                                            class="btn btn-md btn-success shadow-md btn-block font-weight-bold"><i
-                                            class="fa fa-check mr-1 fa-sm text-white"></i> Ceklist Mesin / Batch</a>
-                                            <?php if ($row->jumlah_mesin != 0): ?>
-                                                <a href="<?= base_url('cekmesin_filler/form-'.$row->uuid.'/'.$this->filler); ?>"
-                                                    class="btn btn-md btn-info shadow-md btn-block font-weight-bold" target="_blank">
-                                                    <i class="fa fa-print mr-2 fa-sm text-white"></i>Form Pengecekan Awal Proses
-                                                </a>
-                                            <?php endif; ?>
-                                            <a href="<?= base_url('cekmesin_fillerbatch/form/'.$row->uuid); ?>"
-                                                class="btn btn-md btn-info shadow-md btn-block font-weight-bold" target="_blank"><i
-                                                class="fa fa-print mr-2 fa-sm text-white"></i>Form Pengecekan / Batch</a>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                        $no++;
-                                    } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                        ?>
+                            <tr>
+                                <td class="align-middle text-center" width="1"><?= $no ?></td>
+                                <td class="align-middle text-center"><?= $row->tgl ?></td>
+                                <td class="align-middle text-center"><?= $row->varian ?></td>
+                                <td class="align-middle text-center"><?= $row->awal_cek ?></td>
+                                <td class="align-middle text-center"><?= $row->jumlah_mesin ?> dari 14</td>
+                                <td>
+                                    <a href="<?= base_url('cekmesin_filler/checklist_awalproses/' . $row->uuid); ?>" class="btn btn-md btn-warning shadow-md btn-block font-weight-bold"><i class="fa fa-check mr-2 fa-sm text-white"></i>Ceklist Mesin Awal Proses</a>
+                                    <a href="<?= base_url('cekmesin_filler/detail_awalproses/' . $row->uuid . '/' . $this->filler); ?>" class="btn btn-md btn-success shadow-md btn-block font-weight-bold"><i class="fa fa-info mr-2 fa-sm text-white"></i>Detail Awal Proses</a>
+                                    <a href="<?= base_url('cekmesin_fillerbatch/detail-' . $row->uuid); ?>" class="btn btn-md btn-success shadow-md btn-block font-weight-bold"><i class="fa fa-check mr-1 fa-sm text-white"></i> Ceklist Mesin / Batch</a>
+                                    <?php if ($row->jumlah_mesin != 0) : ?>
+                                        <a href="<?= base_url('cekmesin_filler/form-' . $row->uuid . '/' . $this->filler); ?>" class="btn btn-md btn-info shadow-md btn-block font-weight-bold" target="_blank">
+                                            <i class="fa fa-print mr-2 fa-sm text-white"></i>Form Pengecekan Awal Proses
+                                        </a>
+                                    <?php endif; ?>
+                                    <a href="<?= base_url('cekmesin_fillerbatch/form/' . $row->uuid); ?>" class="btn btn-md btn-info shadow-md btn-block font-weight-bold" target="_blank"><i class="fa fa-print mr-2 fa-sm text-white"></i>Form Pengecekan / Batch</a>
+                                </td>
+                            </tr>
+                        <?php
+                            $no++;
+                        } ?>
+                    </tbody>
+                </table>
             </div>
+        </div>
+    </div>
+</div>

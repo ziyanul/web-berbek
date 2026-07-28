@@ -16,53 +16,53 @@
     <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
     <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
     <style>
-    <style>body {
-        background: #f8f9fc;
-    }
+        <style>body {
+            background: #f8f9fc;
+        }
 
-    .portal-header {
-        background: linear-gradient(135deg,
-                #1e3c72,
-                #2a5298);
-        color: white;
-        border-radius: 15px;
-    }
+        .portal-header {
+            background: linear-gradient(135deg,
+                    #1e3c72,
+                    #2a5298);
+            color: white;
+            border-radius: 15px;
+        }
 
-    .portal-card {
-        transition: .2s;
-    }
+        .portal-card {
+            transition: .2s;
+        }
 
-    .portal-card:hover {
-        transform: translateY(-4px);
-    }
+        .portal-card:hover {
+            transform: translateY(-4px);
+        }
 
-    .portal-menu {
-        transition: .2s;
-        border: 1px solid #eaecf4;
-    }
+        .portal-menu {
+            transition: .2s;
+            border: 1px solid #eaecf4;
+        }
 
-    .portal-menu:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
-    }
+        .portal-menu:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+        }
 
-    .portal-icon {
-        font-size: 42px;
-    }
+        .portal-icon {
+            font-size: 42px;
+        }
 
-    .dropdown-user-header {
-        padding: .75rem 1rem;
-        border-bottom: 1px solid #eaecf4;
-    }
+        .dropdown-user-header {
+            padding: .75rem 1rem;
+            border-bottom: 1px solid #eaecf4;
+        }
 
-    .dropdown-user-header .name {
-        font-weight: 700;
-    }
+        .dropdown-user-header .name {
+            font-weight: 700;
+        }
 
-    .dropdown-user-header .meta {
-        font-size: .8rem;
-        color: #858796;
-    }
+        .dropdown-user-header .meta {
+            font-size: .8rem;
+            color: #858796;
+        }
     </style>
     </style>
 </head>
@@ -78,27 +78,27 @@
             <div id="content">
 
                 <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
 
-<div>
-    <a href="<?= base_url('portal') ?>" class="badge badge-info px-3 py-2">
-        <i class="fas fa-arrow-left mr-1"></i>
-        Portal
-    </a>
-</div>
+                        <div>
+                            <a href="<?= base_url('portal') ?>" class="badge badge-info px-3 py-2">
+                                <i class="fas fa-arrow-left mr-1"></i>
+                                Portal
+                            </a>
+                        </div>
 
-<div>
-    <span class="badge badge-success px-3 py-2">
-        <?= strtoupper(date('d F Y')); ?>
-    </span>
+                        <div>
+                            <span class="badge badge-success px-3 py-2">
+                                <?= strtoupper(date('d F Y')); ?>
+                            </span>
 
-    <span class="badge badge-primary px-3 py-2 ml-1">
-        Update :
-        <?= date('H:i'); ?>
-    </span>
-</div>
+                            <span class="badge badge-primary px-3 py-2 ml-1">
+                                Update :
+                                <?= date('H:i'); ?>
+                            </span>
+                        </div>
 
-</div>
+                    </div>
                     <!-- PAGE TITLE -->
                     <div class="portal-header p-4 mb-4">
 
@@ -304,10 +304,10 @@
 
                                         <tbody>
                                             <?php foreach ($top_pm as $row) { ?>
-                                            <tr>
-                                                <td><?= $row->nama_mesin ?></td>
-                                                <td><?= number_format($row->total) ?></td>
-                                            </tr>
+                                                <tr>
+                                                    <td><?= $row->nama_mesin ?></td>
+                                                    <td><?= number_format($row->total) ?></td>
+                                                </tr>
                                             <?php } ?>
                                         </tbody>
 
@@ -343,14 +343,14 @@
 
                                             <?php if (!empty($top_part)) { ?>
 
-                                            <?php foreach ($top_part as $row) { ?>
+                                                <?php foreach ($top_part as $row) { ?>
 
-                                            <tr>
-                                                <td><?= $row->part ?></td>
-                                                <td><?= $row->total ?></td>
-                                            </tr>
+                                                    <tr>
+                                                        <td><?= $row->part ?></td>
+                                                        <td><?= $row->total ?></td>
+                                                    </tr>
 
-                                            <?php } ?>
+                                                <?php } ?>
 
                                             <?php } ?>
 
@@ -386,8 +386,7 @@
         <i class="fas fa-angle-up"></i>
     </a>
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">

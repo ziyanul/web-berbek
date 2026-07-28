@@ -80,6 +80,12 @@ class TLmesin_model extends CI_Model
 	{
 		return $this->db->get_where('tools_mesin', array('uuid' => $uuid ))->row();
 	}
+
+    public function get_pengecekan_by_uuid($uuid)
+	{
+		return $this->db->get_where('pengecekan_tools', array('uuid' => $uuid ))->row();
+	}
+
     public function get_all_area() {
         $query = $this->db->get('area');
         return $query->result();
