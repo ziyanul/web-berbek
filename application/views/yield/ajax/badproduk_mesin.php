@@ -1,39 +1,50 @@
-<?php
-$mesin = $mesin ?? [];
-$rows  = $rows ?? [];
-?>
 <div class="table-responsive">
     <table class="table table-bordered table-hover table-sm">
         <thead class="thead-dark">
             <tr>
-                <th width="140">
+                <th width="150">
                     Mesin
                 </th>
                 <?php foreach ($badproduk as $bp) { ?>
-                    <th>
+                    <th class="text-center">
                         <?= $bp->nama_badpro ?>
                     </th>
                 <?php } ?>
-                <th width="90">
+                <th width="100">
                     TOTAL
                 </th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($rows as $row) { ?>
+            <?php if (empty($rows)) { ?>
                 <tr>
-                    <td class="font-weight-bold">
-                        <?= $row->mesin ?>
-                    </td>
-                    <?php foreach ($badproduk as $bp) { ?>
-                        <td class="text-center">
-                            <?= number_format($row->{$bp->uuid}, 2) ?>
-                        </td>
-                    <?php } ?>
-                    <td class="font-weight-bold text-center">
-                        <?= number_format($row->total, 2) ?>
+                    <td colspan="<?= count($badproduk) + 2 ?>"
+                        class="text-center text-muted">
+                        Tidak ada data.
                     </td>
                 </tr>
+            <?php } else { ?>
+                <?php foreach ($rows as $row) { ?>
+                    <tr>
+                        <td>
+                            <?= $row->mesin ?>
+                        </td>
+                        <?php foreach ($badproduk as $bp) { ?>
+                            <td class="text-center">
+                                <?= number_format(
+                                    $row->{$bp->uuid} ?? 0,
+                                    2
+                                ) ?>
+                            </td>
+                        <?php } ?>
+                        <td class="text-center font-weight-bold">
+                            <?= number_format(
+                                $row->total ?? 0,
+                                2
+                            ) ?>
+                        </td>
+                    </tr>
+                <?php } ?>
             <?php } ?>
         </tbody>
         <tfoot>
@@ -42,20 +53,20 @@ $rows  = $rows ?? [];
                     TOTAL
                 </th>
                 <?php
-                $grand = 0;
+                $grand_total = 0;
                 foreach ($badproduk as $bp) {
                     $total = 0;
                     foreach ($rows as $row) {
-                        $total += $row->{$bp->uuid};
+                        $total += $row->{$bp->uuid} ?? 0;
                     }
-                    $grand += $total;
+                    $grand_total += $total;
                 ?>
                     <th class="text-center">
                         <?= number_format($total, 2) ?>
                     </th>
                 <?php } ?>
                 <th class="text-center">
-                    <?= number_format($grand, 2) ?>
+                    <?= number_format($grand_total, 2) ?>
                 </th>
             </tr>
         </tfoot>

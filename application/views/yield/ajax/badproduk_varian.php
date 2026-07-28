@@ -2,7 +2,12 @@
     <table class="table table-bordered table-hover table-sm">
         <thead class="thead-dark">
             <tr>
-                <th width="180">Bad Produk</th>
+                <th width="180">
+                    Bad Produk
+                </th>
+                <th width="120">
+                    Proses
+                </th>
                 <?php foreach ($varian as $v) { ?>
                     <th class="text-center">
                         <?= $v->varian ?>
@@ -14,40 +19,72 @@
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($rows as $row) { ?>
+            <?php if (empty($rows)) { ?>
                 <tr>
-                    <td>
-                        <?= $row->nama_badpro ?>
-                    </td>
-                    <?php foreach ($varian as $v) { ?>
-                        <td class="text-center">
-                            <?= number_format($row->{$v->uuid}, 2) ?>
-                        </td>
-                    <?php } ?>
-                    <td class="font-weight-bold text-center">
-                        <?= number_format($row->total, 2) ?>
+                    <td colspan="<?= count($varian) + 3 ?>"
+                        class="text-center text-muted">
+                        Tidak ada data.
                     </td>
                 </tr>
+            <?php } else { ?>
+                <?php foreach ($rows as $row) { ?>
+                    <tr>
+                        <td>
+                            <?= $row->nama_badpro ?>
+                        </td>
+                        <td>
+                            <?php
+                            if (stripos($row->proses, 'sortasi') !== false) {
+                                echo 'Sortasi';
+                            } else {
+                                echo 'Filkar';
+                            }
+                            ?>
+                        </td>
+                        <?php foreach ($varian as $v) { ?>
+                            <td class="text-center">
+                                <?= number_format(
+                                    $row->{$v->uuid} ?? 0,
+                                    2
+                                ) ?>
+                            </td>
+                        <?php } ?>
+                        <td class="text-center font-weight-bold">
+                            <?= number_format(
+                                $row->total ?? 0,
+                                2
+                            ) ?>
+                        </td>
+                    </tr>
+                <?php } ?>
             <?php } ?>
         </tbody>
         <tfoot>
             <tr>
-                <th>TOTAL</th>
+                <th colspan="2">
+                    TOTAL
+                </th>
                 <?php
-                $grand = 0;
+                $grand_total = 0;
                 foreach ($varian as $v) {
                     $total = 0;
-                    foreach ($rows as $r) {
-                        $total += $r->{$v->uuid};
+                    foreach ($rows as $row) {
+                        $total += $row->{$v->uuid} ?? 0;
                     }
-                    $grand += $total;
+                    $grand_total += $total;
                 ?>
                     <th class="text-center">
-                        <?= number_format($total, 2) ?>
+                        <?= number_format(
+                            $total,
+                            2
+                        ) ?>
                     </th>
                 <?php } ?>
                 <th class="text-center">
-                    <?= number_format($grand, 2) ?>
+                    <?= number_format(
+                        $grand_total,
+                        2
+                    ) ?>
                 </th>
             </tr>
         </tfoot>

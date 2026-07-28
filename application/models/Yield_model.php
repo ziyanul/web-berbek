@@ -346,21 +346,20 @@ class Yield_model extends CI_Model
     }
     public function get_bad_produk_varian_analisa($filter)
     {
-        // ===============================
-        // Ambil master varian
-        // ===============================
+        // Master Varian
         $varian = $this->get_master_varian();
         $select = "
         bp.uuid,
         MAX(bp.nama_badpro) AS nama_badpro,
-        MAX(bp.urutan) AS urutan,
+        MAX(bp.kategori) AS kategori,
+        MAX(pr.nama_proses) AS proses,
     ";
         foreach ($varian as $v) {
-            $kode = $this->db->escape_str($v->uuid);
+            $uuid = $this->db->escape_str($v->uuid);
             $select .= "
             SUM(
                 CASE
-                    WHEN p.varian = '{$kode}'
+                    WHEN p.varian = '{$uuid}'
                     THEN tbp.berat
                     ELSE 0
                 END
@@ -368,53 +367,65 @@ class Yield_model extends CI_Model
         ";
         }
         $select .= "
-        COALESCE(SUM(tbp.berat),0) AS total
+        SUM(tbp.berat) AS total
     ";
         $this->db->select($select, FALSE);
         $this->db->from('t_badpro tbp');
         $this->db->join(
             'badpro bp',
-            'bp.uuid = tbp.badpro_uuid'
+            'bp.uuid = tbp.badpro_uuid',
+            'left'
+        );
+        $this->db->join(
+            'm_proses pr',
+            'pr.uuid = bp.proses_uuid',
+            'left'
         );
         $this->db->join(
             'tbatch b',
-            'b.uuid = tbp.tbatch_uuid'
+            'b.uuid = tbp.tbatch_uuid',
+            'left'
         );
         $this->db->join(
             't_planning p',
-            'p.uuid = b.t_planning_uuid'
+            'p.uuid = b.t_planning_uuid',
+            'left'
         );
+        // Filter tanggal + varian
         $this->apply_filter_analisa($filter);
-        // ===============================
-        // Filter Mesin
-        // ===============================
-        if (!empty($filter['mesin'])) {
-            $this->db->where(
-                'tbp.mesin_uuid',
-                $filter['mesin']
-            );
-        }
-        // ===============================
-        // Filter Bad Produk
-        // ===============================
+        // Filter bad produk
         if (!empty($filter['badpro'])) {
             $this->db->where(
                 'tbp.badpro_uuid',
                 $filter['badpro']
             );
         }
-        $this->db->group_by('bp.uuid');
-        $this->db->order_by('MAX(bp.urutan)', 'ASC', FALSE);
+        /*
+        Jangan filter mesin di sini.
+        Karena:
+        - Filkar tidak punya mesin
+        - Sortasi punya mesin
+        Kalau mesin difilter,
+        tabel ini akan kehilangan data Filkar.
+    */
+        $this->db->where('tbp.deleted_at IS NULL');
+        $this->db->group_by([
+            'bp.uuid',
+            'bp.nama_badpro'
+        ]);
+        $this->db->order_by(
+            'MAX(bp.urutan)',
+            'ASC',
+            FALSE
+        );
         return [
             'varian' => $varian,
-            'rows' => $this->db->get()->result()
+            'rows'   => $this->db->get()->result()
         ];
     }
     public function get_bad_produk_mesin_analisa($filter)
     {
-        // ===============================
         // Master Bad Produk
-        // ===============================
         $badproduk = $this->get_master_bad_produk();
         $select = "
         m.uuid,
@@ -438,29 +449,61 @@ class Yield_model extends CI_Model
         $this->db->select($select, FALSE);
         $this->db->from('t_badpro tbp');
         $this->db->join(
+            'badpro bp',
+            'bp.uuid = tbp.badpro_uuid',
+            'left'
+        );
+        $this->db->join(
             'tbatch b',
-            'b.uuid = tbp.tbatch_uuid'
+            'b.uuid = tbp.tbatch_uuid',
+            'left'
         );
         $this->db->join(
             't_planning p',
-            'p.uuid = b.t_planning_uuid'
+            'p.uuid = b.t_planning_uuid',
+            'left'
         );
         $this->db->join(
             'mesin m',
-            'm.uuid = tbp.mesin_uuid'
+            'm.uuid = tbp.mesin_uuid',
+            'left'
         );
+        // =========================
+        // Hanya Bad Produk Sortasi
+        // =========================
+        $this->db->where(
+            "tbp.mesin_uuid <> ''",
+            NULL,
+            FALSE
+        );
+        // Filter tanggal + varian
         $this->apply_filter_analisa($filter);
-        // ===============================
-        // Filter Bad Produk
-        // ===============================
+        // Filter mesin
+        if (!empty($filter['mesin'])) {
+            $this->db->where(
+                'tbp.mesin_uuid',
+                $filter['mesin']
+            );
+        }
+        // Filter bad produk
         if (!empty($filter['badpro'])) {
             $this->db->where(
                 'tbp.badpro_uuid',
                 $filter['badpro']
             );
         }
-        $this->db->group_by('m.uuid');
-        $this->db->order_by('MAX(m.nama_mesin)', 'ASC', FALSE);
+        // data aktif saja
+        $this->db->where(
+            'tbp.deleted_at IS NULL'
+        );
+        $this->db->group_by(
+            'm.uuid'
+        );
+        $this->db->order_by(
+            'MAX(m.nama_mesin)',
+            'ASC',
+            FALSE
+        );
         return [
             'badproduk' => $badproduk,
             'rows'      => $this->db->get()->result()
@@ -533,16 +576,14 @@ class Yield_model extends CI_Model
         $rows = $this->db->get()->result();
         foreach ($rows as $r) {
             $r->adonan                 = (float) ($r->adonan ?? 0);
-    $r->filkar_box             = (float) ($r->filkar_box ?? 0);
-    $r->filkar_kg              = (float) ($r->filkar_kg ?? 0);
-    $r->sortasi_box            = (float) ($r->sortasi_box ?? 0);
-    $r->release_box            = (float) ($r->release_box ?? 0);
-
-    $r->bad_filkar_rework_kg   = (float) ($r->bad_filkar_rework_kg ?? 0);
-    $r->bad_filkar_reject_kg   = (float) ($r->bad_filkar_reject_kg ?? 0);
-    $r->bad_sortasi_rework_kg  = (float) ($r->bad_sortasi_rework_kg ?? 0);
-    $r->bad_sortasi_reject_kg  = (float) ($r->bad_sortasi_reject_kg ?? 0);
-
+            $r->filkar_box             = (float) ($r->filkar_box ?? 0);
+            $r->filkar_kg              = (float) ($r->filkar_kg ?? 0);
+            $r->sortasi_box            = (float) ($r->sortasi_box ?? 0);
+            $r->release_box            = (float) ($r->release_box ?? 0);
+            $r->bad_filkar_rework_kg   = (float) ($r->bad_filkar_rework_kg ?? 0);
+            $r->bad_filkar_reject_kg   = (float) ($r->bad_filkar_reject_kg ?? 0);
+            $r->bad_sortasi_rework_kg  = (float) ($r->bad_sortasi_rework_kg ?? 0);
+            $r->bad_sortasi_reject_kg  = (float) ($r->bad_sortasi_reject_kg ?? 0);
             $r->belum_sortir =
                 $r->filkar_box - $r->sortasi_box;
             $r->yield_formula =

@@ -24,9 +24,9 @@ class Yieldportal extends CI_Controller
     }
     public function analisa()
     {
-        if(!$this->Auth_model->current_user()){
-			redirect('login');
-		}
+        if (!$this->Auth_model->current_user()) {
+            redirect('login');
+        }
         $data['title'] = 'Analisa Yield Produksi';
         // master filter
         $data['varian'] = $this->Yield_model->get_master_varian();
