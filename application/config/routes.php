@@ -144,7 +144,7 @@
 	/*Cek Mesin*/
 	$route['cekmesin_mp'] = 'cekmesin/mp';
 	$route['cekmesin_mp/(:any)'] = 'cekmesin/checklistmp/$1';
-	$route['cekmesin_mp/detail-(:any)/(:any)'] = 'cekmesin/detailcekmesinmp/$1/$2';
+	$route['cekmesin_mp/detailmp/(:any)/(:any)'] = 'cekmesin/detailcekmesinmp/$1/$2';
 	$route['cekmesin/get_mesin_by_area/(:any)/(:any)'] = 'cekmesin/get_mesin_by_area/$1/$2';
 	$route['cekmesin_mp/form-(:any)/(:any)'] = 'cekmesin/printmp/$1/$2';
 

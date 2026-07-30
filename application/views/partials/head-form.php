@@ -102,7 +102,7 @@
                 </a>
                 <div id="formMenuMp" class="collapse <?= in_array($active_nav, ['cekmesin-mp', 'rework']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav == 'cekmesin-mp' ? 'active' : '' ?>" href="<?= base_url('cekmesin') ?>">Pengecekan Mesin</a>
+                        <a class="collapse-item <?= $active_nav == 'cekmesin-mp' ? 'active' : '' ?>" href="<?= base_url('cekmesin_mp') ?>">Pengecekan Mesin</a>
                         <a class="collapse-item <?= $active_nav == 'rework' ? 'active' : '' ?>" href="<?= base_url('') ?>">Penggunaan Rework</a>
 
                     </div>
@@ -117,6 +117,18 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item <?= $active_nav == 'formcounter' ? 'active' : '' ?>" href="<?= base_url('counter/formcounter') ?>">Pergantian PVDC dan Wire</a>
                         <a class="collapse-item <?= $active_nav == 'cekmesin_filler' ? 'active' : '' ?>" href="<?= base_url('cekmesin_filler') ?>">Pengecekan Mesin</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- ================= FORM SUSUN ================= -->
+            <li class="nav-item <?= in_array($active_nav, ['formcounter', 'cekmesin_susun']) ? 'active' : '' ?>">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuSus">
+                    <span>SUSUN</span>
+                </a>
+                <div id="formMenuSus" class="collapse <?= in_array($active_nav, ['formcounter', 'cekmesin', 'cekmesin_susun']) ? 'show' : '' ?>">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item <?= $active_nav == 'cekmesin_susun' ? 'active' : '' ?>" href="<?= base_url('cekmesin_susun') ?>">Pengecekan Mesin</a>
                     </div>
                 </div>
             </li>
@@ -215,6 +227,7 @@
                         <div class="bg-white py-2 collapse-inner rounded">
                             <!-- MESIN & PART -->
                             <a class="collapse-item <?= $active_nav == 'area' ? 'active' : ''; ?>" href="<?= base_url('area') ?>">AREA</a>
+                            <a class="collapse-item <?= $active_nav == 'mesin' ? 'active' : ''; ?>" href="<?= base_url('mesin') ?>">MESIN</a>
 
                             <h6 class="collapse-header">PENGECEKAN MESIN</h6>
                             <a class="collapse-item <?= $active_nav == 'item-cm' ? 'active' : ''; ?>" href="<?= base_url('cekmesin/dataitem') ?>">ITEM PENGECEKAN</a>
