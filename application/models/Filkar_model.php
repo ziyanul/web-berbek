@@ -177,6 +177,21 @@ class Filkar_model extends CI_Model
 		$data = $this->db->get()->result();
 		return $data;
 	}
+	public function get_form()
+	{
+		$this->db->select('f.created_at, DATE(f.created_at) as tgl, SUBSTR(tb.kode_batch, 1, 5) as tanggal_kode, v.varian, tp.varian as varian_uuid');
+		$this->db->from('filkar f');
+		$this->db->join('tbatch tb', 'tb.uuid = f.tbatch_uuid', 'left');
+		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
+		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
+		$this->db->order_by('f.created_at', 'DESC');
+		$this->db->group_by('tanggal_kode, tp.varian');
+		$data = $this->db->get()->result();
+		foreach ($data as $val) {
+			$val->tanggal = date('d M Y', strtotime($val->created_at));
+		}
+		return $data;
+	}
 	public function get_by_uuid($uuid)
 	{
 		return $this->db->get_where('filkar', ['uuid' => $uuid, 'deleted_at' => NULL])->row();
@@ -503,14 +518,17 @@ class Filkar_model extends CI_Model
 	}
 	public function get_by_tanggal($varian_uuid, $tanggal_kode)
 	{
-		$this->db->select('f.*, us.fullname');
+		$this->db->select('f.*, us.fullname, tp.varian as varian_uuid, tb.kode_batch');
 		$this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = f.spv_uuid) AS spv", false);
 		$this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = f.kr_uuid) AS leader", false);
 		$this->db->from('filkar f');
 		$this->db->join('users us', 'f.user_uuid=us.uuid', 'left');
+		$this->db->join('tbatch tb', 'tb.uuid = f.tbatch_uuid', 'left');
+		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
+		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
 		$this->db->order_by('f.created_at', 'ASC');
-		$this->db->where('f.varian_uuid', $varian_uuid);
-		$this->db->where('SUBSTR(f.kode_prod, 1, 5) =', $tanggal_kode);
+		$this->db->where('varian_uuid', $varian_uuid);
+		$this->db->where('SUBSTR(tb.kode_batch, 1, 5) =', $tanggal_kode);
 		$data = $this->db->get()->result();
 		foreach ($data as $val) {
 			$val->tgl = date('d M Y', strtotime($val->created_at));
@@ -520,12 +538,22 @@ class Filkar_model extends CI_Model
 	}
 	public function get_nav_form($varian_uuid, $tanggal_kode)
 	{
-		$this->db->select('*');
-		$this->db->from('filkar');
-		$this->db->where('varian_uuid', $varian_uuid);
-		$this->db->where('SUBSTR(kode_prod, 1, 5) =', $tanggal_kode);
+		$this->db->select('*, f.created_at as filkar_tanggal, tp.varian as varian_uuid, v.varian as nama_varian');
+		$this->db->from('filkar f');
+		$this->db->join('tbatch tb', 'tb.uuid = f.tbatch_uuid', 'left');
+		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
+		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
+		$this->db->where('tp.varian', $varian_uuid);
+		$this->db->where('SUBSTR(tb.kode_batch, 1, 5) =', $tanggal_kode);
 		$data = $this->db->get()->row();
-		$data->tgl = date('d M Y', strtotime($data->created_at));
+		if ($data) {
+			$data->tgl = !empty($data->filkar_tanggal)
+				? date('d M Y', strtotime($data->filkar_tanggal))
+				: '-';
+		} else {
+			$data = new stdClass();
+			$data->tgl = '-';
+		}
 		return $data;
 	}
 	public function get_badpro_by_sub($varian_uuid, $tanggal_kode)
@@ -534,9 +562,12 @@ class Filkar_model extends CI_Model
 		$this->db->from('sub_filkar sf');
 		$this->db->join('filkar f', 'sf.filkar_uuid=f.uuid', 'left');
 		$this->db->join('badpro b', 'sf.badpro_uuid=b.uuid', 'left');
+		$this->db->join('tbatch tb', 'tb.uuid = f.tbatch_uuid', 'left');
+		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
+		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
 		$this->db->order_by('b.nama_badpro', 'ASC');
-		$this->db->where('f.varian_uuid', $varian_uuid);
-		$this->db->where('SUBSTR(f.kode_prod, 1, 5) =', $tanggal_kode);
+		$this->db->where('tp.varian', $varian_uuid);
+		$this->db->where('SUBSTR(f.kode_batch, 1, 5) =', $tanggal_kode);
 		$data = $this->db->get()->result();
 		return $data;
 	}
@@ -568,8 +599,11 @@ class Filkar_model extends CI_Model
 	{
 		$this->db->select('SUM(f.jumlah_kg) as total_kg, SUM(f.jumlah_box) as total_box');
 		$this->db->from('filkar f');
-		$this->db->where('f.varian_uuid', $varian_uuid);
-		$this->db->where('SUBSTR(f.kode_prod, 1, 5) =', $tanggal_kode);
+		$this->db->join('tbatch tb', 'tb.uuid = f.tbatch_uuid', 'left');
+		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
+		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
+		$this->db->where('tp.varian', $varian_uuid);
+		$this->db->where('SUBSTR(f.kode_batch, 1, 5) =', $tanggal_kode);
 		$totals = $this->db->get()->row();
 		return $totals;
 	}
@@ -579,8 +613,11 @@ class Filkar_model extends CI_Model
 		$this->db->from('sub_filkar sf');
 		$this->db->join('filkar f', 'sf.filkar_uuid = f.uuid', 'left');
 		$this->db->join('badpro b', 'sf.badpro_uuid = b.uuid', 'left');
-		$this->db->where('f.varian_uuid', $varian_uuid);
-		$this->db->where('SUBSTR(f.kode_prod, 1, 5) =', $tanggal_kode);
+		$this->db->join('tbatch tb', 'tb.uuid = f.tbatch_uuid', 'left');
+		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
+		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
+		$this->db->where('tp.varian', $varian_uuid);
+		$this->db->where('SUBSTR(f.kode_batch, 1, 5) =', $tanggal_kode);
 		$this->db->group_by('b.nama_badpro');
 		$totals = $this->db->get()->result();
 		return $totals;

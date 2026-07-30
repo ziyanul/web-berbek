@@ -1,8 +1,11 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
-class Rr_cooking extends CI_Controller {
+
+class Rr_cooking extends CI_Controller
+{
 
 	public function __construct()
 	{
@@ -12,7 +15,7 @@ class Rr_cooking extends CI_Controller {
 		$this->load->model('Rr_cooking_model');
 		$this->load->library('form_validation');
 
-		if(!$this->auth_model->current_user()){
+		if (!$this->auth_model->current_user()) {
 			redirect('login');
 		}
 	}
@@ -25,32 +28,32 @@ class Rr_cooking extends CI_Controller {
 			'active_nav' => 'rr-cooking'
 		);
 
-		$this->load->view('partials/head', $data);
-		$this->load->view('rr-cooking/home',$data);
+		$this->load->view('partials/head-form', $data);
+		$this->load->view('rr-cooking/home', $data);
 		$this->load->view('partials/footer');
 	}
 
 	public function tambah($uuid)
-{
-    $rules = $this->Rr_cooking_model->rules();
-    $this->form_validation->set_rules($rules);
+	{
+		$rules = $this->Rr_cooking_model->rules();
+		$this->form_validation->set_rules($rules);
 
-    if ($this->form_validation->run() === TRUE) {
-        $data = $this->Rr_cooking_model->get_masak_data($uuid);
-        $this->Rr_cooking_model->insert_reject_cooking($uuid, $data->MR_KOPROD);
-        $this->session->set_flashdata('success_msg', 'Data berhasil disimpan.');
-        redirect('rr_cooking');
-    }
+		if ($this->form_validation->run() === TRUE) {
+			$data = $this->Rr_cooking_model->get_masak_data($uuid);
+			$this->Rr_cooking_model->insert_reject_cooking($uuid, $data->MR_KOPROD);
+			$this->session->set_flashdata('success_msg', 'Data berhasil disimpan.');
+			redirect('rr_cooking');
+		}
 
-    $data = array(
-        'data' => $this->Rr_cooking_model->get_masak_data($uuid),
-        'active_nav' => 'rr-cooking'
-    );
+		$data = array(
+			'data' => $this->Rr_cooking_model->get_masak_data($uuid),
+			'active_nav' => 'rr-cooking'
+		);
 
-    $this->load->view('partials/head', $data);
-    $this->load->view('rr-cooking/tambah', $data);
-    $this->load->view('partials/footer');
-}
+		$this->load->view('partials/head-form', $data);
+		$this->load->view('rr-cooking/tambah', $data);
+		$this->load->view('partials/footer');
+	}
 
 
 	public function edit($uuid)
@@ -74,8 +77,8 @@ class Rr_cooking extends CI_Controller {
 			// 'info' => $this->Rr_cooking_model->get_masak_data($uuid),
 			'active_nav' => 'rr-cooking'
 		);
-		
-		$this->load->view('partials/head', $data);
+
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('rr-cooking/edit');
 		$this->load->view('partials/footer');
 	}
@@ -87,9 +90,9 @@ class Rr_cooking extends CI_Controller {
 			'info' => $this->Rr_cooking_model->get_info_detail($date, $mr_uuid_varian),
 			'active_nav' => 'rr-cooking'
 		);
-		
-		$this->load->view('partials/head', $data);
-		$this->load->view('rr-cooking/detail',$data);
+
+		$this->load->view('partials/head-form', $data);
+		$this->load->view('rr-cooking/detail', $data);
 		$this->load->view('partials/footer');
 	}
 
@@ -119,9 +122,9 @@ class Rr_cooking extends CI_Controller {
 		];
 
 		$html = $this->load->view('partials/head-form-land', $data, true);
-		
+
 		$html .= $this->load->view('rr-cooking/form', $data, true);
-		
+
 		$dompdf->loadHtml($html);
 		$dompdf->setPaper('FOLIO', 'landscape');
 		$dompdf->render();
@@ -129,41 +132,40 @@ class Rr_cooking extends CI_Controller {
 	}
 
 	public function approve_kr($tanggal, $varian_uuid)
-{
-    $response = $this->Rr_cooking_model->update_kr($tanggal, $varian_uuid);
+	{
+		$response = $this->Rr_cooking_model->update_kr($tanggal, $varian_uuid);
 
-    if ($response) {
-        $result = [
-            'status' => true,
-            'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
-        ];
-    } else {
-        $result = [
-            'status' => false,
-            'message' => 'Gagal memperbarui data'
-        ];
-    }
+		if ($response) {
+			$result = [
+				'status' => true,
+				'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
+			];
+		} else {
+			$result = [
+				'status' => false,
+				'message' => 'Gagal memperbarui data'
+			];
+		}
 
-    echo json_encode($result);
-}
+		echo json_encode($result);
+	}
 
-public function approve_spv($tanggal, $varian_uuid)
-{
-    $response = $this->Rr_cooking_model->update_spv($tanggal, $varian_uuid);
+	public function approve_spv($tanggal, $varian_uuid)
+	{
+		$response = $this->Rr_cooking_model->update_spv($tanggal, $varian_uuid);
 
-    if ($response) {
-        $result = [
-            'status' => true,
-            'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
-        ];
-    } else {
-        $result = [
-            'status' => false,
-            'message' => 'Gagal memperbarui data'
-        ];
-    }
+		if ($response) {
+			$result = [
+				'status' => true,
+				'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
+			];
+		} else {
+			$result = [
+				'status' => false,
+				'message' => 'Gagal memperbarui data'
+			];
+		}
 
-    echo json_encode($result);
-}
-
+		echo json_encode($result);
+	}
 }

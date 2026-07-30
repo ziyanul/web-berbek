@@ -23,9 +23,21 @@ class Filkar extends CI_Controller
             'data' => $this->Filkar_model->get_all(),
             'active_nav' => 'filkar'
         );
-   
+
         $this->load->view('partials/head-yield', $data);
         $this->load->view('filkar/filkar_home', $data);
+        $this->load->view('partials/footer');
+    }
+    public function filkarform()
+    {
+
+        $data = array(
+            'data' => $this->Filkar_model->get_form(),
+            'active_nav' => 'filkar'
+        );
+
+        $this->load->view('partials/head-form', $data);
+        $this->load->view('filkar/filkar-form', $data);
         $this->load->view('partials/footer');
     }
     public function tambah()
@@ -195,22 +207,22 @@ class Filkar extends CI_Controller
   <tr>
   <td style="border:0;height:30px;">&nbsp;No. Dokumen</td>
   <td style="border:0;height:30px;">:</td>
-  <td style="border:0;height:30px;">&nbsp;FR-Prod-06</td> 
+  <td style="border:0;height:30px;">&nbsp;FR-Prod-06</td>
   </tr>
   <tr>
   <td style="border-left:0;border-right:0;height:30px;">&nbsp;Revisi</td>
   <td style="border-left:0;border-right:0;height:30px;">:</td>
-  <td style="border-left:0;border-right:0;height:30px;">&nbsp;0</td> 
+  <td style="border-left:0;border-right:0;height:30px;">&nbsp;0</td>
   </tr>
   <tr>
   <td style="border-left:0;border-right:0;height:30px;">&nbsp;Tanggal Efektif</td>
   <td style="border-left:0;border-right:0;height:30px;">:</td>
-  <td style="border-left:0;border-right:0;height:30px;">&nbsp;01/04/2016</td> 
+  <td style="border-left:0;border-right:0;height:30px;">&nbsp;01/04/2016</td>
   </tr>
   <tr>
   <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;Halaman</td>
   <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">:</td>
-  <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;1 dari 1</td> 
+  <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;1 dari 1</td>
   </tr>
   </tbody>
   </table>
@@ -269,17 +281,17 @@ class Filkar extends CI_Controller
 <tr>
 <td style="width: 100px; text-align: center; background-color: #dbe5f1;">Mengetahui</td>
 <td style="border: none; width: 30px;"></td>
-<td style="width: 100px; text-align: center; background-color: #dbe5f1;">Disetujui</td> 
+<td style="width: 100px; text-align: center; background-color: #dbe5f1;">Disetujui</td>
 </tr>
 <tr>
 <td style="height: 80px; width: 100px;"></td>
 <td style="height: 80px; border: none; width: 200px;"></td>
-<td style="height: 80px; width: 100px;"></td> 
+<td style="height: 80px; width: 100px;"></td>
 </tr>
 <tr>
 <td style="width: 100px; text-align: center;">Koordinator</td>
 <td style="border: none; width: 30px;"></td>
-<td style="width: 100px; text-align: center;">Spv. Produksi</td> 
+<td style="width: 100px; text-align: center;">Spv. Produksi</td>
 </tr>
 </table>';
         $html .= '</body></html>';

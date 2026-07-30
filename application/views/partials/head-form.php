@@ -103,7 +103,7 @@
                 <div id="formMenuMp" class="collapse <?= in_array($active_nav, ['cekmesin-mp', 'rework']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item <?= $active_nav == 'cekmesin-mp' ? 'active' : '' ?>" href="<?= base_url('cekmesin') ?>">Pengecekan Mesin</a>
-                        <a class="collapse-item <?= $active_nav == 'rework' ? 'active' : '' ?>" href="<?= base_url('rework') ?>">Penggunaan Rework</a>
+                        <a class="collapse-item <?= $active_nav == 'rework' ? 'active' : '' ?>" href="<?= base_url('') ?>">Penggunaan Rework</a>
 
                     </div>
                 </div>
@@ -122,34 +122,39 @@
             </li>
 
             <!-- ================= FORM RETORT ================= -->
-            <li class="nav-item <?= in_array($active_nav, ['cekmesin_retort', 'pergantian_varian']) ? 'active' : '' ?>">
+            <li class="nav-item <?= in_array($active_nav, ['cekmesin_retort', 'pergantian_varian_retort', 'rt_rjmesin']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuRt">
                     <span>RETORT</span>
                 </a>
-                <div id="formMenuRt" class="collapse <?= in_array($active_nav, ['cekmesin_retort', 'pergantian_varian']) ? 'show' : '' ?>">
+                <div id="formMenuRt" class="collapse <?= in_array($active_nav, ['cekmesin_retort', 'pergantian_varian_retort', 'rt_rjmesin']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item <?= $active_nav == 'cekmesin_retort' ? 'active' : '' ?>" href="<?= base_url('cekmesin_retort') ?>">Pengecekan Mesin</a>
-                        <a class="collapse-item <?= $active_nav == 'pergantian_varian' ? 'active' : '' ?>" href="<?= base_url('pergantian_varian') ?>">Pergantian Varian</a>
+                        <a class="collapse-item <?= $active_nav == 'pergantian_varian_retort' ? 'active' : '' ?>" href="<?= base_url('pergantian_varian_retort') ?>">Pergantian Varian</a>
+                        <a class="collapse-item <?= $active_nav == 'rt_rjmesin' ? 'active' : '' ?>" href="<?= base_url('rt_rjmesin') ?>">Reject Mesin di Retort</a>
+                        <a class="collapse-item <?= $active_nav == 'rr_cooking' ? 'active' : '' ?>" href="<?= base_url('rr_cooking') ?>">Reject Cooking di Retort</a>
                     </div>
                 </div>
             </li>
 
             <!-- ================= FORM PACKING ================= -->
-            <li class="nav-item <?= in_array($active_nav, ['zanasi', 'cekmesin', 'pergantian_varian']) ? 'active' : '' ?>">
+            <li class="nav-item <?= in_array($active_nav, ['zanasi', 'cekmesin', 'pergantian_varian_packing', 'filkar', 'pemusnahan_badproduct']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuPc">
                     <span>PACKING</span>
                 </a>
-                <div id="formMenuPc" class="collapse <?= in_array($active_nav, ['zanasi', 'cekmesin', 'pergantian_varian']) ? 'show' : '' ?>">
+                <div id="formMenuPc" class="collapse <?= in_array($active_nav, ['zanasi', 'cekmesin', 'pergantian_varian_packing', 'filkar', 'pemusnahan_badproduct']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item <?= $active_nav == 'zanasi' ? 'active' : '' ?>" href="<?= base_url('zanasi') ?>">Print Karton DOD</a>
                         <a class="collapse-item <?= $active_nav == 'cekmesin' ? 'active' : '' ?>" href="<?= base_url('cekmesin') ?>">Pengecekan Mesin</a>
-                        <a class="collapse-item <?= $active_nav == 'pergantian_varian' ? 'active' : '' ?>" href="<?= base_url('pergantian_varian') ?>">Pergantian Varian</a>
+                        <a class="collapse-item <?= $active_nav == 'pergantian_varian_packing' ? 'active' : '' ?>" href="<?= base_url('pergantian_varian_packing') ?>">Pergantian Varian</a>
+                        <a class="collapse-item <?= $active_nav == 'filkar' ? 'active' : ''; ?>" href="<?= base_url('filkar/filkarform') ?>">Filling karantina (Filkar)</a>
+                        <a class="collapse-item <?= $active_nav == 'sortasi' ? 'active' : ''; ?>" href="<?= base_url('sortasi/formdata') ?>">Sortasi</a>
+                        <a class="collapse-item <?= $active_nav == 'pemusnahan_badproduct' ? 'active' : ''; ?>" href="<?= base_url('pemusnahan_badproduct/') ?>">Pemusnahan Bad Produk (Reject)</a>
                     </div>
                 </div>
             </li>
 
             <!-- ================= FORM SANITASI ================= -->
-            <li class="nav-item <?= in_array($active_nav, ['sanitasi-data', 'pengenceran']) ? 'active' : '' ?>">
+            <!-- <li class="nav-item <?= in_array($active_nav, ['sanitasi-data', 'pengenceran']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuSan">
                     <span>SANITASI</span>
                 </a>
@@ -159,10 +164,23 @@
                         <a class="collapse-item <?= $active_nav == 'pengenceran' ? 'active' : '' ?>" href="<?= base_url('chemical/pengenceran') ?>">Pelarutan Chemical</a>
                     </div>
                 </div>
+            </li> -->
+            <!-- ================= FORM PENDUKUNG ================= -->
+            <li class="nav-item <?= in_array($active_nav, ['f-tl', 'Pbtajam/form_pbtajam', 'pbelah']) ? 'active' : '' ?>">
+                <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuPEN">
+                    <span>PENDUKUNG</span>
+                </a>
+                <div id="formMenuPEN" class="collapse <?= in_array($active_nav, ['f-tl', 'Pbtajam/form_pbtajam', 'pbelah']) ? 'show' : '' ?>">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item <?= $active_nav == 'pbelah' ? 'active' : ''; ?>" href="<?= base_url('pbelah/') ?>">Barang Pecah Belah</a>
+                        <a class="collapse-item <?= $active_nav == 'Pbtajam/form_pbtajam' ? 'active' : ''; ?>" href="<?= base_url('Pbtajam/form_pbtajam/') ?>">Benda Tajam</a>
+                        <a class="collapse-item <?= $active_nav == 'f-tl' ? 'active' : ''; ?>" href="<?= base_url('tools_mesin/data/') ?>">Tools Mesin</a>
+                    </div>
+                </div>
             </li>
 
 
-            <li class="nav-item <?= $active_nav == 'gmp-tpm' || $active_nav == 'gmp-history' || $active_nav == 'gmp' ? 'active' : ''; ?>">
+            <!-- <li class="nav-item <?= $active_nav == 'gmp-tpm' || $active_nav == 'gmp-history' || $active_nav == 'gmp' ? 'active' : ''; ?>">
 
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsehis" aria-expanded="true" aria-controls="collapsehis">
                     <span>ISO/TS</span>
@@ -178,7 +196,7 @@
 
                     </div>
                 </div>
-            </li>
+            </li> -->
 
             <hr class="sidebar-divider">
             <?php if ($type == 1 || $type == 2) { ?>

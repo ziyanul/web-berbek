@@ -1,8 +1,11 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
-class Pemusnahan_Badproduct extends CI_Controller {
+
+class Pemusnahan_Badproduct extends CI_Controller
+{
 
 	public function __construct()
 	{
@@ -12,7 +15,7 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		$this->load->model('pn_badproduct_model');
 		$this->load->library('form_validation');
 
-		if(!$this->auth_model->current_user()){
+		if (!$this->auth_model->current_user()) {
 			redirect('login');
 		}
 	}
@@ -23,9 +26,9 @@ class Pemusnahan_Badproduct extends CI_Controller {
 			'data' => $this->pn_badproduct_model->get_all(),
 			'active_nav' => 'pemusnahan_badproduct'
 		);
-	
-		$this->load->view('partials/head', $data);
-		$this->load->view('pn_badpro/pn_badpro',$data);
+
+		$this->load->view('partials/head-form', $data);
+		$this->load->view('pn_badpro/pn_badpro', $data);
 		$this->load->view('partials/footer');
 	}
 
@@ -33,10 +36,10 @@ class Pemusnahan_Badproduct extends CI_Controller {
 	{
 		$rules = $this->pn_badproduct_model->rules();
 		$this->form_validation->set_rules($rules);
-		
+
 		if ($this->form_validation->run() === TRUE) {
 			$insert = $this->pn_badproduct_model->insert();
-			
+
 			if ($insert) {
 				$this->session->set_flashdata('success_msg', 'Data Bad Product berhasil di tambah.');
 				redirect('pemusnahan_badproduct');
@@ -52,25 +55,25 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		// echo "<pre>";
 		// print_r($data);
 		// echo '</pre>';
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pn_badpro/pn_tambah', $data);
 		$this->load->view('partials/footer');
 	}
-	
+
 	public function get_item_name($uuid)
 	{
 		$data = $this->pn_badproduct_model->get_item_name($uuid);
 		print_r(json_encode($data));
 	}
 
-	public function detail($tanggal,$shift)
+	public function detail($tanggal, $shift)
 	{
 		$data = array(
 			'active_nav' => 'pemusnahan_badproduct',
-			'data' => $this->pn_badproduct_model->get_by_tanggal($tanggal,$shift),
+			'data' => $this->pn_badproduct_model->get_by_tanggal($tanggal, $shift),
 		);
-		
-		$this->load->view('partials/head', $data);
+
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pn_badpro/pn_detail', $data);
 		$this->load->view('partials/footer');
 	}
@@ -78,17 +81,17 @@ class Pemusnahan_Badproduct extends CI_Controller {
 	{
 		$rules1 = $this->pn_badproduct_model->rules1();
 		$this->form_validation->set_rules($rules1);
-		
+
 		if ($this->form_validation->run() === TRUE) {
-			$r=$this->pn_badproduct_model->get_by_uuid($uuid);
+			$r = $this->pn_badproduct_model->get_by_uuid($uuid);
 
 			$update = $this->pn_badproduct_model->update($uuid);
 			if ($update) {
 				$this->session->set_flashdata('success_msg', 'Data Pemusnahan Bad Produk berhasil di ubah.');
-				redirect('pemusnahan_badproduct/detail/'.$r->tanggal.'/'.$r->shift);
+				redirect('pemusnahan_badproduct/detail/' . $r->tanggal . '/' . $r->shift);
 			} else {
 				$this->session->set_flashdata('error_msg', 'Data Pemusnahan Bad Produk gagal di ubah.');
-				redirect('pemusnahan_badproduct/detail/'.$r->tanggal.'/'.$r->shift);
+				redirect('pemusnahan_badproduct/detail/' . $r->tanggal . '/' . $r->shift);
 			}
 		}
 
@@ -98,7 +101,7 @@ class Pemusnahan_Badproduct extends CI_Controller {
 			'active_nav' => 'pemusnahan_badproduct'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pn_badpro/pn_edit', $data);
 		$this->load->view('partials/footer');
 	}
@@ -108,14 +111,14 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		$update = $this->pn_badproduct_model->approval_kr($tanggal, $shift);
 
 		if ($update) {
-            // Ambil data fullname dari user yang sedang login
+			// Ambil data fullname dari user yang sedang login
 			$current_user = $this->auth_model->current_user();
 
 			echo json_encode([
 				'status' => true,
-                'fullname' => $current_user->fullname, // Pastikan ini benar
-                'message' => 'Reservasi berhasil di-ACC.',
-            ]);
+				'fullname' => $current_user->fullname, // Pastikan ini benar
+				'message' => 'Reservasi berhasil di-ACC.',
+			]);
 		} else {
 			echo json_encode([
 				'status' => false,
@@ -129,14 +132,14 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		$update = $this->pn_badproduct_model->approval_spv($tanggal, $shift);
 
 		if ($update) {
-            // Ambil data fullname dari user yang sedang login
+			// Ambil data fullname dari user yang sedang login
 			$current_user = $this->auth_model->current_user();
 
 			echo json_encode([
 				'status' => true,
-                'fullname' => $current_user->fullname, // Pastikan ini benar
-                'message' => 'Reservasi berhasil di-ACC.',
-            ]);
+				'fullname' => $current_user->fullname, // Pastikan ini benar
+				'message' => 'Reservasi berhasil di-ACC.',
+			]);
 		} else {
 			echo json_encode([
 				'status' => false,
@@ -144,14 +147,14 @@ class Pemusnahan_Badproduct extends CI_Controller {
 			]);
 		}
 	}
-	public function form($tanggal,$shift)
+	public function form($tanggal, $shift)
 	{
 		$options = new Options();
 		$options->set('isRemoteEnabled', true);
 		$options->set('defaultFont', 'DejaVu Sans');
 		$dompdf = new Dompdf($options);
 
-		$v = $this->pn_badproduct_model->get_by_tanggal($tanggal,$shift);
+		$v = $this->pn_badproduct_model->get_by_tanggal($tanggal, $shift);
 		$logo = base_url("assets/img/cpi-logo.jpg");
 
 		$html = '
@@ -178,7 +181,7 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		<table width="100%">
 		<tbody>
 		<tr>
-		<td rowspan="2" align="center" valign="middle" style="border:0;"><img src="'.$logo.'" width="120px"></td>
+		<td rowspan="2" align="center" valign="middle" style="border:0;"><img src="' . $logo . '" width="120px"></td>
 		</tr>
 		</tbody>
 		</table>
@@ -201,22 +204,22 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		<tr>
 		<td style="border:0;height:28px;">&nbsp;No. Dokumen</td>
 		<td style="border:0;height:28px;">:</td>
-		<td style="border:0;height:28px;">&nbsp;FR-Prod-21</td> 
+		<td style="border:0;height:28px;">&nbsp;FR-Prod-21</td>
 		</tr>
 		<tr>
 		<td style="border-left:0;border-right:0;height:28px;">&nbsp;Revisi</td>
 		<td style="border-left:0;border-right:0;height:28px;">:</td>
-		<td style="border-left:0;border-right:0;height:28px;">&nbsp;0</td> 
+		<td style="border-left:0;border-right:0;height:28px;">&nbsp;0</td>
 		</tr>
 		<tr>
 		<td style="border-left:0;border-right:0;height:28px;">&nbsp;Tanggal Efektif</td>
 		<td style="border-left:0;border-right:0;height:28px;">:</td>
-		<td style="border-left:0;border-right:0;height:28px;">&nbsp;01/01/2020</td> 
+		<td style="border-left:0;border-right:0;height:28px;">&nbsp;01/01/2020</td>
 		</tr>
 		<tr>
 		<td style="border-left:0;border-right:0;border-bottom:0;height:28px;">&nbsp;Halaman</td>
 		<td style="border-left:0;border-right:0;border-bottom:0;height:28px;">:</td>
-		<td style="border-left:0;border-right:0;border-bottom:0;height:28px;">&nbsp;1 dari 1</td> 
+		<td style="border-left:0;border-right:0;border-bottom:0;height:28px;">&nbsp;1 dari 1</td>
 		</tr>
 		</tbody>
 		</table>
@@ -229,12 +232,12 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		<tr>
 		<td style="border:none; width:15px">Tanggal</td>
 		<td style="border:none; width:10px">: </td>
-		<td style="border:none;">'. $v[0]->tgl .'</td>
+		<td style="border:none;">' . $v[0]->tgl . '</td>
 		</tr>
 		</tbody>
 		</table>
-		
-		
+
+
 
 		<table class="table table-bordered" id="datatables" style="border: 1px solid black; border-collapse: collapse; width: 100%">
 		<thead class="table text-light bg-info ">
@@ -254,13 +257,13 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		$no = 1;
 		foreach ($v as $row) {
 
-			$html .='<tr style="text-align: center;">
-			<td width="1">'.$no.'</td>
-			<td>'.$row->kode_produksi.'</td>
-			<td>'.$row->varian.'</td>
-			<td>'.$row->qty_kg.'</td>
-			<td>'.$row->username.'</td>
-			<td>'.$row->acc_qc.'</td>
+			$html .= '<tr style="text-align: center;">
+			<td width="1">' . $no . '</td>
+			<td>' . $row->kode_produksi . '</td>
+			<td>' . $row->varian . '</td>
+			<td>' . $row->qty_kg . '</td>
+			<td>' . $row->username . '</td>
+			<td>' . $row->acc_qc . '</td>
 			</tr>';
 			$no++;
 		}
@@ -270,19 +273,19 @@ class Pemusnahan_Badproduct extends CI_Controller {
 
 		<td style="width: 100px; text-align: center;">Mengetahui</td>
 		<td style="border: none; width: 30px;"></td>
-		<td style="width: 100px; text-align: center;">Disetujui</td> 
+		<td style="width: 100px; text-align: center;">Disetujui</td>
 		</tr>
 		<tr>
 
-		<td style="height: 80px; width: 100px; text-align:center;">'.$v[0]->kr_name.'</td>
+		<td style="height: 80px; width: 100px; text-align:center;">' . $v[0]->kr_name . '</td>
 		<td style="height: 80px; border: none; width: 200px;"></td>
-		<td style="height: 80px; width: 100px; text-align:center;">'.$v[0]->spv.'</td> 
+		<td style="height: 80px; width: 100px; text-align:center;">' . $v[0]->spv . '</td>
 		</tr>
 		<tr>
 
 		<td style="width: 100px; text-align: center;">Koordinator</td>
 		<td style="border: none; width: 30px;"></td>
-		<td style="width: 100px; text-align: center;">Spv. Produksi</td> 
+		<td style="width: 100px; text-align: center;">Spv. Produksi</td>
 		</tr>
 		</table>';
 
@@ -291,6 +294,5 @@ class Pemusnahan_Badproduct extends CI_Controller {
 		$dompdf->setPaper('A4', 'landscape');
 		$dompdf->render();
 		$dompdf->stream("FR-Prod-21_Formulir_.pdf", array("Attachment" => false));
-		
 	}
 }

@@ -1,9 +1,8 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <!-- Page Heading -->
-        <h2 class="h2 mb-2 text-gray-800">Reject Mesin Di Retort</h2>
-        <!-- <a href="<?= base_url('bahan_mp/tambah/'); ?>" class="btn btn-md btn-primary shadow-sm"><i
-                class="fas fa-plus fa-sm text-white"></i> Tambah</a> -->
+        <h1 class="h3 mb-2 text-gray-800">Filling Karantina</h1>
+        <a href="<?= base_url('filkar/tambah'); ?>" class="btn btn-md btn-primary shadow-sm"><i class="fas fa-plus fa-sm text-white mr-2"></i> Tambah</a>
     </div>
     <?php if ($this->session->flashdata('success_msg')) : ?>
         <div class="alert alert-success text-center">
@@ -29,7 +28,7 @@
                             <th class='align-middle text-center'>No.</th>
                             <th class='align-middle text-center'>Tanggal</th>
                             <th class='align-middle text-center'>Varian</th>
-                            <th class='align-middle text-center' width='25%'>Action</th>
+                            <th class='align-middle text-center' width='35%'>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,13 +39,11 @@
                             <tr>
                                 <td class='align-middle text-center' width="1"><?= $no; ?></td>
                                 <td class='align-middle text-center'><?= $row->tanggal; ?></td>
-                                <td class='align-middle text-center'><?= $row->nama_varian; ?></td>
+                                <td class='align-middle text-center'><?= $row->varian; ?></td>
                                 <td class='align-middle text-center'>
 
-                                    <a href="<?= base_url('rt_rjmesin/detail/' . $row->planning_uuid); ?>" class="btn btn-sm btn-success btn-block shadow-sm"><i class="fa fa-info fa-sm text-white mr-1"></i>
-                                        Detail</a>
-                                    <a href="<?= base_url('rt_rjmesin/form/' . $row->planning_uuid); ?>" target="_blank" class="btn btn-sm btn-info btn-block shadow-sm"><i class="fa fa-print fa-sm text-white mr-1"></i> Form Permintaan</a>
-
+                                    <a href="<?= base_url('filkar/filkar_form/' . $row->varian_uuid . '/' . $row->tanggal_kode); ?>" target="_blank" class="btn btn-md btn-info shadow-sm mb-2"><i class="fa fa-print fa-sm text-white mr-2"></i> Form Filling Karantina</a>
+                                </td>
                             </tr>
                         <?php
                             $no++;

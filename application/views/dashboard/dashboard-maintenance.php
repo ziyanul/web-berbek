@@ -16,7 +16,7 @@
     <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
     <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
     <style>
-        <style>body {
+        body {
             background: #f8f9fc;
         }
 
@@ -64,7 +64,6 @@
             color: #858796;
         }
     </style>
-    </style>
 </head>
 
 <body id="page-top">
@@ -82,19 +81,16 @@
 
                         <div>
                             <a href="<?= base_url('portal') ?>" class="badge badge-info px-3 py-2">
-                                <i class="fas fa-arrow-left mr-1"></i>
-                                Portal
+                                <i class="fa fa-lg fa-home mr-1"></i>
+                                PORTAL
                             </a>
                         </div>
+                        <h2 class="font-weight-bold text-dark mb-0">
+                            DASHBOARD MAINTENANCE</h2>
 
                         <div>
-                            <span class="badge badge-success px-3 py-2">
-                                <?= strtoupper(date('d F Y')); ?>
-                            </span>
-
-                            <span class="badge badge-primary px-3 py-2 ml-1">
-                                Update :
-                                <?= date('H:i'); ?>
+                            <span class="badge badge-info px-3 py-2 ml-1" id="clock">
+                                <div><?= date('d F Y H:i:s'); ?></div>
                             </span>
                         </div>
 
@@ -106,22 +102,10 @@
 
                             <div class="col-md-8">
 
-                                <h2 class="font-weight-bold mb-1">
-                                    Maintenance
-                                </h2>
-
                                 <p class="mb-0">
                                     Preventive Maintenance, Autonomous Maintenance,
                                     Sparepart Management dan Repair System
                                 </p>
-
-                            </div>
-
-                            <div class="col-md-4 text-md-right">
-
-                                <h5 class="mb-0">
-                                    <?= date('d M Y'); ?>
-                                </h5>
 
                             </div>
 
@@ -408,6 +392,36 @@
     <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
     <script src="<?= base_url('assets/vendor/jquery-easing/jquery.easing.min.js'); ?>"></script>
     <script src="<?= base_url('assets/js/sb-admin-2.min.js'); ?>"></script>
+    <script>
+        setInterval(function() {
+            location.reload();
+        }, 3600000);
+    </script>
+    <script>
+        function updateClock() {
+            const now = new Date();
+
+            const date = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const time = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\./g, ':');;
+
+            document.getElementById('clock').innerHTML =
+                `<div>${date} ${time}</div>`;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
 </body>
 
 </html>

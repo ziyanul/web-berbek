@@ -8,10 +8,10 @@
                 <a href="<?= base_url('rt_rjmesin') ?>">
                     <i class="fas fa-arrow-left mr-2"></i>Home
                 </a>
-                
+
             </li>
             <li class="breadcrumb-item">
-                <a href="<?= base_url('rt_rjmesin/detail/' . $nav->planprod_uuid) ?>">
+                <a href="<?= base_url('rt_rjmesin/detail/' . $nav->t_planning_uuid) ?>">
                     Batch
                 </a>
             </li>
@@ -26,17 +26,17 @@
                         <tr>
                             <td width="230" class="font-weight-bold border-top-0">Tanggal Planning Produksi</td>
                             <td width="10" class="border-top-0">:</td>
-                            <td class="font-weight-bold border-top-0"><?= $nav->tanggal;?></td>
+                            <td class="font-weight-bold border-top-0"><?= $nav->tanggal; ?></td>
                         </tr>
                         <tr>
                             <td class="font-weight-bold">Varian</td>
                             <td width="15">:</td>
-                            <td class="font-weight-bold"><?= $nav->MN_PRODUK;?></td>
+                            <td class="font-weight-bold"><?= $nav->nama_varian; ?> | <?= $nav->keterangan ?></td>
                         </tr>
                         <tr>
                             <td class="font-weight-bold">Kode Produk</td>
                             <td width="15">:</td>
-                            <td class="font-weight-bold"><?= $nav->MN_BATCH;?></td>
+                            <td class="font-weight-bold"><?= $nav->kode_batch; ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -44,11 +44,16 @@
 
 
 
-            <form class="user" action="<?= base_url('rt_rjmesin/tambahcek/' . $nav->MN_BATCH) ?>" method="post" id="mesinForm">
+            <form class="user" action="<?= base_url('rt_rjmesin/tambahcek/' . $nav->kode_batch) ?>" method="post" id="mesinForm">
                 <div class="row mb-4">
                     <div class="col-sm-6">
                         <label class="form-label">Mesin <span class="text-danger">*</span></label>
                         <select class="form-control <?= form_error('mesin') ? 'invalid' : '' ?>" name="mesin">
+                            <option value="" readonly>pilih mesin </option>
+                            <?php
+                            foreach ($data as $row) { ?>
+                                <option value="<?= $row->device_id ?>"><?= $row->nama_mesin ?></option>
+                            <?php } ?>
                         </select>
                     </div>
                 </div>
@@ -60,7 +65,7 @@
                             <label class="form-label">Pilih Badpro<span class="text-danger"> *</span></label>
                             <select class="form-control" name="badpro[]" required>
                                 <option disabled selected>Pilih Badpro</option>
-                                <?php foreach ($badpro as $row): ?>
+                                <?php foreach ($badpro as $row) : ?>
                                     <option value="<?= $row->uuid; ?>">
                                         <?= $row->nama_badpro; ?>
                                     </option>
@@ -94,7 +99,7 @@
                         <button type="submit" class="btn btn-md btn-success mr-2">
                             <i class="fa fa-save"></i> Simpan
                         </button>
-                        <a href="<?= base_url('rt_rjmesin/detail/' . $nav->planprod_uuid) ?>" class="btn btn-md btn-danger">
+                        <a href="<?= base_url('rt_rjmesin/detail/' . $nav->t_planning_uuid) ?>" class="btn btn-md btn-danger">
                             <i class="fa fa-times"></i> Batal
                         </a>
                     </div>
@@ -109,8 +114,8 @@
 
 
     <script>
-    // Menambahkan input badpro dan reject baru
-        document.getElementById('addBadproBtn').addEventListener('click', function () {
+        // Menambahkan input badpro dan reject baru
+        document.getElementById('addBadproBtn').addEventListener('click', function() {
             const badproInputs = document.getElementById('badproInputs');
             const newRow = document.createElement('div');
             newRow.classList.add('row', 'mb-4', 'badpro-row');
@@ -119,7 +124,7 @@
             <label class="form-label">Pilih Badpro<span class="text-danger"> *</span></label>
             <select class="form-control" name="badpro[]" required>
             <option disabled selected>Pilih Badpro</option>
-            <?php foreach ($badpro as $row): ?>
+            <?php foreach ($badpro as $row) : ?>
                 <option value="<?= $row->uuid; ?>">
                 <?= $row->nama_badpro; ?>
                 </option>
@@ -139,8 +144,8 @@
             badproInputs.appendChild(newRow);
         });
 
-    // Menghapus input badpro dan reject
-        document.getElementById('badproInputs').addEventListener('click', function (event) {
+        // Menghapus input badpro dan reject
+        document.getElementById('badproInputs').addEventListener('click', function(event) {
             if (event.target && event.target.classList.contains('removeBadproBtn')) {
                 const row = event.target.closest('.badpro-row');
                 if (row) {
@@ -152,36 +157,36 @@
 
     <script>
         $(document).ready(function() {
-            var kode = '<?= $nav->MN_BATCH ?>'; 
+            var kode = '<?= $nav->kode_batch ?>';
             if (!kode) {
                 console.error('Kode batch tidak valid:', kode);
                 return;
             }
-    // Ambil data mesin dari server
+            // Ambil data mesin dari server
             if (kode) {
-                $.get('<?= base_url('rt_rjmesin/get_mesin_by_counter/'); ?>' + kode, function (res) {
+                $.get('<?= base_url('rt_rjmesin/get_mesin_by_counter/'); ?>' + kode, function(res) {
                     try {
-                var result = JSON.parse(res); // Parsing JSON
-                var elem = '<option disabled selected>Pilih Mesin</option>'; // Opsi default
+                        var result = JSON.parse(res); // Parsing JSON
+                        var elem = '<option disabled selected>Pilih Mesin</option>'; // Opsi default
 
-                result.forEach(function (val) {
-                    if (parseInt(val.is_used) > 0) {
-                        elem += '<option value="' + val.device_id + '" hidden></option>';
-                    } else {
-                        elem += '<option value="' + val.device_id + '">' + val.nama_mesin + '</option>';
+                        result.forEach(function(val) {
+                            if (parseInt(val.is_used) > 0) {
+                                elem += '<option value="' + val.device_id + '" hidden></option>';
+                            } else {
+                                elem += '<option value="' + val.device_id + '">' + val.nama_mesin + '</option>';
+                            }
+                        });
+
+                        $('select[name="nama_mesin"]').html(elem); // Isi dropdown
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                        alert('Terjadi kesalahan pada data mesin.');
                     }
+                }).fail(function() {
+                    alert('Terjadi kesalahan saat memuat data mesin.');
                 });
-
-                $('select[name="mesin"]').html(elem); // Isi dropdown
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                alert('Terjadi kesalahan pada data mesin.');
+            } else {
+                console.error('Kode batch tidak valid:', kode);
             }
-        }).fail(function () {
-            alert('Terjadi kesalahan saat memuat data mesin.');
         });
-    } else {
-        console.error('Kode batch tidak valid:', kode);
-    }
-});
-</script>
+    </script>

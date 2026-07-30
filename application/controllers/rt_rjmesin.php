@@ -1,8 +1,11 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
-class Rt_rjmesin extends CI_Controller {
+
+class Rt_rjmesin extends CI_Controller
+{
 
 	public function __construct()
 	{
@@ -11,7 +14,7 @@ class Rt_rjmesin extends CI_Controller {
 		$this->load->model('Rt_rjmesin_model');
 		$this->load->library('form_validation');
 
-		if(!$this->auth_model->current_user()){
+		if (!$this->auth_model->current_user()) {
 			redirect('login');
 		}
 	}
@@ -22,39 +25,39 @@ class Rt_rjmesin extends CI_Controller {
 			'data' => $this->Rt_rjmesin_model->get_all(),
 			'active_nav' => 'rt_rjmesin'
 		);
-		
-		$this->load->view('partials/head', $data);
-		$this->load->view('rt_rjmesin/home',$data);
+
+		$this->load->view('partials/head-form', $data);
+		$this->load->view('rt_rjmesin/home', $data);
 		$this->load->view('partials/footer');
 	}
 
-	public function tambahcek($MN_BATCH)
+	public function tambahcek($kode_batch)
 	{
 		$rules = $this->Rt_rjmesin_model->rules();
-		
+
 		$this->form_validation->set_rules($rules);
 
 		if ($this->form_validation->run() === TRUE) {
-			$nav = $this->Rt_rjmesin_model->get_by_code($MN_BATCH);
-			$insert = $this->Rt_rjmesin_model->insert_mesin($MN_BATCH);
+			$nav = $this->Rt_rjmesin_model->get_by_code($kode_batch);
+			$insert = $this->Rt_rjmesin_model->insert_mesin($kode_batch);
 			if ($insert) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil disimpan.');
-				redirect('rt_rjmesin/detail/'.$nav->planprod_uuid);
+				redirect('rt_rjmesin/detail/' . $nav->t_planning_uuid);
 			} else {
 
 				$this->session->set_flashdata('error_msg', 'Terjadi kesalahan saat menyimpan data.');
-				redirect('rt_rjmesin/detail/'.$nav->planprod_uuid);
+				redirect('rt_rjmesin/detail/' . $nav->t_planning_uuid);
 			}
 		}
-		
+
 		$data = array(
-			'nav' => $this->Rt_rjmesin_model->get_by_code($MN_BATCH),
-			// 'data' => $this->Rt_rjmesin_model->get_mesin($MN_BATCH),
+			'nav' => $this->Rt_rjmesin_model->get_by_code($kode_batch),
+			'data' => $this->Rt_rjmesin_model->get_mesin($kode_batch),
 			'badpro' => $this->Rt_rjmesin_model->get_badpro(),
 			'active_nav' => 'rt_rjmesin'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('rt_rjmesin/tambah');
 		$this->load->view('partials/footer');
 	}
@@ -65,8 +68,8 @@ class Rt_rjmesin extends CI_Controller {
 			'data' => $this->Rt_rjmesin_model->get_batch($uuid),
 			'active_nav' => 'rt_rjmesin'
 		);
-		
-		$this->load->view('partials/head', $data);
+
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('rt_rjmesin/batch', $data);
 		$this->load->view('partials/footer');
 	}
@@ -81,10 +84,10 @@ class Rt_rjmesin extends CI_Controller {
 			$update = $this->Rt_rjmesin_model->update_reject($rm_uuid);
 			if ($update) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil di Ubah.');
-				redirect('rt_rjmesin/detailreject/'.$redi[0]->kode_batch);
+				redirect('rt_rjmesin/detailreject/' . $redi[0]->kode_batch);
 			} else {
 				$this->session->set_flashdata('error_msg', 'Data gagal di Ubah.');
-				redirect('rt_rjmesin/detailreject/'.$redi[0]->kode_batch);
+				redirect('rt_rjmesin/detailreject/' . $redi[0]->kode_batch);
 			}
 		}
 
@@ -96,7 +99,7 @@ class Rt_rjmesin extends CI_Controller {
 		// echo "<pre>";
 		// print_r($data);
 		// echo '</pre>';
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('rt_rjmesin/edit-reject');
 		$this->load->view('partials/footer');
 	}
@@ -109,15 +112,15 @@ class Rt_rjmesin extends CI_Controller {
 			'nav' => $this->Rt_rjmesin_model->get_by_code($MN_BATCH),
 			'active_nav' => 'rt_rjmesin'
 		);
-		
-		$this->load->view('partials/head', $data);
+
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('rt_rjmesin/detail-batch', $data);
 		$this->load->view('partials/footer');
 	}
 
-	public function get_mesin_by_counter($MN_BATCH)
+	public function get_mesin_by_counter($kode_batch)
 	{
-		$data = $this->Rt_rjmesin_model->get_mesin($MN_BATCH);
+		$data = $this->Rt_rjmesin_model->get_mesin($kode_batch);
 		echo json_encode($data);
 	}
 
@@ -139,7 +142,7 @@ class Rt_rjmesin extends CI_Controller {
 		$badpro_headers = $this->Rt_rjmesin_model->get_badpro_headers_by_plan($planprod_uuid);
 		$batches = $this->Rt_rjmesin_model->get_batches_by_plan($planprod_uuid);
 		$plan = $this->Rt_rjmesin_model->get_plan_by_uuid($planprod_uuid);
-    // Hitung total reject per batch dan kategori badpro
+		// Hitung total reject per batch dan kategori badpro
 		$totals = [];
 		foreach ($data_mesin as $mesin) {
 			foreach ($mesin['batches'] as $batch => $badpro) {
@@ -164,13 +167,13 @@ class Rt_rjmesin extends CI_Controller {
 			'halaman' => $halaman,
 		];
 
-    // // Tangkap tampilan sebagai string HTML
+		// // Tangkap tampilan sebagai string HTML
 		$html = $this->load->view('partials/head-form-land', $data, true);
-		
-		$html .= $this->load->view('rt_rjmesin/form', $data, true);
-		
 
-    // Load HTML ke Dompdf
+		$html .= $this->load->view('rt_rjmesin/form', $data, true);
+
+
+		// Load HTML ke Dompdf
 		$dompdf->loadHtml($html);
 		$dompdf->setPaper('FOLIO', 'landscape');
 		$dompdf->render();
@@ -178,41 +181,40 @@ class Rt_rjmesin extends CI_Controller {
 	}
 
 	public function approve_kr($plan_uuid)
-{
-    $response = $this->Rt_rjmesin_model->update_kr($plan_uuid);
+	{
+		$response = $this->Rt_rjmesin_model->update_kr($plan_uuid);
 
-    if ($response) {
-        $result = [
-            'status' => true,
-            'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
-        ];
-    } else {
-        $result = [
-            'status' => false,
-            'message' => 'Gagal memperbarui data'
-        ];
-    }
+		if ($response) {
+			$result = [
+				'status' => true,
+				'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
+			];
+		} else {
+			$result = [
+				'status' => false,
+				'message' => 'Gagal memperbarui data'
+			];
+		}
 
-    echo json_encode($result);
-}
+		echo json_encode($result);
+	}
 
-public function approve_spv($plan_uuid)
-{
-    $response = $this->Rt_rjmesin_model->update_spv($plan_uuid);
+	public function approve_spv($plan_uuid)
+	{
+		$response = $this->Rt_rjmesin_model->update_spv($plan_uuid);
 
-    if ($response) {
-        $result = [
-            'status' => true,
-            'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
-        ];
-    } else {
-        $result = [
-            'status' => false,
-            'message' => 'Gagal memperbarui data'
-        ];
-    }
+		if ($response) {
+			$result = [
+				'status' => true,
+				'fullname' => $this->auth_model->current_user()->fullname // Ganti dengan data fullname pengguna saat ini
+			];
+		} else {
+			$result = [
+				'status' => false,
+				'message' => 'Gagal memperbarui data'
+			];
+		}
 
-    echo json_encode($result);
-}
-
+		echo json_encode($result);
+	}
 }

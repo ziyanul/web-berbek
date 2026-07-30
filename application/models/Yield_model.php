@@ -228,11 +228,15 @@ class Yield_model extends CI_Model
     }
     public function get_master_mesin()
     {
-        return $this->db
-            ->where('deleted_at IS NULL')
-            ->order_by('nama_mesin')
-            ->get('mesin')
-            ->result();
+        $this->db->select('tb.mesin_uuid as uuid, m.nama_mesin');
+        $this->db->from('t_badpro tb');
+        $this->db->join('mesin m', 'm.uuid = tb.mesin_uuid', 'left');
+        $this->db->group_by('m.nama_mesin, tb.mesin_uuid');
+        $this->db->where('tb.deleted_at is null', null, false);
+        $this->db->where('tb.mesin_uuid !=', '');
+        $this->db->order_by('m.nama_mesin', 'ASC');
+        $data = $this->db->get()->result();
+        return $data;
     }
     public function get_monitoring_analisa($filter)
     {
