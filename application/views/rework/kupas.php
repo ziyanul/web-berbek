@@ -25,7 +25,7 @@
                             <th width="1" class="font-weight-bold">No</th>
                             <th class="font-weight-bold">Varian</th>
                             <th class="font-weight-bold">Kode Rework</th>
-                            <th class="font-weight-bold">Nama Bad Produk</th>
+
                             <th class="font-weight-bold">Total Rework</th>
                             <th class="font-weight-bold">Sudah Kupas</th>
                             <th class="font-weight-bold">Belum Kupas</th>
@@ -41,13 +41,13 @@
                                 <td><?= $no; ?></td>
                                 <td><?= $row->nama_varian; ?></td>
                                 <td><?= $row->kode_batch; ?></td>
-                                <td><?= $row->nama_badpro; ?></td>
+
                                 <td><?= $row->total_rework; ?></td>
                                 <td><?= $row->total_kupas; ?></td>
                                 <td><?= $row->sisa_kupas; ?></td>
                                 <td>
-                                    <a href="<?= base_url('rework/detail_kupas/' . $row->tbatch_uuid . '/' . $row->badpro_uuid); ?>" class="btn btn-md btn-success shadow-sm btn-block"><i class="fa fa-md fa-info"></i> Detail</a>
-                                    <a href="<?= base_url('rework/edit/' . $row->tbatch_uuid . '/' . $row->badpro_uuid); ?>" class="btn btn-md btn-warning shadow-sm btn-block"><i class="fa fa-md fa-edit"></i> Edit</a>
+                                    <a href="<?= base_url('rework/detail_kupas/' . $row->tbatch_uuid); ?>" class="btn btn-md btn-success shadow-sm btn-block"><i class="fa fa-md fa-info"></i> Detail</a>
+                                    <a href="<?= base_url('rework/edit/' . $row->tbatch_uuid); ?>" class="btn btn-md btn-warning shadow-sm btn-block"><i class="fa fa-md fa-edit"></i> Edit</a>
                                 </td>
                             </tr>
                         <?php

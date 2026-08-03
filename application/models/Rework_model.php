@@ -430,23 +430,19 @@ class Rework_model extends CI_Model
 	public function get_stock_rework()
 	{
 		$this->db->select('
-            tb.uuid AS tbatch_uuid,
-            tb.kode_batch,
-			v.varian as nama_varian,
+        tb.uuid AS tbatch_uuid,
+        tb.kode_batch,
+        v.varian AS nama_varian,
 
-            bp.uuid AS badpro_uuid,
-            bp.nama_badpro,
+        SUM(tbp.berat) AS total_rework,
 
-
-            SUM(tbp.berat) AS total_rework,
-
-            COALESCE((
-                SELECT SUM(rk.berat)
-                FROM rwk_kupas rk
-                WHERE rk.tbatch_uuid = tb.uuid
-                AND rk.deleted_at IS NULL
-            ), 0) AS total_kupas
-        ');
+        COALESCE((
+            SELECT SUM(rk.berat)
+            FROM rwk_kupas rk
+            WHERE rk.tbatch_uuid = tb.uuid
+              AND rk.deleted_at IS NULL
+        ), 0) AS total_kupas
+    ');
 
 		$this->db->from('tbatch tb');
 
@@ -461,36 +457,48 @@ class Rework_model extends CI_Model
 			'bp.uuid = tbp.badpro_uuid',
 			'left'
 		);
-		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
-		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
 
-		// Hanya bad produk kategori REWORK
+		$this->db->join(
+			't_planning tp',
+			'tp.uuid = tb.t_planning_uuid',
+			'left'
+		);
+
+		$this->db->join(
+			'varian v',
+			'v.uuid = tp.varian',
+			'left'
+		);
+
+		// Hanya bad product kategori REWORK
 		$this->db->where('bp.kategori', 1);
 
-		$this->db->where('tbp.deleted_at IS NULL', null, false);
+		$this->db->where(
+			'tbp.deleted_at IS NULL',
+			null,
+			false
+		);
 
 		$this->db->group_by([
 			'tb.uuid',
-			'v.varian',
 			'tb.kode_batch',
-
-			'bp.nama_badpro'
+			'v.varian'
 		]);
 
+		// Hanya tampilkan batch yang masih mempunyai
+		// stock rework yang belum dikupas
 		$this->db->having(
 			'SUM(tbp.berat) > COALESCE((
-                SELECT SUM(rk2.berat)
-                FROM rwk_kupas rk2
-                WHERE rk2.tbatch_uuid = tb.uuid
-                AND rk2.badpro_uuid = bp.uuid
-                AND rk2.deleted_at IS NULL
-            ), 0)',
+            SELECT SUM(rk2.berat)
+            FROM rwk_kupas rk2
+            WHERE rk2.tbatch_uuid = tb.uuid
+              AND rk2.deleted_at IS NULL
+        ), 0)',
 			null,
 			false
 		);
 
 		$this->db->order_by('tb.kode_batch', 'ASC');
-		$this->db->order_by('bp.nama_badpro', 'ASC');
 
 		$rows = $this->db->get()->result();
 
@@ -505,65 +513,60 @@ class Rework_model extends CI_Model
 		return $rows;
 	}
 
-	public function get_stock_detail($tbatch_uuid, $badpro_uuid)
+	public function get_stock_rework_detail($tbatch_uuid)
 	{
 		$this->db->select('
-            tb.uuid AS tbatch_uuid,
-            tb.kode_batch,
-			v.varian as nama_varian, v.keterangan,
+        tb.uuid AS tbatch_uuid,
+        tb.kode_batch,
+        v.varian AS nama_varian,
 
-            bp.uuid AS badpro_uuid,
-            bp.nama_badpro,
+        COALESCE((
+            SELECT SUM(tbp2.berat)
+            FROM t_badpro tbp2
+            JOIN badpro bp2
+                ON bp2.uuid = tbp2.badpro_uuid
+            WHERE tbp2.tbatch_uuid = tb.uuid
+              AND bp2.kategori = 1
+              AND tbp2.deleted_at IS NULL
+        ), 0) AS total_rework,
 
-            SUM(tbp.berat) AS total_rework
-        ');
+        COALESCE((
+            SELECT SUM(rk.berat)
+            FROM rwk_kupas rk
+            WHERE rk.tbatch_uuid = tb.uuid
+              AND rk.deleted_at IS NULL
+        ), 0) AS total_kupas
+    ');
 
-		$this->db->from('t_badpro tbp');
+		$this->db->from('tbatch tb');
 
 		$this->db->join(
-			'tbatch tb',
-			'tb.uuid = tbp.tbatch_uuid',
+			't_planning tp',
+			'tp.uuid = tb.t_planning_uuid',
 			'left'
 		);
 
 		$this->db->join(
-			'badpro bp',
-			'bp.uuid = tbp.badpro_uuid',
+			'varian v',
+			'v.uuid = tp.varian',
 			'left'
 		);
-		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
-		$this->db->join('varian v', 'v.uuid = tp.varian', 'left');
-		$this->db->where('tbp.tbatch_uuid', $tbatch_uuid);
-		$this->db->where('tbp.badpro_uuid', $badpro_uuid);
-		$this->db->where('bp.kategori', 1);
-		$this->db->where('tbp.deleted_at IS NULL', null, false);
 
-		$this->db->group_by([
-			'tb.uuid',
-			'tb.kode_batch',
-			'bp.uuid',
-			'v.varian',
-			'v.keterangan',
-			'bp.nama_badpro'
-		]);
+		$this->db->where('tb.uuid', $tbatch_uuid);
 
-		$stock = $this->db->get()->row();
+		$row = $this->db->get()->row();
 
-		if (!$stock) {
+		if (!$row) {
 			return null;
 		}
 
-		$stock->total_rework = (float) $stock->total_rework;
+		$row->total_rework = (float) $row->total_rework;
+		$row->total_kupas  = (float) $row->total_kupas;
 
-		$stock->total_kupas = $this->get_total_kupas(
-			$tbatch_uuid,
-			$badpro_uuid
-		);
+		$row->sisa_kupas =
+			$row->total_rework - $row->total_kupas;
 
-		$stock->sisa_kupas =
-			$stock->total_rework - $stock->total_kupas;
-
-		return $stock;
+		return $row;
 	}
 
 	public function get_total_kupas($tbatch_uuid, $badpro_uuid)
