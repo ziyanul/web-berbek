@@ -534,7 +534,7 @@
                                         <div class="row">
 
                                             <div class="col-lg-3 col-md-4 col-6 mb-3">
-                                                <a href="<?= base_url('cekmesin') ?>" class="shortcut-card">
+                                                <a href="<?= base_url('cekmesin_mp') ?>" class="shortcut-card">
                                                     <i class="fas fa-cogs"></i>
                                                     <div class="shortcut-title">
                                                         Pengecekan Mesin

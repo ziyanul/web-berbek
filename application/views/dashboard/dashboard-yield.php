@@ -303,9 +303,9 @@
                                             <td><?= number_format((float)$total->filkar_reject, 3, '.', ',') ?></td>
                                             <td><?= number_format((float)$total->sortasi_rework, 3, '.', ',') ?></td>
                                             <td><?= number_format((float)$total->sortasi_reject, 3, '.', ',') ?></td>
-                                            <td>26</td>
+                                            <td><?= number_format((float)$total->yield_formula, 3, '.', ',') ?></td>
                                             <td>
-                                                98.94%
+                                                <?= number_format((float)$total->yield_release, 3, '.', ',') ?>
                                             </td>
                                         </tr>
                                     </tfoot>

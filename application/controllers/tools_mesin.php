@@ -146,9 +146,7 @@ class Tools_Mesin extends CI_Controller
             'area' => $this->Area_model->get_all(),
             'active_nav' => 'tl_mesin'
         );
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
+
         $this->load->view('partials/head-form', $data);
         $this->load->view('tl_mesin/edit-data', $data);
         $this->load->view('partials/footer');
@@ -166,7 +164,9 @@ class Tools_Mesin extends CI_Controller
             'data' => $this->TLmesin_model->get_by_area_bulan($area_uuid, $bulan),
             'active_nav' => 'f-tl'
         );
-
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
         $this->load->view('partials/head-form', $data);
         $this->load->view('tl_mesin/form-detail', $data);
         $this->load->view('partials/footer');
@@ -343,5 +343,29 @@ class Tools_Mesin extends CI_Controller
         $dompdf->setPaper('F4', 'potrait');
         $dompdf->render();
         $dompdf->stream('Laporan_Tools_' . $bulan . '.pdf', array('Attachment' => false));
+    }
+
+    public function acc_fr($area_uuid, $bulan)
+    {
+        $result = $this->TLmesin_model->acc_fr($area_uuid, $bulan);
+
+        echo json_encode([
+            'status' => $result,
+            'message' => $result
+                ? 'Berhasil ACC Foreman'
+                : 'Gagal ACC Foreman'
+        ]);
+    }
+
+    public function acc_spv($area_uuid, $bulan)
+    {
+        $result = $this->TLmesin_model->acc_spv($area_uuid, $bulan);
+
+        echo json_encode([
+            'status' => $result,
+            'message' => $result
+                ? 'Berhasil ACC SPV'
+                : 'Gagal ACC SPV'
+        ]);
     }
 }

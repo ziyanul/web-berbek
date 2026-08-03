@@ -11,10 +11,10 @@ class Pbelah extends CI_Controller
 	{
 		parent::__construct();
 
-		$this->load->model('auth_model');
-		$this->load->model('area_model');
-		$this->load->model('sub_area_model');
-		$this->load->model('pbelah_model');
+		$this->load->model('Auth_model');
+		$this->load->model('Area_model');
+		$this->load->model('Sub_area_model');
+		$this->load->model('Pbelah_model');
 		$this->load->library('form_validation');
 
 		if (!$this->auth_model->current_user()) {
@@ -27,7 +27,7 @@ class Pbelah extends CI_Controller
 
 
 		$data = array(
-			'data' => $this->pbelah_model->get_data_by_tanggal(),
+			'data' => $this->Pbelah_model->get_data_by_tanggal(),
 			'active_nav' => 'pbelah'
 		);
 
@@ -38,12 +38,12 @@ class Pbelah extends CI_Controller
 
 	public function tambah()
 	{
-		$rules = $this->pbelah_model->rules3();
+		$rules = $this->Pbelah_model->rules3();
 		$this->form_validation->set_rules($rules);
 
 		if ($this->form_validation->run() === TRUE) {
 
-			$insert = $this->pbelah_model->insert_form();
+			$insert = $this->Pbelah_model->insert_form();
 			if ($insert) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
 				redirect('pbelah/');
@@ -54,8 +54,8 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			// 'data' => $this->pbelah_model->get_all_jenis_pbelah(),
-			'area' => $this->area_model->get_all(),
+			// 'data' => $this->Pbelah_model->get_all_jenis_pbelah(),
+			'area' => $this->Area_model->get_all(),
 			'active_nav' => 'pbelah'
 		);
 
@@ -69,11 +69,10 @@ class Pbelah extends CI_Controller
 
 
 		$data = array(
-			'data' => $this->pbelah_model->get_all_pengecekan($tanggal),
-			'hari' => $this->pbelah_model->get_data_by_tanggal(),
+			'data' => $this->Pbelah_model->get_all_pengecekan($tanggal),
+			'hari' => $this->Pbelah_model->get_data_by_tanggal(),
 			'active_nav' => 'pbelah'
 		);
-
 
 		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/detail-pbelah');
@@ -92,8 +91,8 @@ class Pbelah extends CI_Controller
 		$this->form_validation->set_rules($rules);
 
 		if ($this->form_validation->run() === TRUE) {
-			$redi = $this->pbelah_model->get_pengecekan_by_uuid($uuid);
-			$update = $this->pbelah_model->update_detail($uuid);
+			$redi = $this->Pbelah_model->get_pengecekan_by_uuid($uuid);
+			$update = $this->Pbelah_model->update_detail($uuid);
 			if ($update) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
 				redirect('pbelah/detail/' . $redi->tanggal);
@@ -104,12 +103,12 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			'data' => $this->pbelah_model->get_pengecekan_by_uuid($uuid),
+			'data' => $this->Pbelah_model->get_pengecekan_by_uuid($uuid),
 			'active_nav' => 'pbelah'
 		);
 
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/edit-detail-pbelah');
 		$this->load->view('partials/footer');
 	}
@@ -118,11 +117,11 @@ class Pbelah extends CI_Controller
 	{
 
 		$data = array(
-			'data' => $this->pbelah_model->get_all_jenis_pbelah(),
+			'data' => $this->Pbelah_model->get_all_jenis_pbelah(),
 			'active_nav' => 'jenis-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/jenis-pbelah');
 		$this->load->view('partials/footer');
 	}
@@ -131,23 +130,23 @@ class Pbelah extends CI_Controller
 	{
 
 		$data = array(
-			'data' => $this->pbelah_model->get_all_kode(),
+			'data' => $this->Pbelah_model->get_all_kode(),
 			'active_nav' => 'kode-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/kode-pbelah');
 		$this->load->view('partials/footer');
 	}
 
 	public function tambahjenis()
 	{
-		$rules = $this->pbelah_model->rules();
+		$rules = $this->Pbelah_model->rules();
 		$this->form_validation->set_rules($rules);
 
 		if ($this->form_validation->run() === TRUE) {
 
-			$insert = $this->pbelah_model->insert_jenis();
+			$insert = $this->Pbelah_model->insert_jenis();
 			if ($insert) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
 				redirect('pbelah/jenis');
@@ -158,21 +157,21 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			'area' => $this->area_model->get_all(),
+			'area' => $this->Area_model->get_all(),
 			'active_nav' => 'jenis-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/tambah-jenis');
 		$this->load->view('partials/footer');
 	}
 
 	public function detailjenis($sub_area_uuid)
 	{
-		$rules1 = $this->pbelah_model->rules1();
+		$rules1 = $this->Pbelah_model->rules1();
 		$this->form_validation->set_rules($rules1);
 		if ($this->form_validation->run() === TRUE) {
-			$insert = $this->pbelah_model->insert_kode($sub_area_uuid);
+			$insert = $this->Pbelah_model->insert_kode($sub_area_uuid);
 			if ($insert) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
 				redirect('pbelah/detailjenis/' . $sub_area_uuid);
@@ -183,11 +182,11 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			'data' => $this->pbelah_model->get_all_by_sub_area($sub_area_uuid),
+			'data' => $this->Pbelah_model->get_all_by_sub_area($sub_area_uuid),
 			'active_nav' => 'jenis-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/jenis-detail');
 		$this->load->view('partials/footer');
 	}
@@ -195,12 +194,12 @@ class Pbelah extends CI_Controller
 
 	public function editjenispb($uuid) //harus ada parameternya
 	{
-		$rules = $this->pbelah_model->rules4();
+		$rules = $this->Pbelah_model->rules4();
 		$this->form_validation->set_rules($rules);
 
 		if ($this->form_validation->run() === TRUE) { // kondisi jika form validation true
-			$area_name = $this->pbelah_model->get_jenis_by_uuid($uuid);
-			$update = $this->pbelah_model->updatejenis($uuid); // di ambil dari fungsi yang sudah di set di model mesin
+			$area_name = $this->Pbelah_model->get_jenis_by_uuid($uuid);
+			$update = $this->Pbelah_model->updatejenis($uuid); // di ambil dari fungsi yang sudah di set di model mesin
 
 			if ($update) { // Jika update sama dg true
 				$this->session->set_flashdata('success_msg', 'Data berhasil di ubah.');
@@ -212,11 +211,11 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			'data' => $this->pbelah_model->get_jenis_by_uuid($uuid),
+			'data' => $this->Pbelah_model->get_jenis_by_uuid($uuid),
 			'active_nav' => 'jenis-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/edit-jenispb', $data);
 		$this->load->view('partials/footer');
 	}
@@ -226,22 +225,22 @@ class Pbelah extends CI_Controller
 	public function detailkodepb($jenis_pbelah_uuid)
 	{
 		$data = array(
-			'data' => $this->pbelah_model->get_kode_by_jenis($jenis_pbelah_uuid),
-			'nav' => $this->pbelah_model->get_jenis_for_nav($jenis_pbelah_uuid),
+			'data' => $this->Pbelah_model->get_kode_by_jenis($jenis_pbelah_uuid),
+			'nav' => $this->Pbelah_model->get_jenis_for_nav($jenis_pbelah_uuid),
 			'active_nav' => 'kode-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/detail-kode-pb.php');
 		$this->load->view('partials/footer');
 	}
 
 	public function tambahkode()
 	{
-		$rules1 = $this->pbelah_model->rules1();
+		$rules1 = $this->Pbelah_model->rules1();
 		$this->form_validation->set_rules($rules1);
 		if ($this->form_validation->run() === TRUE) {
-			$insert = $this->pbelah_model->insert_kode($sub_area_uuid);
+			$insert = $this->Pbelah_model->insert_kode($sub_area_uuid);
 			if ($insert) {
 				$this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
 				redirect('pbelah/kode/');
@@ -252,24 +251,24 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			// 'data' => $this->pbelah_model->get_all_by_sub_area($sub_area_uuid),
-			'area' => $this->pbelah_model->get_all_area(),
+			// 'data' => $this->Pbelah_model->get_all_by_sub_area($sub_area_uuid),
+			'area' => $this->Pbelah_model->get_all_area(),
 			'active_nav' => 'kode-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/tambah-kode');
 		$this->load->view('partials/footer');
 	}
 
 	public function editkodepb($uuid) //harus ada parameternya
 	{
-		$rules = $this->pbelah_model->rules2();
+		$rules = $this->Pbelah_model->rules2();
 		$this->form_validation->set_rules($rules);
 
 		if ($this->form_validation->run() === TRUE) { // kondisi jika form validation true
-			$data = $this->pbelah_model->get_kode_uuid($uuid);
-			$update = $this->pbelah_model->updatekode($uuid); // di ambil dari fungsi yang sudah di set di model mesin
+			$data = $this->Pbelah_model->get_kode_uuid($uuid);
+			$update = $this->Pbelah_model->updatekode($uuid); // di ambil dari fungsi yang sudah di set di model mesin
 
 			if ($update) { // Jika update sama dg true
 				$this->session->set_flashdata('success_msg', 'Data berhasil di ubah.');
@@ -281,30 +280,30 @@ class Pbelah extends CI_Controller
 		}
 
 		$data = array(
-			'data' => $this->pbelah_model->get_kode_uuid($uuid),
+			'data' => $this->Pbelah_model->get_kode_uuid($uuid),
 			'active_nav' => 'kode-pbelah'
 		);
 
-		$this->load->view('partials/head', $data);
+		$this->load->view('partials/head-form', $data);
 		$this->load->view('pbelah/edit-kodepb', $data);
 		$this->load->view('partials/footer');
 	}
 
 	public function get_lokasi_by_area($area_uuid)
 	{
-		$data = $this->sub_area_model->get_sub_area($area_uuid);
+		$data = $this->Sub_area_model->get_sub_area($area_uuid);
 		print_r(json_encode($data));
 	}
 
 	public function get_jenis_by_sub_area($sub_area_uuid)
 	{
-		$data = $this->pbelah_model->get_jenis($sub_area_uuid);
+		$data = $this->Pbelah_model->get_jenis($sub_area_uuid);
 		print_r(json_encode($data));
 	}
 
 	public function get_kode_by_sub_area($sub_area_uuid)
 	{
-		$kode_barang = $this->pbelah_model->get_kode_by_sub_area($sub_area_uuid);
+		$kode_barang = $this->Pbelah_model->get_kode_by_sub_area($sub_area_uuid);
 		echo json_encode($kode_barang);
 	}
 
@@ -316,8 +315,8 @@ class Pbelah extends CI_Controller
 		$options->set('defaultFont', 'DejaVu Sans');
 		$dompdf = new Dompdf($options);
 
-		$data = $this->pbelah_model->get_all_pengecekan($tanggal);
-		$hari = $this->pbelah_model->get_data_by_tanggal();
+		$data = $this->Pbelah_model->get_all_pengecekan($tanggal);
+		$hari = $this->Pbelah_model->get_data_by_tanggal();
 		$logo = base_url("assets/img/cpi-logo.jpg");
 
 		// Header dokumen
@@ -440,13 +439,13 @@ class Pbelah extends CI_Controller
 <td>Diketahui:</td>
 </tr>
 <tr>
-<td><br> <br></td>
+<td><br>' . $data[0]->fullname . '</td>
 <td style="border:none;" width="25%"></td>
 
-<td><br> <br></td>
+<td><br>' . $data[0]->leader . '</td>
 <td style="border:none;" width="25%"></td>
 
-<td><br> <br></td>
+<td><br>' . $data[0]->spv . '</td>
 </tr>
 <tr style="text-align:center;">
 <td>Checker Filler</td>

@@ -71,7 +71,16 @@
        <?php } ?>
    </tbody>
 </table>
-</div>
+
+<div class="row mt-3">
+                    <div class="col">
+                       
+                        <a href="<?= base_url('pbelah/jenis') ?>" class="btn btn-md btn-danger">
+                            <i class="fa fa-arrow-left"></i> Kembali
+                        </a>
+                    </div>
+                </div>
+                </div>
 </div>
 </div>
 

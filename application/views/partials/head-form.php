@@ -215,14 +215,14 @@
 
                 <li class="nav-item <?= in_array($active_nav, [
                                         'area', 'mesin', 'tl_mesin', 'sparepart', 'am-data', 'item-cm', 'masterspeed',
-                                        'gmp-area', 'gmp-data', 'm_kondisi', 'varian', 'm_tindakan', 'pegawai'
+                                        'gmp-area', 'gmp-data', 'm_kondisi', 'varian', 'm_tindakan', 'pegawai', 'jenis-pbelah'
                                     ]) ? 'active' : ''; ?>">
                     <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseMaster">
                         <span>MASTER DATA</span>
                     </a>
                     <div id="collapseMaster" class="collapse <?= in_array($active_nav, [
                                                                     'area', 'mesin', 'tl_mesin', 'sparepart', 'am-data', 'item-cm', 'masterspeed',
-                                                                    'gmp-area', 'gmp-data', 'm_kondisi', 'varian', 'm_tindakan', 'pegawai'
+                                                                    'gmp-area', 'gmp-data', 'm_kondisi', 'varian', 'm_tindakan', 'pegawai', 'jenis-pbelah'
                                                                 ]) ? 'show' : ''; ?>">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <!-- MESIN & PART -->
@@ -233,14 +233,8 @@
                             <a class="collapse-item <?= $active_nav == 'item-cm' ? 'active' : ''; ?>" href="<?= base_url('cekmesin/dataitem') ?>">ITEM PENGECEKAN</a>
                             <a class="collapse-item <?= $active_nav == 'dataitem-batch' ? 'active' : ''; ?>" href="<?= base_url('cekmesin_fillerbatch/dataitem') ?>">ITEM PENGECEKAN / BATCH</a>
                             <a class="collapse-item <?= $active_nav == 'tl_mesin' ? 'active' : ''; ?>" href="<?= base_url('tools_mesin') ?>">TOOLS MESIN</a>
-
-                            <!-- DATA ISO -->
-                            <h6 class="collapse-header">DATA ISO/TS</h6>
-
-                            <a class="collapse-item <?= $active_nav == 'gmp-data' ? 'active' : ''; ?>" href="<?= base_url('gmp/data') ?>">KEGIATAN ISO/TS</a>
-
-                            <a class="collapse-item <?= $active_nav == 'm_kondisi' ? 'active' : ''; ?>" href="<?= base_url('sanitasi/kondisi') ?>">KONDISI SANITASI</a>
-                            <a class="collapse-item <?= $active_nav == 'm_tindakan' ? 'active' : ''; ?>" href="<?= base_url('sanitasi/mtindakan') ?>">TINDAKAN SANITASI</a>
+                            <h6 class="collapse-header">MASTER PECAH BELAH</h6>
+                            <a class="collapse-item <?= $active_nav == 'jenis-pbelah' ? 'active' : ''; ?>" href="<?= base_url('pbelah/jenis') ?>">DATA PECAH BELAH</a>
                             <!-- DATA LAIN-LAIN -->
                             <h6 class="collapse-header">DATA LAIN-LAIN</h6>
                             <a class="collapse-item <?= $active_nav == 'pegawai' ? 'active' : '' ?>" href="<?= base_url('pegawai') ?>">PEGAWAI</a>

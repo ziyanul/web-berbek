@@ -52,7 +52,7 @@
                             <td class="font-weight-bold">Foreman/Lady</td>
                             <td width="15">:</td>
                             <td class='font-weight-bold border-bottom-0' style="color: #219b0b;">
-                                <?php if (empty($row->frm_uuid)): ?>
+                                <?php if (empty($row->leader)): ?>
                                 <a href="#" data-uuid="<?= $row->tanggal; ?>" data-shift="<?= $row->shift; ?>"
                                     data-role="2" class="btn btn-approve btn-success shadow-sm" data-toggle="tooltip"
                                     data-placement="top" title="Approval Foreman">
@@ -67,14 +67,14 @@
                             <td class="font-weight-bold">Approval SPV</td>
                             <td width="15">:</td>
                             <td class='font-weight-bold border-bottom-0' style="color: #219b0b;">
-                                <?php if (empty($row->spv_uuid)): ?>
+                                <?php if (empty($row->spv) && (!empty($row->leader)) && $this->session->userdata('type') == 1): ?>
                                 <a href="#" data-uuid="<?= $row->tanggal; ?>" data-shift="<?= $row->shift; ?>"
                                     data-role="1" class="btn btn-approve btn-success shadow-sm" data-toggle="tooltip"
                                     data-placement="top" title="Approval SPV">
                                     <i class="fa fa-check-circle mr-2"></i> ACC
                                 </a>
                                 <?php else: ?>
-                                <?= $row->spv ? $row->spv : 'Sudah Disetujui'; ?>
+                                <?= $row->spv ? $row->spv : '-'; ?>
                                 <?php endif; ?>
                             </td>
                         </tr>

@@ -179,3 +179,7 @@
 	$route['pergantian_varian_packing/edit/(:any)'] = 'pergantian_varian/edit_packing/$1';
 	$route['pergantian_varian_packing/form_2/(:any)/(:any)'] = 'pergantian_varian/form_packing/$1/$2';
 	$route['pergantian_varian/approval_packing/(:any)/(:any)'] = 'pergantian_varian/approval_packing/$1/$2';
+
+	$route['area/maintenance/(:any)'] = 'area/$1';
+	$route['area/paperless/(:any)'] = 'area/$1';
+	$route['area/yield/(:any)'] = 'area/$1';

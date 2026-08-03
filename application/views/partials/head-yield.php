@@ -121,7 +121,7 @@
                 </li>
 
                 <li class="nav-item <?= $active_nav == 'rework' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= base_url('rework') ?>">
+                    <a class="nav-link" href="<?= base_url('rework/kupas') ?>">
                         <i class="fa fa-recycle"></i> <span>REWORK</span></a>
                 </li>
 

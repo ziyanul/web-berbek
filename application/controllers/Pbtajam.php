@@ -15,6 +15,9 @@ class Pbtajam extends CI_Controller
         $this->load->model('auth_model');
         $this->load->model('area_model');
         $this->load->library('form_validation');
+        if (!$this->auth_model->current_user()) {
+            redirect('login');
+        }
     }
 
     public function index()

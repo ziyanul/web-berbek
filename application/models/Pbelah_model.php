@@ -72,35 +72,39 @@ class Pbelah_model extends CI_Model
     }
 
     public function get_all_pengecekan($tanggal)
-{
-    $this->db->select('pb.*, a.nama_area, s.lokasi, jp.jenis_barang, kp.kode_barang');
-    $this->db->from('pengecekan_pbelah pb');
-    $this->db->join('area a', 'a.uuid = pb.area_uuid');
-    $this->db->join('sub_area s', 's.uuid = pb.sub_area_uuid');
-    $this->db->join('jenis_pbelah jp', 'jp.uuid = pb.jenis_pbelah_uuid');
-    $this->db->join('kode_pbelah kp', 'kp.uuid = pb.kode_pbelah_uuid');
-    $this->db->where("DATE_FORMAT(pb.created_at, '%Y-%m-%d') =", $tanggal);
-    $this->db->order_by('a.nama_area, s.lokasi, jp.jenis_barang, kp.kode_barang');
-    $data = $this->db->get()->result();
-    foreach ($data as $val) {
-        if ($val->kondisi == 1) {
-            $val->baik = '&#x2713;';
-            $val->tidak = '-';
-        } elseif ($val->kondisi == 2) {
-            $val->baik = '-';
-            $val->tidak = '&#88;';
+    {
+        // $this->db->select('pb.*, a.nama_area, s.lokasi, jp.jenis_barang, kp.kode_barang');
+        $this->db->select('pb.uuid, pb.kondisi, kp.kode_barang, jp.jenis_barang, s.lokasi, a.nama_area, u.fullname');
+        $this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = pb.spv_uuid) AS spv", false);
+        $this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = pb.frm_uuid) AS leader", false);
+        $this->db->from('pengecekan_pbelah pb');
+        $this->db->join('jenis_pbelah jp', 'jp.uuid = pb.jenis_pbelah_uuid', 'left');
+        $this->db->join('kode_pbelah kp', 'kp.uuid = pb.kode_pbelah_uuid', 'left');
+        $this->db->join('sub_area s', 's.uuid = jp.sub_area_uuid', 'left');
+        $this->db->join('area a', 'a.uuid = s.area_uuid', 'left');
+        $this->db->join('users u', 'u.uuid = pb.user_uuid', 'left');
+        $this->db->where("DATE_FORMAT(pb.created_at, '%Y-%m-%d') =", $tanggal);
+        $this->db->order_by('a.nama_area, s.lokasi, jp.jenis_barang, kp.kode_barang');
+        $data = $this->db->get()->result();
+        foreach ($data as $val) {
+            if ($val->kondisi == 1) {
+                $val->baik = '&#x2713;';
+                $val->tidak = '-';
+            } elseif ($val->kondisi == 2) {
+                $val->baik = '-';
+                $val->tidak = '&#88;';
+            }
         }
-    }
 
-    return $data;
-}
+        return $data;
+    }
 
 
     public function get_data_by_tanggal()
     {
         $this->db->select("pb.uuid, DATE_FORMAT(pb.created_at, '%Y-%m-%d') as tanggal, pb.created_at");
         $this->db->from('pengecekan_pbelah pb');
-        $this->db->group_by('tanggal');
+        $this->db->group_by('pb.uuid, tanggal, pb.created_at');
         $this->db->order_by('tanggal', 'DESC');
         $data = $this->db->get()->result();
         foreach ($data as $val) {
@@ -116,7 +120,6 @@ class Pbelah_model extends CI_Model
                 'Saturday'  => 'Sabtu'
             ];
             $val->nama_hari = $namahari[$nhari];
-
         }
 
         return $data;
@@ -138,8 +141,8 @@ class Pbelah_model extends CI_Model
 
             $data = [
                 'uuid' => $uui,
-                'area_uuid' => $area_uuid,
-                'sub_area_uuid' => $sub_area_uuid,
+                // 'area_uuid' => $area_uuid,
+                // 'sub_area_uuid' => $sub_area_uuid,
                 'user_uuid' => $this->auth_model->current_user()->uuid,
                 'jenis_pbelah_uuid' => $jenis_pbelah,
                 'kode_pbelah_uuid' => $kode_uuid,
@@ -248,18 +251,30 @@ class Pbelah_model extends CI_Model
         $this->db->where('uuid', $uuid);
         return $this->db->delete('pengecekan_pbelah');
     }
-    
+
     public function get_all_jenis_pbelah()
     {
-        $this->db->select('j.*, a.nama_area, s.lokasi');
+        $this->db->select('
+        j.area_uuid,
+        j.sub_area_uuid,
+        a.nama_area,
+        s.lokasi
+    ');
         $this->db->from('jenis_pbelah j');
         $this->db->join('area a', 'a.uuid = j.area_uuid', 'left');
         $this->db->join('sub_area s', 's.uuid = j.sub_area_uuid', 'left');
-        $this->db->order_by('j.created_at', 'ASC');
-        $this->db->group_by('j.area_uuid, j.sub_area_uuid');
-        $data = $this->db->get()->result();
 
-        return $data;
+        $this->db->group_by([
+            'j.area_uuid',
+            'j.sub_area_uuid',
+            'a.nama_area',
+            's.lokasi'
+        ]);
+
+        $this->db->order_by('a.created_at', 'ASC');
+        $this->db->order_by('s.created_at', 'ASC');
+
+        return $this->db->get()->result();
     }
 
     // Fungsi untuk mendapatkan kode barang

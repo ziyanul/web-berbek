@@ -178,192 +178,23 @@ class Cekmesin extends CI_Controller
         $dompdf = new Dompdf($options);
 
         $cek_mesin = $this->cek_mesin_model->get_area_data($t_planning_uuid, $area_uuid);
-        $logo = base_url("assets/img/cpi-logo.jpg");
-
-        $html = '
-    <html>
-    <head>
-        <title>FR-Prod-14 FORM PENGECEKAN MESIN MP</title>
-            <meta name="author" content="Arthur Herbert Fonzarelli">
-            <meta name="keywords" content="fonzie, cool, ehhhhhhh">
-            </head>
-            <body>
-
-            <style>
-            @page { margin: 5px; }
-            body {sans-serif; font-size: 10px; }
-            table { width: 100%; border-collapse: collapse; }
-            table tr td{border:1px solid #000;}
-            table thead tr {background-color:#dbe5f1}
-            table thead tr#standar{background-color:#b8cce4!important;}
-            table.data tr th{border:1px solid #000;text-align:center;font-size:12px;}
-            .data th, .data td { padding: 2px; }
-            table.data tr td{text-align:center;}
-            </style>
-            <table width="100%">
-            <tr>
-            <td width="70">
-            <table width="100%">
-            <tbody>
-            <tr>
-            <td rowspan="2" align="center" valign="middle" style="border:0;"><img src="' . $logo . '" width="110px"></td>
-            </tr>
-            </tbody>
-            </table>
-            </td>
-            <td width="380">
-            <table width="102%">
-            <tbody>
-                <tr>
-                    <td style="text-align:center;border-top:0;border-left:0;border-right:0;"><h2>FORM</h2></td>
-                </tr>
-                <tr>
-                    <td style="text-align:center;border:0; text-transform: uppercase;"><h2>PENGECEKAN MESIN</h2></td>
-                </tr>
-            </tbody>
-            </table>
-            </td>
-            <td>
-            <table width="101%" style="margin-left:-1px;">
-            <tbody>
-                <tr>
-                    <td style="border:0;height:30px;">&nbsp;No. Dokumen</td>
-                    <td style="border:0;height:30px;">:</td>
-                    <td style="border:0;height:30px;">&nbsp;FR-Prod-14</td>
-                </tr>
-                <tr>
-                    <td style="border-left:0;border-right:0;height:30px;">&nbsp;Revisi</td>
-                    <td style="border-left:0;border-right:0;height:30px;">:</td>
-                    <td style="border-left:0;border-right:0;height:30px;">&nbsp;1</td>
-                </tr>
-                <tr>
-                    <td style="border-left:0;border-right:0;height:30px;">&nbsp;Tanggal Efektif</td>
-                    <td style="border-left:0;border-right:0;height:30px;">:</td>
-					<td style="border-left:0;border-right:0;height:30px;">&nbsp;02/01/2024</td>
-                </tr>
-                <tr>
-                    <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;Halaman</td>
-                    <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">:</td>
-                    <td style="border-left:0;border-right:0;border-bottom:0;height:30px;">&nbsp;1 dari 6</td>
-                </tr>
-            </tbody>
-            </table>
-            </td>
-            </tr>
-            </table>
-
-            <table style="padding-top:10px; padding-bottom:10px;">
-            <tbody>
-                <tr>
-                    <td style="border:none; width:60px; text-align:left;">Area</td>
-                    <td style="border:none; width:10px; text-align:left;">: </td>
-                    <td style="border:none; text-align:left;">' . $cek_mesin[0]->area . '</td>
-                </tr>
-                <tr>
-                    <td style="border:none; width:60px; text-align:left;">Tanggal</td>
-                    <td style="border:none; width:10px; text-align:left;">: </td>
-                    <td style="border:none; text-align:left;">' . $cek_mesin[0]->tgl . '</td>
-                    <td style="border:none; width:60px; text-align:left;">Varian</td>
-                    <td style="border:none; width:10px; text-align:left;">: </td>
-                    <td style="border:none; width:450px; text-align:left;">' . $cek_mesin[0]->varian . '</td>
-            </tr>
-            </tbody>
-            </table><br>
-
-    <table class="data" width="100%">
-        <thead>
-            <tr>
-                <th rowspan="2" width="1">No</th>
-                <th rowspan="2" style="text-align:left; width:130px;">Item</th>
-                <th colspan="2">Checklist Awal Produksi</th>
-                <th rowspan="2" style="width:80px;">Keterangan</th>
-                <th colspan="2" style="border-right: 3px solid #000000;">Paraf</th>
-                <th colspan="2">Checklist Akhir Produksi</th>
-                <th rowspan="2" style="width:80px;">Keterangan</th>
-                <th colspan="2">Paraf</th>
-            </tr>
-            <tr>
-                <th style="width:40px;">Ya</th>
-                <th style="width:40px;">Tidak</th>
-                <th style="width:60px;">Prod</th>
-                <th style="width:60px; border-right: 3px solid #000000;">QC</th>
-                <th style="width:40px;">Ya</th>
-                <th style="width:40px;">Tidak</th>
-                <th style="width:60px;">Prod</th>
-                <th style="width:60px;">QC</th>
-            </tr>
-        </thead>
-        <tbody>';
-
-        $last_mesin = null;
-        $mesin_no = 'A'; // Huruf awal untuk penomoran mesin
-        $item_no = 1; // Nomor urut item dalam mesin
-
-        foreach ($cek_mesin as $row) {
-            if ($last_mesin !== $row->mesin) {
-                // Tambahkan header untuk mesin baru
-                if ($last_mesin !== null) {
-                    $html .= '</tbody>';
-                }
-                $html .= '<tr>';
-                $html .= '<td style="text-align:left; border-right: 3px solid #000000;" colspan="7"><strong>' . $mesin_no . '. ' . htmlspecialchars($row->mesin) . '</strong></td>';
-                $html .= '<td colspan="5"></td>';
-                $html .= '</tr>';
-
-                $last_mesin = $row->mesin;
-                $mesin_no++;
-                $item_no = 1; // Reset nomor item untuk mesin baru
-            }
-
-            // Baris data item
-            $html .= '<tr>';
-            $html .= '<td>' . $item_no . '</td>';
-            $html .= '<td style="text-align:left;">' . htmlspecialchars($row->item) . '</td>';
-            $html .= '<td style="font-size: 12px;">' . ($row->checklist == 2 ? '&check;' : '-') . '</td>';
-            $html .= '<td style="font-size: 12px;">' . ($row->checklist == 0 ? 'x' : '-') . '</td>';
-            $html .= '<td>' . ($row->keterangan ?: '-') . '</td>';
-            $html .= '<td>' . ($row->leader_1 ?: '') . '</td>';
-            $html .= '<td style="border-right: 3px solid #000000;">' . ($row->paraf_qc ?? '') . '</td>';
-            $html .= '<td style="font-size: 12px;">' . ($row->checklist2 == 2 ? '&check;' : '-') . '</td>';
-            $html .= '<td style="font-size: 12px;">' . ($row->checklist2 == 1 ? 'x' : '-') . '</td>';
-            $html .= '<td>' . ($row->keterangan2 ?: '-') . '</td>';
-            $html .= '<td>' . ($row->leader_2 ?: '') . '</td>';
-            $html .= '<td>' . ($row->paraf_qc ?? '') . '</td>';
-            $html .= '</tr>';
-
-            $item_no++;
+        if (empty($cek_mesin)) {
+            show_error('Data pengecekan mesin tidak ditemukan.');
+            return;
         }
+        $data = [
+            'cek_mesin' => $cek_mesin,
+            'logo'      => base_url('assets/img/cpi-logo.jpg'),
+        ];
 
-        $html .= '</tbody></table>';
-        $html .= '<br><table width="100%">
-                <tr>
-                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Dilaksanakan Oleh</b></td>
-                    <td style="border: none; width: 30px;"></td>
-                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Diverifikasi Oleh</b></td>
-                    <td style="border: none; width: 30px;"></td>
-                    <td style="width: 200px; text-align: center; background-color: #dbe5f1;"><b>Disetujui Oleh</b></td>
-                </tr>';
-        $html .= '<tr>';
-        $html .= '<td style="text-align: center; height: 50px; width: 200px;">' . $row->fullname . '</td>';
-        $html .= '<td style="height: 50px; border: none; width: 80px;"></td>';
-        $html .= '<td style="text-align: center; height: 50px; width: 200px;">' . $row->leader_1 . '</td>';
-        $html .= '<td style="height: 50px; border: none; width: 80px;"></td>';
-        $html .= '<td style="text-align: center; height: 50px; width: 200px;">' . $row->spv . '</td>';
-        $html .= '</tr>
-                <tr>
-                    <td style="width: 200px; text-align: center;">Checker</td>
-                    <td style="border: none; width: 30px;"></td>
-                    <td style="width: 200px; text-align: center;">Foreman/Lady</td>
-                    <td style="border: none; width: 30px;"></td>
-                    <td style="width: 200px; text-align: center;">Spv.Produksi</td>
-                </tr>
-            </table>';
-
-        $html .= '</body></html>';
+        $html = $this->load->view('pdf/cekmesin-mp', $data, true);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('FOLIO', 'portrait');
         $dompdf->render();
-        $dompdf->stream("FR-Prod-14_FORM_PENGECEKAN_MESIN.pdf", array("Attachment" => false));
+        $dompdf->stream(
+            'FR-Prod-14_FORM_PENGECEKAN_MESIN.pdf',
+            ['Attachment' => false]
+        );
     }
 
 

@@ -268,7 +268,7 @@ class Cekmesin_susun extends CI_Controller
         <td style="border:none; text-align:left;">' . $cek_mesin[0]->tgl . '</td>
         <td style="border:none; width:60px; text-align:left;">Varian</td>
         <td style="border:none; width:10px; text-align:left;">: </td>
-        <td style="border:none; width:450px; text-align:left;">' . $cek_mesin[0]->varian . '</td>
+        <td style="border:none; width:450px; text-align:left;">' . $cek_mesin[0]->varian . ' ( ' .$cek_mesin[0]->keterangan. ' )</td>
         </tr>
         </tbody>
         </table><br>

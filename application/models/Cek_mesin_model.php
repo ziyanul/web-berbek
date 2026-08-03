@@ -167,13 +167,15 @@ class Cek_mesin_model extends CI_Model
 	{
 		$area_uuid = $this->mp;
 		$this->db->select(
-			'c.*, c.uuid as cek_uuid, t.varian, t.tanggal, u.fullname,
+			'c.*, c.uuid as cek_uuid, v.varian, v.keterangan, t.tanggal, u.fullname,
 			COALESCE((SELECT fullname FROM users WHERE uuid = c.spv_uuid), "-") AS spv,
 			COALESCE((SELECT fullname FROM users WHERE uuid = c.paraf_prod), "-") AS paraf_prod,
+			COALESCE((SELECT fullname FROM users WHERE uuid = c.user_uuid), "-") AS nama_ceker,
 			COALESCE((SELECT fullname FROM users WHERE uuid = c.fr_uuid), "-") AS foreman'
 		);
 		$this->db->from('cek_mesin c');
 		$this->db->join('t_planning t', 't.uuid = c.t_planning_uuid', 'left');
+		$this->db->join('varian v', 't.varian = v.uuid', 'left');
 		$this->db->join('users u', 'u.uuid = c.user_uuid', 'left');
 		$this->db->where(['c.t_planning_uuid' => $t_planning_uuid, 'c.area_uuid' => $area_uuid]);
 		$this->db->order_by('c.mesin, c.item');
