@@ -23,8 +23,7 @@
 			</b>
 		</div>
 		<div class="card-body">
-			<form action="<?= base_url('sortasi/edit/' . $data->uuid) ?>"
-				method="post">
+			<form action="<?= base_url('sortasi/edit/' . $data->uuid) ?>" method="post">
 				<!-- ==================================
      DATA BATCH
 ================================== -->
@@ -43,21 +42,15 @@
 										Kode Batch
 										<span class="text-danger">*</span>
 									</label>
-									<select
-										name="tbatch_uuid"
-										id="tbatch_uuid"
-										class="form-control"
-										required>
+									<select name="tbatch_uuid" id="tbatch_uuid" class="form-control" required>
 										<option value="">
 											Pilih Batch
 										</option>
-										<?php foreach ($batch as $b): ?>
-											<option
-												value="<?= $b->uuid ?>"
-												<?= ($b->uuid == $data->tbatch_uuid)
-													? 'selected'
-													: ''
-												?>>
+										<?php foreach ($batch as $b) : ?>
+											<option value="<?= $b->uuid ?>" <?= ($b->uuid == $data->tbatch_uuid)
+																				? 'selected'
+																				: ''
+																			?>>
 												<?= $b->kode_batch ?>
 												-
 												<?= $b->varian ?>
@@ -147,13 +140,7 @@
 										Jumlah Sortir (Box)
 										<span class="text-danger">*</span>
 									</label>
-									<input
-										type="number"
-										name="jumlah_sortir"
-										id="jumlah_sortir"
-										class="form-control"
-										min="0"
-										value="<?= $data->jumlah_wip ?>">
+									<input type="number" name="jumlah_sortir" id="jumlah_sortir" class="form-control" min="0" value="<?= $data->jumlah_wip ?>">
 								</div>
 							</div>
 							<div class="col-md-6">
@@ -162,13 +149,7 @@
 										Release Box
 										<span class="text-danger">*</span>
 									</label>
-									<input
-										type="number"
-										name="release_box"
-										id="release_box"
-										class="form-control"
-										min="0"
-										value="<?= $data->jml_release ?>">
+									<input type="number" name="release_box" id="release_box" class="form-control" min="0" value="<?= $data->jml_release ?>">
 								</div>
 							</div>
 						</div>
@@ -185,188 +166,274 @@
 							<label>
 								Keterangan
 							</label>
-							<textarea
-								name="keterangan"
-								class="form-control"
-								rows="3"><?= $data->keterangan ?></textarea>
+							<textarea name="keterangan" class="form-control" rows="3"><?= $data->keterangan ?></textarea>
 						</div>
 					</div>
 				</div>
-				<!-- =========================
-                     MESIN
-                ========================== -->
+				<!-- =========================================================
+     BAD PRODUK
+========================================================== -->
+
 				<div class="card border-left-danger mb-4">
+
 					<div class="card-header bg-light">
+
 						<div class="d-flex justify-content-between align-items-center">
+
 							<b>
-								<i class="fas fa-industry mr-2"></i>
-								Bad Produk Per Mesin
+								<i class="fas fa-exclamation-triangle mr-2"></i>
+								Bad Produk
 							</b>
-							<button
-								type="button"
-								id="btnTambahMesin"
-								class="btn btn-primary btn-sm">
+
+							<button type="button" id="btnTambahBadProduk" class="btn btn-primary btn-sm">
+
 								<i class="fa fa-plus"></i>
-								Tambah Mesin
+								Tambah Bad Produk
+
 							</button>
+
 						</div>
+
 					</div>
+
+
 					<div class="card-body">
-						<div id="mesinContainer">
-							<?php
-							$mesin_group = [];
-							foreach ($badpro_input as $bp) {
-								$mesin_group[$bp->mesin_uuid][] = $bp;
-							}
-							$indexMesin = 0;
-							foreach ($mesin_group as $mesin_uuid => $bad):
-							?>
-								<div class="card border-left-secondary mb-3 mesin-card" data-index="<?= $indexMesin ?>">
-									<div class="card-header bg-light">
-										<b>
-											<i class="fas fa-industry"></i>
-											<?= $bad[0]->nama_mesin ?>
-										</b>
-										<button
-											type="button"
-											class="btn btn-danger btn-sm float-right btnHapusMesin">
-											<i class="fa fa-trash"></i>
-										</button>
-									</div>
-									<div class="card-body">
-										<select
-											name="mesin_uuid[]"
-											class="form-control mesinSelect">
-											<option value="">
-												Pilih Mesin
-											</option>
-											<?php foreach ($mesin as $m): ?>
-												<option
-													value="<?= $m->uuid ?>"
-													<?= ($m->uuid == $mesin_uuid) ? 'selected' : '' ?>>
-													<?= $m->nama_mesin ?>
-												</option>
-											<?php endforeach; ?>
-										</select>
-										<table class="table table-bordered table-sm mt-3">
-											<thead>
-												<tr>
-													<th>
-														Bad Produk
-													</th>
-													<th>
-														Kategori
-													</th>
-													<th>
-														Kg
-													</th>
-													<th>
-														Aksi
-													</th>
-												</tr>
-											</thead>
-											<tbody class="badproContainer">
-												<?php foreach ($bad as $b): ?>
-													<tr>
-														<td>
-															<select
-																name="badpro_uuid[<?= $indexMesin ?>][]"
-																class="form-control badproSelect">
-																<option value="">
-																	Pilih Bad Produk
-																</option>
-																<?php foreach ($badpro as $bp): ?>
-																	<option
-																		value="<?= $bp->uuid_badpro ?>"
-																		<?= ($bp->uuid_badpro == $b->badpro_uuid) ? 'selected' : '' ?>>
-																		<?= $bp->nama_badpro ?>
-																	</option>
-																<?php endforeach; ?>
-															</select>
-														</td>
-														<td>
-															<input
-																type="text"
-																class="form-control"
-																readonly
-																value="<?= $b->kategori_nama ?>">
-														</td>
-														<td>
-															<input
-																type="number"
-																step="0.01"
-																name="jumlah_badpro[<?= $indexMesin ?>][]"
-																class="form-control jumlahBad"
-																value="<?= $b->berat ?>">
-														</td>
-														<td>
-															<button
-																type="button"
-																class="btn btn-danger btn-sm btnRemoveBad">
-																<i class="fa fa-trash"></i>
-															</button>
-														</td>
-													</tr>
-												<?php endforeach; ?>
-											</tbody>
-										</table>
-										<button
-											type="button"
-											class="btn btn-success btn-sm btnTambahBad"
-											data-index="<?= $indexMesin ?>">
-											<i class="fa fa-plus"></i>
-											Tambah Bad Produk
-										</button>
-									</div>
+
+						<div id="badProdukContainer">
+
+							<?php if (empty($badpro_input)) : ?>
+
+								<div class="text-center text-muted">
+
+									Belum ada bad produk
+
 								</div>
-								<?php
-								$indexMesin++;
-								?>
-							<?php endforeach; ?>
+
+							<?php else : ?>
+
+								<?php foreach ($badpro_input as $index => $bp) : ?>
+
+									<div class="card border-left-secondary mb-3 bad-card" data-index="<?= $index ?>">
+
+										<div class="card-header bg-light">
+
+											<div class="d-flex justify-content-between">
+
+												<b>
+
+													<i class="fas fa-box-open mr-2"></i>
+
+													Bad Produk
+
+												</b>
+
+												<button type="button" class="btn btn-danger btn-sm btnHapusBad">
+
+													<i class="fa fa-trash"></i>
+
+												</button>
+
+											</div>
+
+										</div>
+
+
+										<div class="card-body">
+
+											<div class="row">
+
+												<!-- BAD PRODUK -->
+
+												<div class="col-md-4">
+
+													<div class="form-group">
+
+														<label>
+															Bad Produk
+														</label>
+
+														<select name="badpro_uuid[]" class="form-control badproSelect" required>
+
+															<option value="">
+																Pilih Bad Produk
+															</option>
+
+															<?php foreach ($badpro as $b) : ?>
+
+																<option value="<?= $b->uuid_badpro ?>" data-kategori="<?= $b->kategori_nama ?>" <?= ($b->uuid_badpro
+																																					==
+																																					$bp->badpro_uuid
+																																				)
+																																					? 'selected'
+																																					: ''
+																																				?>>
+
+																	<?= $b->nama_badpro ?>
+
+																</option>
+
+															<?php endforeach; ?>
+
+														</select>
+
+													</div>
+
+												</div>
+
+
+												<!-- BERAT -->
+
+												<div class="col-md-4">
+
+													<div class="form-group">
+
+														<label>
+															Berat Bad Produk (Kg)
+														</label>
+
+														<input type="number" step="0.01" min="0.01" name="badpro_berat[]" class="form-control jumlahBad" value="<?= $bp->berat ?>" required>
+
+													</div>
+
+												</div>
+
+
+												<!-- MESIN DOMINAN -->
+
+												<div class="col-md-4">
+
+													<div class="form-group">
+
+														<label>
+															Mesin Dominan
+														</label>
+
+														<select name="mesin_uuid[<?= $index ?>][]" class="form-control mesinDominan" multiple>
+
+															<?php foreach ($mesin as $m) : ?>
+
+																<?php
+
+																$selected = false;
+
+																if (!empty($bp->mesin)) {
+
+																	foreach ($bp->mesin
+																		as $selectedMesin) {
+
+																		if (
+																			$selectedMesin->uuid
+																			==
+																			$m->uuid
+																		) {
+
+																			$selected = true;
+
+																			break;
+																		}
+																	}
+																}
+
+																?>
+
+																<option value="<?= $m->uuid ?>" <?= $selected
+																									? 'selected'
+																									: ''
+																								?>>
+
+																	<?= $m->nama_mesin ?>
+
+																</option>
+
+															<?php endforeach; ?>
+
+														</select>
+
+														<small class="text-muted">
+
+															Pilih satu atau lebih mesin dominan.
+
+														</small>
+
+													</div>
+
+												</div>
+
+											</div>
+
+										</div>
+
+									</div>
+
+								<?php endforeach; ?>
+
+							<?php endif; ?>
+
 						</div>
+
 					</div>
+
 				</div>
-				<!-- =========================
-                     SUMMARY
-                ========================== -->
+				<!-- =========================================================
+     SUMMARY
+========================================================== -->
+
 				<div class="alert alert-danger">
+
 					<div class="row text-center">
+
 						<div class="col-md-4">
-							<h6>
-								Total Mesin
-							</h6>
-							<h4 id="totalMesin">
-								0
-							</h4>
-						</div>
-						<div class="col-md-4">
-							<h6>
-								Total Baris Bad Produk
-							</h6>
-							<h4 id="totalBarisBad">
-								0
-							</h4>
-						</div>
-						<div class="col-md-4">
+
 							<h6>
 								Total Bad Produk
 							</h6>
+
+							<h4 id="totalBarisBad">
+								0
+							</h4>
+
+						</div>
+
+
+						<div class="col-md-4">
+
+							<h6>
+								Total Mesin Dominan
+							</h6>
+
+							<h4 id="totalMesin">
+								0
+							</h4>
+
+						</div>
+
+
+						<div class="col-md-4">
+
+							<h6>
+								Total Bad Produk
+							</h6>
+
 							<h4>
+
 								<span id="totalBadKg">
 									0.00
 								</span>
+
 								Kg
+
 							</h4>
+
 						</div>
+
 					</div>
+
 				</div>
-				<button type="submit"
-					class="btn btn-success">
+				<button type="submit" class="btn btn-success">
 					<i class="fa fa-save"></i>
 					Simpan
 				</button>
-				<a href="<?= base_url('sortasi') ?>"
-					class="btn btn-danger">
+				<a href="<?= base_url('sortasi') ?>" class="btn btn-danger">
 					<i class="fa fa-times"></i>
 					Batal
 				</a>
@@ -374,338 +441,955 @@
 		</div>
 	</div>
 </div>
+
+
 <script>
 	let daftarMesin = [];
-	let indexMesin = <?= $indexMesin ?>;
+
+	let indexBadProduk =
+		<?= !empty($badpro_input)
+			? count($badpro_input)
+			: 0
+		?>;
+
+
 	$(document).ready(function() {
-		// =====================================
-		// LOAD MESIN AWAL SESUAI BATCH
-		// =====================================
-		let batchAwal = $('#tbatch_uuid').val();
-		if (batchAwal != '') {
-			loadMesin(batchAwal);
-		}
+
+
+		/*
+		 * =====================================================
+		 * SELECT2
+		 * =====================================================
+		 */
+
+		$('.mesinDominan').select2({
+			width: '100%',
+			placeholder: 'Pilih Mesin Dominan',
+			allowClear: true
+		});
+
+
+		/*
+		 * =====================================================
+		 * BATCH
+		 * =====================================================
+		 */
+
 		$('#tbatch_uuid').change(function() {
+
 			let uuid = $(this).val();
-			loadMesin(uuid);
-		});
-		function loadMesin(uuid) {
-			$.ajax({
-				url: "<?= base_url('sortasi/get_mesin_batch/') ?>" + uuid,
-				type: "GET",
-				dataType: "json",
-				success: function(data) {
-					daftarMesin = data;
-					updateButtonMesin();
-				}
-			});
-		}
-		// =====================================
-		// TAMBAH MESIN
-		// =====================================
-		$('#btnTambahMesin').click(function() {
-			$('#mesinContainer .text-muted').remove();
-			$('#mesinContainer')
-				.append(
-					createMesinCard()
-				);
-			updateButtonMesin();
-			hitungTotalMesin();
-		});
-		function createMesinCard() {
-			let index = indexMesin;
-			let html = `
-<div class="card border-left-secondary mb-3 mesin-card"
-data-index="${index}">
-<div class="card-header bg-light">
-<b>
-<i class="fas fa-industry"></i>
- Mesin Baru
-</b>
-<button
-type="button"
-class="btn btn-danger btn-sm float-right btnHapusMesin">
-<i class="fa fa-trash"></i>
-</button>
-</div>
-<div class="card-body">
-<select
-name="mesin_uuid[]"
-class="form-control mesinSelect"
-required>
-<option value="">
-Pilih Mesin
-</option>
-${generateOptionMesin()}
-</select>
-<table class="table table-bordered table-sm mt-3">
-<thead>
-<tr>
-<th>
-Bad Produk
-</th>
-<th>
-Kategori
-</th>
-<th>
-Kg
-</th>
-<th>
-Aksi
-</th>
-</tr>
-</thead>
-<tbody class="badproContainer">
-</tbody>
-</table>
-<button
-type="button"
-class="btn btn-success btn-sm btnTambahBad"
-data-index="${index}">
-<i class="fa fa-plus"></i>
-Tambah Bad Produk
-</button>
-</div>
-</div>
-`;
-			indexMesin++;
-			return html;
-		}
-		// =====================================
-		// OPTION MESIN
-		// =====================================
-		function generateOptionMesin() {
-			let html = '';
-			let terpakai = [];
-			$('.mesinSelect').each(function() {
-				let val = $(this).val();
-				if (val != '') {
-					terpakai.push(val);
-				}
-			});
-			daftarMesin.forEach(function(m) {
-				if (!terpakai.includes(m.uuid)) {
-					html += `
-<option value="${m.uuid}">
-${m.nama_mesin}
-</option>
-`;
-				}
-			});
-			return html;
-		}
-		// =====================================
-		// SAAT GANTI MESIN
-		// =====================================
-		$(document).on(
-			'change',
-			'.mesinSelect',
-			function() {
-				refreshDropdownMesin();
-				updateButtonMesin();
+
+			if (uuid === '') {
+
+				daftarMesin = [];
+
+				$('.mesinDominan').empty();
+
+				return;
 			}
-		);
-		function refreshDropdownMesin() {
-			let semuaNilai = [];
-			$('.mesinSelect').each(function() {
-				semuaNilai.push(
-					$(this).val()
-				);
-			});
-			$('.mesinSelect').each(function(index) {
-				let nilaiLama = semuaNilai[index];
-				let html = `
-<option value="">
-Pilih Mesin
-</option>
-`;
-				daftarMesin.forEach(function(m) {
-					let sedangDipakai = false;
-					$('.mesinSelect').each(function(i) {
-						if (i != index &&
-							$(this).val() == m.uuid) {
-							sedangDipakai = true;
-						}
-					});
-					if (!sedangDipakai) {
-						html += `
-<option value="${m.uuid}">
-${m.nama_mesin}
-</option>
-`;
+
+			loadBatchInfo(uuid);
+
+			loadMesin(uuid);
+
+		});
+
+
+		/*
+		 * =====================================================
+		 * LOAD BATCH INFO
+		 * =====================================================
+		 */
+
+		function loadBatchInfo(uuid) {
+
+			$.ajax({
+
+				url: "<?= base_url('sortasi/get_batch_info/') ?>" +
+					uuid,
+
+				type: 'GET',
+
+				dataType: 'json',
+
+				success: function(data) {
+
+					if (!data) {
+						return;
 					}
-				});
-				$(this)
-					.html(html)
-					.val(nilaiLama);
+
+					$('#filkarBox')
+						.text(data.filkar_box);
+
+					$('#sortasiBox')
+						.text(data.sortasi_box);
+
+					$('#sisaBox')
+						.text(data.sisa_sortasi);
+
+					$('#boxKg')
+						.text(data.box_kg);
+
+					hitungMaksimalBadProduk();
+
+				}
+
 			});
+
 		}
-		// =====================================
-		// TAMBAH BAD PRODUK
-		// =====================================
+
+
+		/*
+		 * =====================================================
+		 * LOAD MESIN BATCH
+		 * =====================================================
+		 */
+
+		function loadMesin(uuid) {
+
+			$.ajax({
+
+				url: "<?= base_url('sortasi/get_mesin_batch/') ?>" +
+					uuid,
+
+				type: 'GET',
+
+				dataType: 'json',
+
+				success: function(data) {
+
+					daftarMesin = data || [];
+
+					refreshMesinOptions();
+
+				}
+
+			});
+
+		}
+
+
+		/*
+		 * =====================================================
+		 * REFRESH OPTION MESIN
+		 * =====================================================
+		 */
+
+		function refreshMesinOptions() {
+
+			$('.mesinDominan').each(function() {
+
+				let select = $(this);
+
+				let selectedValues =
+					select.val() || [];
+
+
+				/*
+				 * Jika batch berubah,
+				 * mesin lama yang tidak tersedia
+				 * otomatis dibuang.
+				 */
+
+				selectedValues =
+					selectedValues.filter(function(uuid) {
+
+						return daftarMesin.some(
+							function(m) {
+
+								return m.uuid === uuid;
+
+							}
+						);
+
+					});
+
+
+				select.empty();
+
+
+				daftarMesin.forEach(function(m) {
+
+					let selected =
+						selectedValues.includes(m.uuid) ?
+						'selected' :
+						'';
+
+					select.append(
+
+						`<option
+                        value="${m.uuid}"
+                        ${selected}>
+                        ${m.nama_mesin}
+                    </option>`
+
+					);
+
+				});
+
+
+				select
+					.val(selectedValues)
+					.trigger('change');
+
+			});
+
+		}
+
+
+		/*
+		 * =====================================================
+		 * TAMBAH BAD PRODUK
+		 * =====================================================
+		 */
+
+		$('#btnTambahBadProduk').click(function() {
+
+			$('#badProdukContainer .text-muted')
+				.remove();
+
+
+			let index =
+				indexBadProduk++;
+
+
+			$('#badProdukContainer').append(
+
+				createBadProdukCard(index)
+
+			);
+
+
+			$('.mesinDominan').last().select2({
+
+				width: '100%',
+
+				placeholder: 'Pilih Mesin Dominan',
+
+				allowClear: true
+
+			});
+
+
+			hitungTotalBad();
+
+			hitungTotalMesin();
+
+		});
+
+
+		/*
+		 * =====================================================
+		 * CREATE BAD PRODUK CARD
+		 * =====================================================
+		 */
+
+		function createBadProdukCard(index) {
+
+			let optionBadProduk = '';
+
+			<?php foreach ($badpro as $bp) : ?>
+
+				optionBadProduk += `
+                <option
+                    value="<?= $bp->uuid_badpro ?>"
+                    data-kategori="<?= $bp->kategori_nama ?>">
+
+                    <?= htmlspecialchars(
+						$bp->nama_badpro,
+						ENT_QUOTES,
+						'UTF-8'
+					) ?>
+
+                </option>
+            `;
+
+			<?php endforeach; ?>
+
+
+			let optionMesin = '';
+
+			daftarMesin.forEach(function(m) {
+
+				optionMesin += `
+                <option value="${m.uuid}">
+                    ${m.nama_mesin}
+                </option>
+            `;
+
+			});
+
+
+			return `
+
+        <div
+            class="card border-left-secondary mb-3 bad-card"
+            data-index="${index}">
+
+            <div class="card-header bg-light">
+
+                <div class="d-flex justify-content-between">
+
+                    <b>
+
+                        <i class="fas fa-box-open mr-2"></i>
+
+                        Bad Produk
+
+                    </b>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm btnHapusBad">
+
+                        <i class="fa fa-trash"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row">
+
+
+                    <!-- BAD PRODUK -->
+
+                    <div class="col-md-4">
+
+                        <div class="form-group">
+
+                            <label>
+                                Bad Produk
+                            </label>
+
+                            <select
+                                name="badpro_uuid[]"
+                                class="form-control badproSelect"
+                                required>
+
+                                <option value="">
+                                    Pilih Bad Produk
+                                </option>
+
+                                ${optionBadProduk}
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- BERAT -->
+
+                    <div class="col-md-4">
+
+                        <div class="form-group">
+
+                            <label>
+                                Berat Bad Produk (Kg)
+                            </label>
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                name="badpro_berat[]"
+                                class="form-control jumlahBad"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MESIN DOMINAN -->
+
+                    <div class="col-md-4">
+
+                        <div class="form-group">
+
+                            <label>
+                                Mesin Dominan
+                            </label>
+
+                            <select
+                                name="mesin_uuid[${index}][]"
+                                class="form-control mesinDominan"
+                                multiple>
+
+                                ${optionMesin}
+
+                            </select>
+
+                            <small class="text-muted">
+
+                                Pilih satu atau lebih mesin dominan.
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+        `;
+
+		}
+
+
+		/*
+		 * =====================================================
+		 * HAPUS BAD PRODUK
+		 * =====================================================
+		 */
+
 		$(document).on(
 			'click',
-			'.btnTambahBad',
+			'.btnHapusBad',
 			function() {
-				let index =
-					$(this).data('index');
-				let tbody =
-					$(this)
-					.closest('.card-body')
-					.find('.badproContainer');
-				tbody.append(
-					createBadProdukRow(index)
-				);
+
+				let card =
+					$(this).closest('.bad-card');
+
+
+				let select =
+					card.find('.mesinDominan');
+
+
+				if (select.hasClass('select2-hidden-accessible')) {
+
+					select.select2('destroy');
+
+				}
+
+
+				card.remove();
+
+
+				if (
+					$('.bad-card').length === 0
+				) {
+
+					$('#badProdukContainer').html(
+
+						'<div class="text-center text-muted">' +
+						'Belum ada bad produk' +
+						'</div>'
+
+					);
+
+				}
+
+
+				hitungTotalBad();
+
+				hitungTotalMesin();
+
 			}
 		);
-		function createBadProdukRow(index) {
-			return `
-<tr>
-<td>
-<select
-name="badpro_uuid[${index}][]"
-class="form-control badproSelect">
-<option value="">
-Pilih Bad Produk
-</option>
-<?php foreach ($badpro as $bp): ?>
-<option
-value="<?= $bp->uuid_badpro ?>"
-data-kategori="<?= $bp->kategori_nama ?>"
->
-<?= $bp->nama_badpro ?>
-</option>
-<?php endforeach; ?>
-</select>
-</td>
-<td>
-<input
-type="text"
-class="form-control kategoriBad"
-readonly>
-</td>
-<td>
-<input
-type="number"
-step="0.01"
-min="0"
-name="jumlah_badpro[${index}][]"
-class="form-control jumlahBad">
-</td>
-<td>
-<button
-type="button"
-class="btn btn-danger btn-sm btnRemoveBad">
-<i class="fa fa-trash"></i>
-</button>
-</td>
-</tr>
-`;
-		}
-		// =====================================
-		// AUTO KATEGORI BAD PRODUK
-		// =====================================
+
+
+		/*
+		 * =====================================================
+		 * KATEGORI BAD PRODUK
+		 * =====================================================
+		 */
+
 		$(document).on(
 			'change',
 			'.badproSelect',
 			function() {
+
 				let kategori =
 					$(this)
 					.find(':selected')
 					.data('kategori');
-				$(this)
-					.closest('tr')
-					.find('.kategoriBad')
-					.val(kategori || '');
+
+				/*
+				 * Tidak ada input kategori
+				 * yang perlu disimpan.
+				 *
+				 * Ini hanya informasi visual.
+				 */
+
 			}
 		);
-		// =====================================
-		// HAPUS MESIN
-		// =====================================
-		$(document).on(
-			'click',
-			'.btnHapusMesin',
-			function() {
-				$(this)
-					.closest('.mesin-card')
-					.remove();
-				refreshDropdownMesin();
-				updateButtonMesin();
-				hitungTotalMesin();
-			}
-		);
-		// =====================================
-		// HAPUS BAD PRODUK
-		// =====================================
-		$(document).on(
-			'click',
-			'.btnRemoveBad',
-			function() {
-				$(this)
-					.closest('tr')
-					.remove();
-				hitungTotalBad();
-			}
-		);
-		// =====================================
-		// BUTTON TAMBAH MESIN
-		// =====================================
-		function updateButtonMesin() {
-			let jumlahDipakai = 0;
-			$('.mesinSelect').each(function() {
-				if ($(this).val() != '') {
-					jumlahDipakai++;
-				}
-			});
-			if (jumlahDipakai >= daftarMesin.length) {
-				$('#btnTambahMesin')
-					.prop('disabled', true);
-			} else {
-				$('#btnTambahMesin')
-					.prop('disabled', false);
-			}
-		}
-		// =====================================
-		// TOTAL MESIN
-		// =====================================
-		function hitungTotalMesin() {
-			$('#totalMesin')
-				.text(
-					$('.mesin-card').length
-				);
-		}
-		// =====================================
-		// TOTAL BAD PRODUK
-		// =====================================
+
+
+		/*
+		 * =====================================================
+		 * HITUNG TOTAL BAD
+		 * =====================================================
+		 */
+
 		$(document).on(
 			'input',
 			'.jumlahBad',
 			function() {
+
 				hitungTotalBad();
+
 			}
 		);
+
+
 		function hitungTotalBad() {
+
 			let total = 0;
+
 			let baris = 0;
+
+
 			$('.jumlahBad').each(function() {
+
 				let nilai =
-					parseFloat($(this).val()) || 0;
+					parseFloat($(this).val()) ||
+					0;
+
+
 				total += nilai;
-				if ($(this).val() != '') {
+
+
+				if (
+					$(this).val() !== ''
+				) {
+
 					baris++;
+
 				}
+
 			});
+
+
 			$('#totalBarisBad')
 				.text(baris);
+
+
 			$('#totalBadKg')
 				.text(
 					total.toFixed(2)
 				);
+
+
+			let maksimal =
+				hitungMaksimalBadProduk();
+
+
+			if (total > maksimal) {
+
+				$('#totalBadKg')
+					.removeClass('text-success')
+					.addClass('text-danger');
+
+			} else {
+
+				$('#totalBadKg')
+					.removeClass('text-danger')
+					.addClass('text-success');
+
+			}
+
 		}
-		// =====================================
-		// INIT
-		// =====================================
-		hitungTotalMesin();
+
+
+		/*
+		 * =====================================================
+		 * HITUNG TOTAL MESIN DOMINAN
+		 * =====================================================
+		 *
+		 * Yang dihitung adalah jumlah pilihan mesin,
+		 * bukan jumlah card bad produk.
+		 *
+		 * Contoh:
+		 *
+		 * Pecah 10 Kg → Mesin A, Mesin B
+		 * Busuk  5 Kg → Mesin C
+		 *
+		 * Total Mesin Dominan = 3
+		 */
+
+		$(document).on(
+			'change',
+			'.mesinDominan',
+			function() {
+
+				hitungTotalMesin();
+
+			}
+		);
+
+
+		function hitungTotalMesin() {
+
+			let total = 0;
+
+
+			$('.mesinDominan').each(
+				function() {
+
+					let values =
+						$(this).val() || [];
+
+
+					total += values.length;
+
+				}
+			);
+
+
+			$('#totalMesin')
+				.text(total);
+
+		}
+
+
+		/*
+		 * =====================================================
+		 * MAKSIMAL BAD PRODUK
+		 * =====================================================
+		 */
+
+		function hitungMaksimalBadProduk() {
+
+			let sortir =
+				parseFloat(
+					$('#jumlah_sortir').val()
+				) || 0;
+
+
+			let release =
+				parseFloat(
+					$('#release_box').val()
+				) || 0;
+
+
+			let beratBox =
+				parseFloat(
+					$('#boxKg').text()
+				) || 0;
+
+
+			let maksimal =
+				(sortir - release) *
+				beratBox;
+
+
+			if (maksimal < 0) {
+
+				maksimal = 0;
+
+			}
+
+
+			$('#maksimalBadProduk')
+				.text(
+					maksimal.toFixed(2)
+				);
+
+
+			return maksimal;
+
+		}
+
+
+		/*
+		 * =====================================================
+		 * JUMLAH SORTIR
+		 * =====================================================
+		 */
+
+		$('#jumlah_sortir').on(
+			'input',
+			function() {
+
+				let jumlah =
+					parseFloat($(this).val()) ||
+					0;
+
+
+				let sisa =
+					parseFloat(
+						$('#sisaBox').text()
+					) ||
+					0;
+
+
+				/*
+				 * Saat edit, sisa batch sudah
+				 * mengandung data sortasi ini.
+				 *
+				 * Jadi kita tidak boleh langsung
+				 * menganggap nilai lama sebagai
+				 * kelebihan.
+				 *
+				 * Validasi batas tetap dilakukan
+				 * saat submit.
+				 */
+
+				hitungMaksimalBadProduk();
+
+			}
+		);
+
+
+		/*
+		 * =====================================================
+		 * RELEASE
+		 * =====================================================
+		 */
+
+		$('#release_box').on(
+			'input',
+			function() {
+
+				let sortir =
+					parseFloat(
+						$('#jumlah_sortir').val()
+					) ||
+					0;
+
+
+				let release =
+					parseFloat($(this).val()) ||
+					0;
+
+
+				if (release > sortir) {
+
+					alert(
+						'Release tidak boleh melebihi jumlah sortir.'
+					);
+
+					$(this).val('');
+
+				}
+
+
+				hitungMaksimalBadProduk();
+
+			}
+		);
+
+
+		/*
+		 * =====================================================
+		 * VALIDASI SUBMIT
+		 * =====================================================
+		 */
+
+		$('form').submit(function(e) {
+
+			let valid = true;
+
+
+			/*
+			 * -------------------------------------------------
+			 * BATCH
+			 * -------------------------------------------------
+			 */
+
+			if (
+				$('#tbatch_uuid').val() === ''
+			) {
+
+				alert(
+					'Batch belum dipilih.'
+				);
+
+				e.preventDefault();
+
+				return false;
+
+			}
+
+
+			/*
+			 * -------------------------------------------------
+			 * JUMLAH SORTIR
+			 * -------------------------------------------------
+			 */
+
+			let jumlahSortir =
+				parseFloat(
+					$('#jumlah_sortir').val()
+				) ||
+				0;
+
+
+			if (jumlahSortir <= 0) {
+
+				alert(
+					'Jumlah sortir harus lebih dari 0.'
+				);
+
+				e.preventDefault();
+
+				return false;
+
+			}
+
+
+			/*
+			 * -------------------------------------------------
+			 * RELEASE
+			 * -------------------------------------------------
+			 */
+
+			let release =
+				parseFloat(
+					$('#release_box').val()
+				) ||
+				0;
+
+
+			if (release > jumlahSortir) {
+
+				alert(
+					'Release tidak boleh melebihi jumlah sortir.'
+				);
+
+				e.preventDefault();
+
+				return false;
+
+			}
+
+
+			/*
+			 * -------------------------------------------------
+			 * BAD PRODUK
+			 * -------------------------------------------------
+			 */
+
+			if (
+				$('.bad-card').length === 0
+			) {
+
+				alert(
+					'Minimal harus ada satu Bad Produk.'
+				);
+
+				e.preventDefault();
+
+				return false;
+
+			}
+
+
+			$('.bad-card').each(function() {
+
+				let bad =
+					$(this)
+					.find('.badproSelect')
+					.val();
+
+
+				let berat =
+					parseFloat(
+						$(this)
+						.find('.jumlahBad')
+						.val()
+					) ||
+					0;
+
+
+				if (!bad) {
+
+					alert(
+						'Bad Produk belum dipilih.'
+					);
+
+					valid = false;
+
+					return false;
+
+				}
+
+
+				if (berat <= 0) {
+
+					alert(
+						'Berat Bad Produk harus lebih dari 0.'
+					);
+
+					valid = false;
+
+					return false;
+
+				}
+
+			});
+
+
+			if (!valid) {
+
+				e.preventDefault();
+
+				return false;
+
+			}
+
+
+			/*
+			 * -------------------------------------------------
+			 * TOTAL BAD
+			 * -------------------------------------------------
+			 */
+
+			let totalBad =
+				parseFloat(
+					$('#totalBadKg').text()
+				) ||
+				0;
+
+
+			let maksimal =
+				hitungMaksimalBadProduk();
+
+
+			if (totalBad > maksimal) {
+
+				alert(
+					'Total Bad Produk melebihi maksimal ' +
+					maksimal.toFixed(2) +
+					' Kg.'
+				);
+
+				e.preventDefault();
+
+				return false;
+
+			}
+
+
+			return true;
+
+		});
+
+
+		/*
+		 * =====================================================
+		 * INIT
+		 * =====================================================
+		 */
+
 		hitungTotalBad();
+
+		hitungTotalMesin();
+
+		hitungMaksimalBadProduk();
+
 	});
 </script>

@@ -1,6 +1,8 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
+
 use Ramsey\Uuid\Uuid;
+
 class Sortasi_model extends CI_Model
 {
 	public function __construct()
@@ -81,130 +83,405 @@ class Sortasi_model extends CI_Model
 	public function insert()
 	{
 		$this->db->trans_begin();
-		$uuid = Uuid::uuid4()->toString();
-		$tbatch_uuid = $this->input->post('tbatch_uuid');
-		$data = [
-			'uuid'          => $uuid,
-			'tbatch_uuid'   => $tbatch_uuid,
-			'proses_uuid'   => $this->Proses_model->get_uuid('SORTASI'),
-			'jml_release'   => $this->input->post('release_box'),
-			'jumlah_wip'    => $this->input->post('jumlah_sortir'),
-			'keterangan'    => $this->input->post('keterangan'),
-			'user_uuid'     => $this->Auth_model->current_user()->uuid
-		];
-		$this->db->insert('sortasi', $data);
-		$mesin_uuid = $this->input->post('mesin_uuid');
-		$badpro     = $this->input->post('badpro_uuid');
-		$jumlah     = $this->input->post('jumlah_badpro');
-		$proses_uuid = $this->Proses_model->get_uuid('SORTASI');
-		if (!empty($mesin_uuid)) {
-			foreach ($mesin_uuid as $i => $mesin) {
-				if (empty($mesin)) {
-					continue;
-				}
-				// jika mesin ini tidak memiliki bad produk
-				if (!isset($badpro[$i])) {
-					continue;
-				}
-				foreach ($badpro[$i] as $j => $bp) {
-					if (empty($bp)) {
+
+		try {
+
+			/* =====================================================
+           UUID SORTASI
+        ====================================================== */
+
+			$uuid = Uuid::uuid4()->toString();
+
+			$tbatch_uuid =
+				$this->input->post('tbatch_uuid');
+
+			$proses_uuid =
+				$this->Proses_model->get_uuid('SORTASI');
+
+
+			/* =====================================================
+           INSERT SORTASI
+        ====================================================== */
+
+			$data = [
+
+				'uuid' =>
+				$uuid,
+
+				'tbatch_uuid' =>
+				$tbatch_uuid,
+
+				'proses_uuid' =>
+				$proses_uuid,
+
+				'jml_release' =>
+				$this->input->post('release_box'),
+
+				'jumlah_wip' =>
+				$this->input->post('jumlah_sortir'),
+
+				'keterangan' =>
+				$this->input->post('keterangan'),
+
+				'user_uuid' =>
+				$this->Auth_model
+					->current_user()
+					->uuid
+
+			];
+
+
+			$this->db->insert(
+				'sortasi',
+				$data
+			);
+
+
+			/* =====================================================
+           POST BAD PRODUK
+
+           badpro_uuid[]
+           badpro_berat[]
+
+           mesin_uuid[index][]
+        ====================================================== */
+
+			$badpro_uuid = $this->input->post('badpro_uuid');
+			$badpro_berat = $this->input->post('badpro_berat');
+			$mesin_uuid = $this->input->post('mesin_uuid');
+
+			if (!empty($badpro_uuid) && is_array($badpro_uuid)) {
+
+				foreach ($badpro_uuid as $index => $bp_uuid) {
+
+					if (empty($bp_uuid)) {
 						continue;
 					}
-					$berat = isset($jumlah[$i][$j])
-						? $jumlah[$i][$j]
+
+					$berat = isset($badpro_berat[$index])
+						? (float) $badpro_berat[$index]
 						: 0;
+
 					if ($berat <= 0) {
 						continue;
 					}
+
+					/*
+         * ==========================================
+         * INSERT 1 RECORD BAD PRODUK
+         * ==========================================
+         */
+
+					$t_badpro_uuid = Uuid::uuid4()->toString();
+
 					$this->db->insert('t_badpro', [
-						'uuid'         => Uuid::uuid4()->toString(),
+						'uuid'         => $t_badpro_uuid,
 						'tbatch_uuid'  => $tbatch_uuid,
 						'proses_uuid'  => $proses_uuid,
-						'mesin_uuid'   => $mesin,
+
 						'ref_uuid'     => $uuid,
-						'badpro_uuid'  => $bp,
+						'badpro_uuid'  => $bp_uuid,
 						'berat'        => $berat,
 						'keterangan'   => '',
 						'created_by'   => $this->Auth_model->current_user()->uuid,
 						'created_at'   => date('Y-m-d H:i:s')
 					]);
+
+
+					/*
+         * ==========================================
+         * INSERT MESIN DOMINAN
+         * ==========================================
+         */
+
+					$mesin_list = isset($mesin_uuid[$index])
+						? $mesin_uuid[$index]
+						: [];
+
+					if (!empty($mesin_list) && is_array($mesin_list)) {
+
+						foreach ($mesin_list as $mesin) {
+
+							if (empty($mesin)) {
+								continue;
+							}
+
+							$this->db->insert('t_badpro_mesin', [
+								'uuid'         => Uuid::uuid4()->toString(),
+								't_badpro_uuid' => $t_badpro_uuid,
+								'mesin_uuid'   => $mesin
+							]);
+						}
+					}
 				}
 			}
+
+
+			/* =====================================================
+           UPDATE TOTAL SORTASI
+        ====================================================== */
+
+			$this->update_total_sortasi(
+				$tbatch_uuid
+			);
+
+
+			/* =====================================================
+           UPDATE TOTAL BAD PRODUK
+        ====================================================== */
+
+			$this->update_total_bad_sortasi(
+				$tbatch_uuid
+			);
+
+
+			/* =====================================================
+           CEK TRANSAKSI
+        ====================================================== */
+
+			if ($this->db->trans_status()) {
+
+				$this->db->trans_commit();
+
+				return TRUE;
+			}
+
+
+			$this->db->trans_rollback();
+
+			return FALSE;
+		} catch (Exception $e) {
+
+			$this->db->trans_rollback();
+
+			log_message(
+				'error',
+				'Insert Sortasi Error: ' .
+					$e->getMessage()
+			);
+
+			return FALSE;
 		}
-		// ===============================
-		// Update total batch
-		// ===============================
-		$this->update_total_sortasi($tbatch_uuid);
-		$this->update_total_bad_sortasi($tbatch_uuid);
-		// ===============================
-		// Selesai transaksi
-		// ===============================
-		if ($this->db->trans_status()) {
-			$this->db->trans_commit();
-			return TRUE;
-		}
-		$this->db->trans_rollback();
-		return FALSE;
 	}
 	public function update($uuid)
 	{
-		$lama = $this->get_by_uuid($uuid);
-		$this->db->trans_start();
+		$this->db->trans_begin();
+
+		$tbatch_uuid = $this->input->post('tbatch_uuid');
+
+		$proses_uuid =
+			$this->Proses_model->get_uuid('SORTASI');
+
+		/*
+     * =====================================================
+     * UPDATE SORTASI
+     * =====================================================
+     */
+
 		$data = [
-			'tbatch_uuid' => $this->input->post('tbatch_uuid'),
-			'jumlah_wip'  => $this->input->post('jumlah_sortir'),
+			'tbatch_uuid' => $tbatch_uuid,
 			'jml_release' => $this->input->post('release_box'),
-			'keterangan'  => $this->input->post('keterangan'),
-			'modified_at' => date('Y-m-d H:i:s')
+			'jumlah_wip'  => $this->input->post('jumlah_sortir'),
+			'keterangan'  => $this->input->post('keterangan')
 		];
-		$this->db->where('uuid', $uuid);
-		$this->db->update('sortasi', $data);
-		// ======================================
-		// Hapus bad produk lama
-		// ======================================
-		$proses_uuid = $this->Proses_model->get_uuid('SORTASI');
-		$this->db->where('proses_uuid', $proses_uuid);
-		$this->db->where('ref_uuid', $uuid);
-		$this->db->delete('t_badpro');
-		// ======================================
-		// Insert ulang
-		// ======================================
-		$mesin  = $this->input->post('mesin_uuid');
-		$badpro = $this->input->post('badpro_uuid');
-		$jumlah = $this->input->post('jumlah_badpro');
-		if (!empty($mesin)) {
-			foreach ($mesin as $i => $mesin_uuid) {
-				if (empty($badpro[$i])) {
+
+		$this->db
+			->where('uuid', $uuid)
+			->where('deleted_at', NULL)
+			->update('sortasi', $data);
+
+
+		/*
+     * =====================================================
+     * HAPUS DATA MESIN DOMINAN LAMA
+     * =====================================================
+     */
+
+		$subquery = $this->db
+			->select('uuid')
+			->from('t_badpro')
+			->where('ref_uuid', $uuid)
+			->where('proses_uuid', $proses_uuid)
+			->where('deleted_at', NULL)
+			->get()
+			->result();
+
+		foreach ($subquery as $row) {
+
+			$this->db
+				->where(
+					't_badpro_uuid',
+					$row->uuid
+				)
+				->delete('t_badpro_mesin');
+		}
+
+
+		/*
+     * =====================================================
+     * HAPUS BAD PRODUK LAMA
+     * =====================================================
+     */
+
+		$this->db
+			->where('ref_uuid', $uuid)
+			->where('proses_uuid', $proses_uuid)
+			->delete('t_badpro');
+
+
+		/*
+     * =====================================================
+     * POST DATA BARU
+     * =====================================================
+     */
+
+		$badpro_uuid =
+			$this->input->post('badpro_uuid');
+
+		$badpro_berat =
+			$this->input->post('badpro_berat');
+
+		$mesin_uuid =
+			$this->input->post('mesin_uuid');
+
+
+		/*
+     * =====================================================
+     * INSERT BAD PRODUK
+     * =====================================================
+     */
+
+		if (
+			!empty($badpro_uuid)
+			&&
+			is_array($badpro_uuid)
+		) {
+
+			foreach ($badpro_uuid as $index => $bp_uuid) {
+
+				if (empty($bp_uuid)) {
 					continue;
 				}
-				foreach ($badpro[$i] as $j => $bp) {
-					if (empty($bp)) {
-						continue;
-					}
-					$this->db->insert('t_badpro', [
-						'uuid'         => Uuid::uuid4()->toString(),
-						'tbatch_uuid'  => $data['tbatch_uuid'],
+
+				$berat =
+					isset($badpro_berat[$index])
+					? (float) $badpro_berat[$index]
+					: 0;
+
+				if ($berat <= 0) {
+					continue;
+				}
+
+
+				/*
+             * UUID T_BADPRO
+             */
+
+				$t_badpro_uuid =
+					Uuid::uuid4()->toString();
+
+
+				/*
+             * INSERT T_BADPRO
+             */
+
+				$this->db->insert(
+					't_badpro',
+					[
+						'uuid'         => $t_badpro_uuid,
+						'tbatch_uuid'  => $tbatch_uuid,
 						'proses_uuid'  => $proses_uuid,
+
 						'ref_uuid'     => $uuid,
-						'mesin_uuid'   => $mesin_uuid,
-						'badpro_uuid'  => $bp,
-						'berat'        => $jumlah[$i][$j],
+						'badpro_uuid'  => $bp_uuid,
+						'berat'        => $berat,
 						'keterangan'   => '',
-						'created_at'   => date('Y-m-d H:i:s')
-					]);
+						'created_by'   => $this->Auth_model
+							->current_user()
+							->uuid,
+						'created_at'   => date(
+							'Y-m-d H:i:s'
+						)
+					]
+				);
+
+
+				/*
+             * =================================================
+             * INSERT MESIN DOMINAN
+             * =================================================
+             */
+
+				$mesin_list =
+					isset($mesin_uuid[$index])
+					? $mesin_uuid[$index]
+					: [];
+
+
+				if (
+					!empty($mesin_list)
+					&&
+					is_array($mesin_list)
+				) {
+
+					foreach ($mesin_list as $mesin) {
+
+						if (empty($mesin)) {
+							continue;
+						}
+
+						$this->db->insert(
+							't_badpro_mesin',
+							[
+								'uuid' =>
+								Uuid::uuid4()
+									->toString(),
+
+								't_badpro_uuid' =>
+								$t_badpro_uuid,
+
+								'mesin_uuid' =>
+								$mesin
+							]
+						);
+					}
 				}
 			}
 		}
-		// update total batch lama
-		$this->update_total_sortasi($lama->tbatch_uuid);
-		$this->update_total_bad_sortasi($lama->tbatch_uuid);
-		// jika batch berubah
-		if ($lama->tbatch_uuid != $data['tbatch_uuid']) {
-			$this->update_total_sortasi($data['tbatch_uuid']);
-			$this->update_total_bad_sortasi($data['tbatch_uuid']);
+
+
+		/*
+     * =====================================================
+     * UPDATE TOTAL BATCH
+     * =====================================================
+     */
+
+		$this->update_total_sortasi(
+			$tbatch_uuid
+		);
+
+		$this->update_total_bad_sortasi(
+			$tbatch_uuid
+		);
+
+
+		/*
+     * =====================================================
+     * TRANSACTION
+     * =====================================================
+     */
+
+		if ($this->db->trans_status()) {
+
+			$this->db->trans_commit();
+
+			return TRUE;
 		}
-		$this->db->trans_complete();
-		return $this->db->trans_status();
+
+
+		$this->db->trans_rollback();
+
+		return FALSE;
 	}
 	private function update_total_sortasi($tbatch_uuid)
 	{
@@ -285,33 +562,123 @@ class Sortasi_model extends CI_Model
 	public function get_badpro_by_ref($ref_uuid)
 	{
 		$proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+
+		/*
+     * =====================================================
+     * AMBIL DATA BAD PRODUK
+     * =====================================================
+     */
+
 		$this->db->select("
-			t_badpro.*,
-			badpro.nama_badpro,
-			badpro.kategori, mesin.nama_mesin
-			");
+        t_badpro.uuid,
+        t_badpro.tbatch_uuid,
+        t_badpro.proses_uuid,
+        t_badpro.ref_uuid,
+        t_badpro.badpro_uuid,
+        t_badpro.berat,
+        t_badpro.keterangan,
+        t_badpro.created_at,
+
+        badpro.nama_badpro,
+        badpro.kategori
+    ");
+
 		$this->db->from('t_badpro');
+
 		$this->db->join(
 			'badpro',
 			'badpro.uuid = t_badpro.badpro_uuid',
 			'left'
 		);
-		$this->db->join(
-			'mesin',
-			'mesin.uuid=t_badpro.mesin_uuid',
-			'left'
+
+		$this->db->where(
+			't_badpro.ref_uuid',
+			$ref_uuid
 		);
-		$this->db->where('t_badpro.ref_uuid', $ref_uuid);
-		$this->db->where('t_badpro.proses_uuid', $proses_uuid);
-		$this->db->where('t_badpro.deleted_at', NULL);
-		$this->db->order_by('badpro.nama_badpro');
-		$this->db->order_by('mesin.nama_mesin');
+
+		$this->db->where(
+			't_badpro.proses_uuid',
+			$proses_uuid
+		);
+
+		$this->db->where(
+			't_badpro.deleted_at',
+			NULL
+		);
+
+		$this->db->order_by(
+			'badpro.nama_badpro',
+			'ASC'
+		);
+
 		$rows = $this->db->get()->result();
+
+
+		/*
+     * =====================================================
+     * AMBIL MESIN DOMINAN SETIAP BAD PRODUK
+     * =====================================================
+     */
+
 		foreach ($rows as $r) {
-			$r->kategori_nama = ($r->kategori == 1)
-				? 'Rework'
-				: 'Reject';
+
+			$this->db->select("
+            mesin.uuid,
+            mesin.nama_mesin
+        ");
+
+			$this->db->from('t_badpro_mesin');
+
+			$this->db->join(
+				'mesin',
+				'mesin.uuid = t_badpro_mesin.mesin_uuid',
+				'left'
+			);
+
+			$this->db->where(
+				't_badpro_mesin.t_badpro_uuid',
+				$r->uuid
+			);
+
+			$this->db->where(
+				't_badpro_mesin.deleted_at',
+				NULL
+			);
+
+			$this->db->where(
+				'mesin.deleted_at',
+				NULL
+			);
+
+			$this->db->order_by(
+				'mesin.nama_mesin',
+				'ASC'
+			);
+
+			$mesin = $this->db->get()->result();
+
+			/*
+         * Simpan nama mesin dalam bentuk array
+         */
+
+			$r->mesin = $mesin;
+
+
+			/*
+         * Untuk tampilan tabel
+         */
+
+			$nama_mesin = [];
+
+			foreach ($mesin as $m) {
+
+				$nama_mesin[] = $m->nama_mesin;
+			}
+
+			$r->nama_mesin = implode(', ', $nama_mesin);
 		}
+
+
 		return $rows;
 	}
 	public function get_batch_info($uuid)
@@ -364,5 +731,64 @@ class Sortasi_model extends CI_Model
 		}
 		$this->db->trans_rollback();
 		return false;
+	}
+
+	public function get_badpro_summary_by_ref($ref_uuid)
+	{
+		$proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+
+		$this->db->select("
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN badpro.kategori = 1
+                    THEN t_badpro.berat
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS rework_kg,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN badpro.kategori = 2
+                    THEN t_badpro.berat
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS reject_kg,
+
+        COALESCE(
+            SUM(t_badpro.berat),
+            0
+        ) AS total_bad_kg
+    ", FALSE);
+
+		$this->db->from('t_badpro');
+
+		$this->db->join(
+			'badpro',
+			'badpro.uuid = t_badpro.badpro_uuid',
+			'left'
+		);
+
+		$this->db->where(
+			't_badpro.ref_uuid',
+			$ref_uuid
+		);
+
+		$this->db->where(
+			't_badpro.proses_uuid',
+			$proses_uuid
+		);
+
+		$this->db->where(
+			't_badpro.deleted_at',
+			NULL
+		);
+
+		return $this->db->get()->row();
 	}
 }
