@@ -106,7 +106,9 @@ class Rework extends CI_Controller
             'data' => $this->Rework_model->get_pakai_data_by_tanggal_kode($tanggal_kode),
             'active_nav' => 'rework'
         );
-
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
         $this->load->view('partials/head-yield', $data);
         $this->load->view('rework/detail', $data);
         $this->load->view('partials/footer');
@@ -440,19 +442,16 @@ class Rework extends CI_Controller
             'rows' => $this->Rework_model->get_stock_rework(),
             'active_nav' => 'rework'
         );
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
+
         $this->load->view('partials/head-yield', $data);
         $this->load->view('rework/kupas', $data);
         $this->load->view('partials/footer');
     }
 
-    public function tambah_kupas($tbatch_uuid, $badpro_uuid)
+    public function tambah_kupas($tbatch_uuid)
     {
-        $stock = $this->Rework_model->get_stock_detail(
-            $tbatch_uuid,
-            $badpro_uuid
+        $stock = $this->Rework_model->get_stock_rework_detail(
+            $tbatch_uuid
         );
 
         if (!$stock) {
@@ -471,22 +470,20 @@ class Rework extends CI_Controller
     public function simpan_kupas()
     {
         $tbatch_uuid = $this->input->post('tbatch_uuid', true);
-        $badpro_uuid = $this->input->post('badpro_uuid', true);
         $berat       = $this->input->post('berat', true);
 
-        if (!$tbatch_uuid || !$badpro_uuid) {
+        if (!$tbatch_uuid) {
             $this->session->set_flashdata(
                 'error',
                 'Data rework tidak lengkap.'
             );
 
-            redirect('rework');
+            redirect('rework/kupas/' . $tbatch_uuid);
             return;
         }
 
         $result = $this->Rework_model->simpan_kupas(
             $tbatch_uuid,
-            $badpro_uuid,
             $berat
         );
 
@@ -499,8 +496,7 @@ class Rework extends CI_Controller
 
             redirect(
                 'rework/tambah_kupas/'
-                    . $tbatch_uuid . '/'
-                    . $badpro_uuid
+                    . $tbatch_uuid
             );
 
             return;
@@ -515,8 +511,7 @@ class Rework extends CI_Controller
 
         redirect(
             'rework/detail_kupas/'
-                . $tbatch_uuid . '/'
-                . $badpro_uuid
+                . $tbatch_uuid
         );
     }
 
@@ -525,12 +520,9 @@ class Rework extends CI_Controller
      * DETAIL / HISTORI KUPAS
      * =========================================================
      */
-    public function detail_kupas($tbatch_uuid, $badpro_uuid)
+    public function detail_kupas($tbatch_uuid)
     {
-        $stock = $this->Rework_model->get_stock_detail(
-            $tbatch_uuid,
-            $badpro_uuid
-        );
+        $stock = $this->Rework_model->get_stock_rework_detail($tbatch_uuid);
 
         if (!$stock) {
             show_404();
@@ -541,8 +533,7 @@ class Rework extends CI_Controller
 
         $data['riwayat'] =
             $this->Rework_model->get_riwayat_kupas(
-                $tbatch_uuid,
-                $badpro_uuid
+                $tbatch_uuid
             );
         $data['active_nav'] = 'rework';
 

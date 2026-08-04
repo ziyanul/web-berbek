@@ -47,7 +47,7 @@
                                 <td><?= $row->sisa_kupas; ?></td>
                                 <td>
                                     <a href="<?= base_url('rework/detail_kupas/' . $row->tbatch_uuid); ?>" class="btn btn-md btn-success shadow-sm btn-block"><i class="fa fa-md fa-info"></i> Detail</a>
-                                    <a href="<?= base_url('rework/edit/' . $row->tbatch_uuid); ?>" class="btn btn-md btn-warning shadow-sm btn-block"><i class="fa fa-md fa-edit"></i> Edit</a>
+
                                 </td>
                             </tr>
                         <?php

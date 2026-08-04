@@ -25,9 +25,6 @@
 
                 <!-- IDENTITAS -->
                 <input type="hidden" name="tbatch_uuid" value="<?= $stock->tbatch_uuid ?>">
-
-                <input type="hidden" name="badpro_uuid" value="<?= $stock->badpro_uuid ?>">
-
                 <div class="row">
 
                     <div class="col-md-6 mb-3">
@@ -44,14 +41,6 @@
                         </label>
 
                         <input type="text" class="form-control" value="<?= $stock->kode_batch ?>" readonly>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">
-                            Bad Produk
-                        </label>
-
-                        <input type="text" class="form-control" value="<?= $stock->nama_badpro ?>" readonly>
                     </div>
 
                 </div>

@@ -241,45 +241,204 @@ class Rework_model extends CI_Model
 
 	public function get_pakai_data_by_tanggal_kode($tanggal_kode)
 	{
-		$this->db->query('SET @sisa_rework = 0, @last_kode_rework = NULL');
-		$this->db->select("
-			p.kode_rework, u.username,
-			IF(@last_kode_rework IS NULL OR @last_kode_rework != p.kode_rework,
-			@sisa_rework := k.berat,
-			@sisa_rework
-			) AS total_rework,
-			p.dipakai, p.kode_produksi, p.foreman_uuid, p.spv_uuid, k.varian_uuid, p.plastik, p.metal, p.acc_qc, p.uuid,
-			@sisa_rework := @sisa_rework - p.dipakai AS sisa_stock,
-			@last_kode_rework := p.kode_rework AS kode_rework_terbaru,
-			v.varian,
-			DATE_FORMAT(k.created_at, '%d-%m-%Y') AS tanggal_masuk
-			", false);
-		$this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = p.spv_uuid) AS spv", false);
-		$this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = p.foreman_uuid) AS leader", false);
-		$this->db->select("(SELECT u.fullname FROM users u WHERE u.uuid = p.user_uuid) AS pembuat", false);
-		$this->db->from('rwk_pakai p');
-		$this->db->join('rwk_kupas k', 'p.rwk_kupas_uuid = k.uuid', 'left');
-		$this->db->join($this->db->database . '.varian v', 'v.uuid = k.varian_uuid', 'left');
-		$this->db->join('users u', 'u.uuid = p.user_uuid', 'left');
-		$this->db->where('SUBSTR(p.kode_produksi, 1, 4) =', $tanggal_kode);
-		$this->db->order_by('p.kode_rework, p.created_at', 'ASC');
+		$this->db->select(
+			'
+        p.uuid,
+        p.mp_usage_uuid,
+        p.rwk_kupas_uuid,
 
-		// Eksekusi query dan ambil hasilnya
+        p.dipakai,
+        mp.kode_batch,
+		tb.kode_batch as kode_rework,
+
+        p.user_uuid,
+		p.acc_qc,
+        p.plastik,
+        p.metal,
+
+        k.tbatch_uuid,
+        k.varian_uuid,
+        k.berat AS total_rework,
+        k.created_at AS kupas_created_at,
+
+        v.varian,
+
+        DATE_FORMAT(
+            k.created_at,
+            "%d-%m-%Y"
+        ) AS tanggal_masuk
+    ',
+			false
+		);
+
+		/*
+     * ==========================================================
+     * Nama SPV
+     * ==========================================================
+     */
+
+		/*
+     * ==========================================================
+     * Nama Foreman / Leader
+     * ==========================================================
+     */
+
+
+		/*
+     * ==========================================================
+     * Nama Pembuat
+     * ==========================================================
+     */
+		$this->db->select(
+			'(SELECT u3.fullname
+          FROM users u3
+          WHERE u3.uuid = p.user_uuid
+        ) AS pembuat',
+			false
+		);
+
+		/*
+     * ==========================================================
+     * Sisa stock dari transaksi kupas
+     * ==========================================================
+     *
+     * Sisa =
+     * rwk_kupas.berat
+     * -
+     * seluruh pemakaian pada rwk_kupas tersebut
+     */
+		$this->db->select(
+			'(
+            k.berat -
+            COALESCE((
+                SELECT SUM(rp.dipakai)
+                FROM rwk_pakai rp
+                WHERE rp.rwk_kupas_uuid = k.uuid
+                  AND rp.deleted_at IS NULL
+            ), 0)
+        ) AS sisa_stock',
+			false
+		);
+
+		$this->db->from('rwk_pakai p');
+
+		/*
+     * ==========================================================
+     * Sumber stock rework
+     * ==========================================================
+     */
+		$this->db->join(
+			'rwk_kupas k',
+			'k.uuid = p.rwk_kupas_uuid',
+			'left'
+		);
+
+		/*
+     * ==========================================================
+     * Varian
+     * ==========================================================
+     */
+		$this->db->join(
+			'varian v',
+			'v.uuid = k.varian_uuid',
+			'left'
+		);
+
+		$this->db->join('mp_usage mp', 'mp.uuid = p.mp_usage_uuid', 'left');
+		$this->db->join('tbatch tb', 'tb.uuid = k.tbatch_uuid', 'left');
+
+		/*
+     * ==========================================================
+     * User
+     * ==========================================================
+     */
+		$this->db->join(
+			'users u',
+			'u.uuid = p.user_uuid',
+			'left'
+		);
+
+		/*
+     * ==========================================================
+     * Filter kode tanggal produksi
+     * ==========================================================
+     */
+		$this->db->where(
+			'SUBSTR(mp.kode_batch, 1, 4) =',
+			$tanggal_kode
+		);
+
+		/*
+     * ==========================================================
+     * Urutan
+     * ==========================================================
+     */
+		$this->db->order_by(
+			'k.created_at',
+			'ASC'
+		);
+
+		$this->db->order_by(
+			'p.created_at',
+			'ASC'
+		);
+
+		/*
+     * ==========================================================
+     * Eksekusi
+     * ==========================================================
+     */
 		$data = $this->db->get()->result();
 
-		// Konversi nilai plastik dan metal untuk setiap baris data
+		/*
+     * ==========================================================
+     * Format data
+     * ==========================================================
+     */
 		foreach ($data as $val) {
-			$val->plastik = $val->plastik == 1 ? 'Ya' : ($val->plastik == 2 ? 'Tidak' : $val->plastik);
-			$val->metal = $val->metal == 1 ? 'Ya' : ($val->metal == 2 ? 'Tidak' : $val->metal);
-			$val->kode = SUBSTR($val->kode_produksi, 0, 4);
-			$val->tanggal = $this->convertKodeToTanggal($val->kode);
-			$val->tanggal_kode = $tanggal_kode;
+
+			$val->plastik =
+				$val->plastik == 1
+				? 'Ya'
+				: ($val->plastik == 2
+					? 'Tidak'
+					: $val->plastik
+				);
+
+			$val->metal =
+				$val->metal == 1
+				? 'Ya'
+				: ($val->metal == 2
+					? 'Tidak'
+					: $val->metal
+				);
+
+			$val->kode = substr(
+				$val->kode_batch,
+				0,
+				4
+			);
+
+			$val->tanggal =
+				$this->convertKodeToTanggal(
+					$val->kode
+				);
+
+			$val->tanggal_kode =
+				$tanggal_kode;
+
+			$val->total_rework =
+				(float) $val->total_rework;
+
+			$val->dipakai =
+				(float) $val->dipakai;
+
+			$val->sisa_stock =
+				(float) $val->sisa_stock;
 		}
 
 		return $data;
 	}
-
-
 
 	public function get_pakai_data()
 	{
@@ -517,7 +676,7 @@ class Rework_model extends CI_Model
 	{
 		$this->db->select('
         tb.uuid AS tbatch_uuid,
-        tb.kode_batch,
+        tb.kode_batch, v.keterangan,
         v.varian AS nama_varian,
 
         COALESCE((
@@ -569,12 +728,11 @@ class Rework_model extends CI_Model
 		return $row;
 	}
 
-	public function get_total_kupas($tbatch_uuid, $badpro_uuid)
+	public function get_total_kupas($tbatch_uuid)
 	{
 		$this->db->select_sum('berat');
 
 		$this->db->where('tbatch_uuid', $tbatch_uuid);
-		$this->db->where('badpro_uuid', $badpro_uuid);
 		$this->db->where('deleted_at IS NULL', null, false);
 
 		$row = $this->db->get('rwk_kupas')->row();
@@ -588,7 +746,7 @@ class Rework_model extends CI_Model
 	 * HISTORI KUPAS
 	 * =========================================================
 	 */
-	public function get_riwayat_kupas($tbatch_uuid, $badpro_uuid)
+	public function get_riwayat_kupas($tbatch_uuid)
 	{
 		$this->db->select('
             rk.uuid,
@@ -601,7 +759,6 @@ class Rework_model extends CI_Model
 		$this->db->from('rwk_kupas rk');
 		$this->db->join('users u', 'u.uuid = rk.user_uuid', 'left');
 		$this->db->where('rk.tbatch_uuid', $tbatch_uuid);
-		$this->db->where('rk.badpro_uuid', $badpro_uuid);
 		$this->db->where('rk.deleted_at IS NULL', null, false);
 
 		$this->db->order_by('rk.created_at', 'DESC');
@@ -622,9 +779,16 @@ class Rework_model extends CI_Model
 	 * Validasi dilakukan ulang di server.
 	 * =========================================================
 	 */
-	public function simpan_kupas($tbatch_uuid, $badpro_uuid, $berat)
+	public function simpan_kupas($tbatch_uuid, $berat)
 	{
 		$berat = (float) $berat;
+
+		if (!$tbatch_uuid) {
+			return [
+				'status'  => false,
+				'message' => 'Batch tidak ditemukan.'
+			];
+		}
 
 		if ($berat <= 0) {
 			return [
@@ -636,20 +800,96 @@ class Rework_model extends CI_Model
 		$this->db->trans_begin();
 
 		/*
-         * Ambil sumber rework dari t_badpro.
-         */
-		$this->db->select_sum('tbp.berat', 'total_rework');
+     * ==========================================================
+     * 1. Ambil varian dari batch
+     * ==========================================================
+     *
+     * Operator tidak memilih varian.
+     * Varian otomatis mengikuti batch yang dipilih.
+     *
+     * tbatch
+     *   -> t_planning
+     *      -> varian
+     */
+		$this->db->select('
+        tb.uuid AS tbatch_uuid,
+        tp.varian AS varian_uuid
+    ');
+
+		$this->db->from('tbatch tb');
+
+		$this->db->join(
+			't_planning tp',
+			'tp.uuid = tb.t_planning_uuid',
+			'inner'
+		);
+
+		$this->db->where(
+			'tb.uuid',
+			$tbatch_uuid
+		);
+
+		$batch = $this->db->get()->row();
+
+		if (!$batch) {
+
+			$this->db->trans_rollback();
+
+			return [
+				'status'  => false,
+				'message' => 'Batch tidak ditemukan.'
+			];
+		}
+
+		$varian_uuid = $batch->varian_uuid;
+
+		if (!$varian_uuid) {
+
+			$this->db->trans_rollback();
+
+			return [
+				'status'  => false,
+				'message' => 'Varian untuk batch ini tidak ditemukan.'
+			];
+		}
+
+
+		/*
+     * ==========================================================
+     * 2. Ambil sumber rework dari t_badpro
+     * ==========================================================
+     *
+     * Semua bad product kategori REWORK dalam batch
+     * dijumlahkan.
+     */
+		$this->db->select_sum(
+			'tbp.berat',
+			'total_rework'
+		);
+
 		$this->db->from('t_badpro tbp');
+
 		$this->db->join(
 			'badpro bp',
 			'bp.uuid = tbp.badpro_uuid',
-			'left'
+			'inner'
 		);
 
-		$this->db->where('tbp.tbatch_uuid', $tbatch_uuid);
-		$this->db->where('tbp.badpro_uuid', $badpro_uuid);
-		$this->db->where('bp.kategori', 1);
-		$this->db->where('tbp.deleted_at IS NULL', null, false);
+		$this->db->where(
+			'tbp.tbatch_uuid',
+			$tbatch_uuid
+		);
+
+		$this->db->where(
+			'bp.kategori',
+			1
+		);
+
+		$this->db->where(
+			'tbp.deleted_at IS NULL',
+			null,
+			false
+		);
 
 		$row = $this->db->get()->row();
 
@@ -658,6 +898,7 @@ class Rework_model extends CI_Model
 			: 0;
 
 		if ($total_rework <= 0) {
+
 			$this->db->trans_rollback();
 
 			return [
@@ -666,20 +907,38 @@ class Rework_model extends CI_Model
 			];
 		}
 
+
 		/*
-         * Total yang sudah dikupas.
-         */
+     * ==========================================================
+     * 3. Total yang sudah dikupas dari batch ini
+     * ==========================================================
+     */
 		$total_kupas = $this->get_total_kupas(
-			$tbatch_uuid,
-			$badpro_uuid
+			$tbatch_uuid
 		);
 
-		$sisa_kupas = $total_rework - $total_kupas;
+		$total_kupas = (float) $total_kupas;
+
 
 		/*
-         * Jangan sampai kupas melebihi sumber.
-         */
+     * ==========================================================
+     * 4. Hitung sisa rework batch
+     * ==========================================================
+     */
+		$sisa_kupas = $total_rework - $total_kupas;
+
+		if ($sisa_kupas < 0) {
+			$sisa_kupas = 0;
+		}
+
+
+		/*
+     * ==========================================================
+     * 5. Validasi berat kupas
+     * ==========================================================
+     */
 		if ($berat > $sisa_kupas) {
+
 			$this->db->trans_rollback();
 
 			return [
@@ -689,41 +948,95 @@ class Rework_model extends CI_Model
 			];
 		}
 
+
+		/*
+     * ==========================================================
+     * 6. Generate UUID
+     * ==========================================================
+     */
 		$uuid = Uuid::uuid4()->toString();
 
+
+		/*
+     * ==========================================================
+     * 7. Simpan transaksi kupas
+     * ==========================================================
+     *
+     * varian_uuid otomatis berasal dari batch.
+     */
 		$data = [
 			'uuid'        => $uuid,
-			'user_uuid'   => $this->Auth_model->current_user()->uuid,
+			'user_uuid'   => $this->Auth_model
+				->current_user()
+				->uuid,
 			'tbatch_uuid' => $tbatch_uuid,
-			'badpro_uuid' => $badpro_uuid,
+			'varian_uuid' => $varian_uuid,
 			'berat'       => $berat,
 		];
 
-		$this->db->insert('rwk_kupas', $data);
+		$insert = $this->db->insert(
+			'rwk_kupas',
+			$data
+		);
 
-		if ($this->db->affected_rows() <= 0) {
+
+		/*
+     * ==========================================================
+     * 8. Validasi INSERT
+     * ==========================================================
+     */
+		if (!$insert) {
+
+			$error = $this->db->error();
+
 			$this->db->trans_rollback();
 
 			return [
 				'status'  => false,
-				'message' => 'Gagal menyimpan transaksi kupas.'
+				'message' =>
+				'Gagal menyimpan transaksi kupas: '
+					. ($error['message'] ?? 'Database error.')
 			];
 		}
 
+
+		/*
+     * ==========================================================
+     * 9. Validasi transaksi
+     * ==========================================================
+     */
 		if ($this->db->trans_status() === false) {
+
+			$error = $this->db->error();
+
 			$this->db->trans_rollback();
 
 			return [
 				'status'  => false,
-				'message' => 'Transaksi gagal disimpan.'
+				'message' =>
+				'Transaksi gagal disimpan: '
+					. ($error['message'] ?? 'Database error.')
 			];
 		}
 
+
+		/*
+     * ==========================================================
+     * 10. Commit
+     * ==========================================================
+     */
 		$this->db->trans_commit();
 
+
+		/*
+     * ==========================================================
+     * 11. Return
+     * ==========================================================
+     */
 		return [
-			'status' => true,
-			'uuid'   => $uuid,
+			'status'       => true,
+			'uuid'         => $uuid,
+			'varian_uuid'  => $varian_uuid,
 			'total_rework' => $total_rework,
 			'total_kupas'  => $total_kupas + $berat,
 			'sisa_kupas'   => $sisa_kupas - $berat

@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h1 mb-2 text-gray-800">Detail Stock Rework</h1>
-        <a href="<?= base_url('rework/tambah_kupas/' . $stock->tbatch_uuid . '/' . $stock->badpro_uuid); ?>" class="btn btn-md btn-primary shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> Tambah</a>
+        <a href="<?= base_url('rework/tambah_kupas/' . $stock->tbatch_uuid); ?>" class="btn btn-md btn-primary shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> Tambah</a>
     </div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -29,11 +29,7 @@
                             <td width="15">:</td>
                             <td class="font-weight-bold"><?= $stock->nama_varian; ?> ( <?= $stock->keterangan; ?> )</td>
                         </tr>
-                        <tr>
-                            <td class="font-weight-bold">Bad Produk</td>
-                            <td width="15">:</td>
-                            <td class="font-weight-bold"><?= $stock->nama_badpro; ?></td>
-                        </tr>
+
                         <tr>
                             <td class="font-weight-bold">Total Rework</td>
                             <td width="15">:</td>

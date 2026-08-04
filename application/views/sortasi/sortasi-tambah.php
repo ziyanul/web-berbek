@@ -23,8 +23,7 @@
             </b>
         </div>
         <div class="card-body">
-            <form action="<?= base_url('sortasi/tambah') ?>"
-                method="post">
+            <form action="<?= base_url('sortasi/tambah') ?>" method="post">
                 <!-- =========================
                      BATCH
                 ========================== -->
@@ -43,15 +42,11 @@
                                         Kode Batch
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <select
-                                        name="tbatch_uuid"
-                                        id="tbatch_uuid"
-                                        class="form-control"
-                                        required>
+                                    <select name="tbatch_uuid" id="tbatch_uuid" class="form-control" required>
                                         <option value="">
                                             Pilih Batch
                                         </option>
-                                        <?php foreach ($batch as $b): ?>
+                                        <?php foreach ($batch as $b) : ?>
                                             <option value="<?= $b->uuid ?>">
                                                 <?= $b->kode_batch ?>
                                                 -
@@ -142,11 +137,7 @@
                                         Jumlah Sortir (Box)
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="number"
-                                        name="jumlah_sortir"
-                                        id="jumlah_sortir"
-                                        class="form-control"
-                                        min="1">
+                                    <input type="number" name="jumlah_sortir" id="jumlah_sortir" class="form-control" min="1">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -155,11 +146,7 @@
                                         Release Box
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="number"
-                                        name="release_box"
-                                        id="release_box"
-                                        class="form-control"
-                                        min="0">
+                                    <input type="number" name="release_box" id="release_box" class="form-control" min="0">
                                 </div>
                             </div>
                         </div>
@@ -176,10 +163,7 @@
                             <label>
                                 Keterangan
                             </label>
-                            <textarea
-                                name="keterangan"
-                                class="form-control"
-                                rows="3"></textarea>
+                            <textarea name="keterangan" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -193,10 +177,7 @@
                                 <i class="fas fa-industry mr-2"></i>
                                 Bad Produk Per Mesin
                             </b>
-                            <button
-                                type="button"
-                                id="btnTambahMesin"
-                                class="btn btn-primary btn-sm">
+                            <button type="button" id="btnTambahMesin" class="btn btn-primary btn-sm">
                                 <i class="fa fa-plus"></i>
                                 Tambah Mesin
                             </button>
@@ -244,13 +225,11 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit"
-                    class="btn btn-success">
+                <button type="submit" class="btn btn-success">
                     <i class="fa fa-save"></i>
                     Simpan
                 </button>
-                <a href="<?= base_url('sortasi') ?>"
-                    class="btn btn-danger">
+                <a href="<?= base_url('sortasi') ?>" class="btn btn-danger">
                     <i class="fa fa-times"></i>
                     Batal
                 </a>
@@ -481,6 +460,7 @@
                     .prop('disabled', false);
             }
         }
+
         function hitungTotalMesin() {
             $('#totalMesin')
                 .text(
@@ -502,6 +482,7 @@
                 .prop('disabled', false);
             hitungTotalMesin();
         }
+
         function resetInfoBatch() {
             $('#filkarBox').text(0);
             $('#sortasiBox').text(0);
@@ -541,8 +522,8 @@
 <option value="">
     Pilih Bad Produk
 </option>
-<?php foreach ($badpro as $bp): ?>
-<option 
+<?php foreach ($badpro as $bp) : ?>
+<option
     value="<?= $bp->uuid_badpro ?>"
     data-kategori="<?= $bp->kategori_nama ?>">
     <?= $bp->nama_badpro ?>
@@ -551,7 +532,7 @@
 </select>
 </td>
 <td>
-<input 
+<input
     type="text"
     class="form-control kategoriBad"
     readonly>
@@ -655,6 +636,7 @@
             function() {
                 hitungTotalBad();
             });
+
         function hitungTotalBad() {
             let total = 0;
             let baris = 0;

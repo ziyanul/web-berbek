@@ -67,25 +67,86 @@ class Mpusage_model extends CI_Model
 		$this->db->where('mp.uuid', $uuid);
 		return $this->db->get()->row();
 	}
-	private function get_rework_fifo($varian_uuid)
+	public function get_rework_fifo($varian_uuid)
 	{
-		$this->db
-			->where('varian_uuid', $varian_uuid)
-			->order_by('created_at', 'ASC');
-		return $this->db->get('rwk_kupas')->result();
+		$this->db->select('
+        rk.uuid,
+        rk.tbatch_uuid,
+        rk.varian_uuid,
+        rk.berat,
+        rk.created_at
+    ');
+
+		$this->db->from('rwk_kupas rk');
+
+		$this->db->where(
+			'rk.varian_uuid',
+			$varian_uuid
+		);
+
+		$this->db->where(
+			'rk.deleted_at IS NULL',
+			null,
+			false
+		);
+
+		/*
+     * FIFO:
+     * kupas paling lama digunakan lebih dahulu.
+     */
+		$this->db->order_by(
+			'rk.created_at',
+			'ASC'
+		);
+
+		$this->db->order_by(
+			'rk.uuid',
+			'ASC'
+		);
+
+		return $this->db->get()->result();
 	}
-	private function get_remaining_stock($rwk_kupas_uuid)
+	public function get_remaining_stock($rwk_kupas_uuid)
 	{
-		$stok = $this->db
-			->where('uuid', $rwk_kupas_uuid)
-			->get('rwk_kupas')
-			->row();
-		$pakai = $this->db
-			->select_sum('dipakai')
-			->where('rwk_kupas_uuid', $rwk_kupas_uuid)
-			->get('rwk_pakai')
-			->row();
-		return $stok->berat - ($pakai->dipakai ?? 0);
+		/*
+     * Ambil total berat dari transaksi kupas.
+     */
+		$this->db->select('
+        rk.berat,
+
+        COALESCE((
+            SELECT SUM(rp.dipakai)
+            FROM rwk_pakai rp
+            WHERE rp.rwk_kupas_uuid = rk.uuid
+              AND rp.deleted_at IS NULL
+        ), 0) AS total_dipakai
+    ');
+
+		$this->db->from('rwk_kupas rk');
+
+		$this->db->where(
+			'rk.uuid',
+			$rwk_kupas_uuid
+		);
+
+		$this->db->where(
+			'rk.deleted_at IS NULL',
+			null,
+			false
+		);
+
+		$row = $this->db->get()->row();
+
+		if (!$row) {
+			return 0;
+		}
+
+		$berat = (float) $row->berat;
+		$dipakai = (float) $row->total_dipakai;
+
+		$sisa = $berat - $dipakai;
+
+		return max(0, $sisa);
 	}
 	public function update_mp_usage($uuid)
 	{
@@ -200,7 +261,21 @@ class Mpusage_model extends CI_Model
 						'metal'          => $this->input->post('metal'),
 						'created_at'     => date('Y-m-d H:i:s')
 					];
-					$this->db->insert('rwk_pakai', $rwk_pakai);
+					$insert = $this->db->insert(
+						'rwk_pakai',
+						$rwk_pakai
+					);
+
+					if (!$insert) {
+
+						$error = $this->db->error();
+
+						throw new Exception(
+							'Gagal menyimpan rwk_pakai: '
+								. ($error['message'] ?? 'Database error.')
+						);
+					}
+
 					$need -= $pakai;
 				}
 				/*
