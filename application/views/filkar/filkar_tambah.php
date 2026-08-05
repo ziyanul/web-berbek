@@ -25,14 +25,10 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Kode Batch</label>
-                            <select
-                                name="tbatch_uuid"
-                                class="form-control">
+                            <select name="tbatch_uuid" class="form-control">
                                 <option value="">Pilih Batch</option>
-                                <?php foreach ($batch as $b): ?>
-                                    <option
-                                        value="<?= $b->uuid ?>"
-                                        <?= set_select('tbatch_uuid', $b->uuid) ?>>
+                                <?php foreach ($batch as $b) : ?>
+                                    <option value="<?= $b->uuid ?>" <?= set_select('tbatch_uuid', $b->uuid) ?>>
                                         <?= $b->kode_batch ?>
                                         -
                                         <?= $b->varian ?>
@@ -48,12 +44,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Berat (Kg)</label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                name="berat"
-                                class="form-control"
-                                value="<?= set_value('berat') ?>">
+                            <input type="number" step="0.001" name="berat" class="form-control" value="<?= set_value('berat') ?>">
                             <small class="text-danger">
                                 <?= form_error('berat') ?>
                             </small>
@@ -62,10 +53,7 @@
                 </div>
                 <div class="form-group">
                     <label>Keterangan</label>
-                    <textarea
-                        name="keterangan"
-                        class="form-control"
-                        rows="2"><?= set_value('keterangan') ?></textarea>
+                    <textarea name="keterangan" class="form-control" rows="2"><?= set_value('keterangan') ?></textarea>
                 </div>
                 <hr>
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -73,10 +61,7 @@
                         <i class="fas fa-exclamation-triangle text-danger mr-2"></i>
                         Data Bad Produk
                     </h5>
-                    <button
-                        type="button"
-                        id="btnTambah"
-                        class="btn btn-success btn-sm">
+                    <button type="button" id="btnTambah" class="btn btn-success btn-sm">
                         <i class="fa fa-plus mr-1"></i>
                         Tambah Bad Produk
                     </button>
@@ -98,15 +83,11 @@
                     </div>
                 </div>
                 <hr>
-                <button
-                    type="submit"
-                    class="btn btn-success">
+                <button type="submit" class="btn btn-success">
                     <i class="fa fa-save"></i>
                     Simpan
                 </button>
-                <a
-                    href="<?= base_url('filkar') ?>"
-                    class="btn btn-danger">
+                <a href="<?= base_url('filkar') ?>" class="btn btn-danger">
                     <i class="fa fas fa-times"></i>
                     Batal
                 </a>
@@ -144,7 +125,7 @@ name="badpro_uuid[]"
 class="form-control badproSelect"
 required>
 <option value="">Pilih Bad Produk</option>
-            <?php foreach ($badpro as $bp): ?>
+            <?php foreach ($badpro as $bp) : ?>
 <option
 value="<?= $bp->uuid_badpro ?>"
 data-kategori="<?= $bp->kategori_nama ?>">

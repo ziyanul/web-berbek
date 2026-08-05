@@ -1,7 +1,14 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+
 class Yield_model extends CI_Model
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->load->model('Proses_model');
+    }
     /* ===========================
      * PRIVATE
      * =========================== */
@@ -87,54 +94,104 @@ class Yield_model extends CI_Model
             'total' => $total
         ];
     }
-    public function get_bad_produk_varian($bulan = null, $tahun = null)
+    public function get_bad_produk_varian($varian)
     {
-        if (!$bulan) $bulan = date('m');
-        if (!$tahun) $tahun = date('Y');
-        // ambil daftar varian yang ada pada bulan tsb
-        $varian = $this->get_varian_yield($bulan, $tahun);
-        $select = "
-        bp.uuid,
-        MAX(bp.nama_badpro) AS nama_badpro,
-        MAX(bp.urutan) AS urutan,
-    ";
+        $proses_filkar  = $this->Proses_model->get_uuid('FILKAR');
+        $proses_sortasi = $this->Proses_model->get_uuid('SORTASI');
+
+
+        $this->db->select("
+        badpro.nama_badpro
+    ");
+
+
         foreach ($varian as $v) {
-            $kode = $v->varian;
-            $select .= "
+
+            $alias = $v->varian;
+
+            $this->db->select("
             SUM(
                 CASE
-                    WHEN vr.varian = '{$kode}'
-                    THEN tbp.berat
+                    WHEN tp.varian = '{$v->uuid}'
+                    THEN t_badpro.berat
                     ELSE 0
                 END
-            ) AS `{$kode}`,
-        ";
+            ) AS `{$alias}`
+        ", false);
         }
-        $select .= "
-        SUM(tbp.berat) AS total
-    ";
-        $this->db->select($select, false);
-        $this->db->from('t_badpro tbp');
+
+
+        $this->db->select("
+        SUM(t_badpro.berat) AS total
+    ", false);
+
+
+
+        $this->db->from('t_badpro');
+
+
         $this->db->join(
-            'badpro bp',
-            'bp.uuid = tbp.badpro_uuid'
+            'badpro',
+            'badpro.uuid = t_badpro.badpro_uuid',
+            'left'
         );
+
+
         $this->db->join(
-            'tbatch b',
-            'b.uuid = tbp.tbatch_uuid'
+            'tbatch tb',
+            'tb.uuid = t_badpro.tbatch_uuid',
+            'left'
         );
+
+
         $this->db->join(
-            't_planning p',
-            'p.uuid = b.t_planning_uuid'
+            't_planning tp',
+            'tp.uuid = tb.t_planning_uuid',
+            'left'
         );
-        $this->db->join(
-            'varian vr',
-            'vr.uuid = p.varian'
+
+
+        // FILKAR + SORTASI
+        $this->db->where_in(
+            't_badpro.proses_uuid',
+            [
+                $proses_filkar,
+                $proses_sortasi
+            ]
         );
-        $this->db->where('MONTH(p.tanggal)', $bulan);
-        $this->db->where('YEAR(p.tanggal)', $tahun);
-        $this->db->group_by('bp.uuid');
-        $this->db->order_by('MAX(bp.urutan)', 'ASC', false);
+
+
+        // bulan berjalan berdasarkan input bad
+        $this->db->where(
+            'MONTH(t_badpro.created_at)',
+            date('m')
+        );
+
+
+        $this->db->where(
+            'YEAR(t_badpro.created_at)',
+            date('Y')
+        );
+
+
+        $this->db->where(
+            't_badpro.deleted_at',
+            NULL
+        );
+
+
+        $this->db->group_by([
+            'badpro.uuid',
+            'badpro.nama_badpro'
+        ]);
+
+
+        $this->db->order_by(
+            'badpro.nama_badpro',
+            'ASC'
+        );
+
+
         return $this->db->get()->result();
     }
     public function get_varian_yield($bulan = null, $tahun = null)
@@ -600,5 +657,513 @@ class Yield_model extends CI_Model
                 : 0;
         }
         return $rows;
+    }
+
+    public function get_monitoring_filkar()
+    {
+        $filkar_proses_uuid = $this->Proses_model->get_uuid('FILKAR');
+
+        $sql = "
+        SELECT
+            v.varian AS nama_varian,
+
+            /* =========================
+             * ADONAN
+             * ========================= */
+            SUM(b.adonan) AS adonan_formula,
+
+            /* =========================
+             * FILKAR
+             * ========================= */
+            SUM(b.filkar_box) AS filkar_box,
+            SUM(b.filkar_kg) AS filkar_kg,
+
+            /* =========================
+             * BAD PRODUK FILKAR
+             * ========================= */
+            SUM(b.filkar_rework) AS filkar_rework,
+            SUM(b.filkar_reject) AS filkar_reject,
+
+            /* =========================
+             * YIELD FILKAR
+             * ========================= */
+            CASE
+                WHEN SUM(b.adonan) > 0
+                THEN
+                    (
+                        SUM(b.filkar_kg)
+                        /
+                        SUM(b.adonan)
+                    ) * 100
+                ELSE 0
+            END AS yield_formula
+
+        FROM (
+
+            /* =====================================================
+             * AGREGASI PER BATCH
+             * ===================================================== */
+
+            SELECT
+
+                tb.uuid AS tbatch_uuid,
+
+                tp.varian AS varian_uuid,
+
+                /* Adonan aktual batch */
+                MAX(tb.adonan) AS adonan,
+
+                /* Filkar aktual batch */
+                MAX(tb.filkar_box) AS filkar_box,
+                MAX(tb.filkar_kg) AS filkar_kg,
+
+                /* Bad Rework */
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN bp.kategori = 1
+                            THEN tbp.berat
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS filkar_rework,
+
+                /* Bad Reject */
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN bp.kategori = 2
+                            THEN tbp.berat
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS filkar_reject
+
+            FROM t_planning tp
+
+            LEFT JOIN tbatch tb
+                ON tb.t_planning_uuid = tp.uuid
+
+            LEFT JOIN t_badpro tbp
+                ON tbp.tbatch_uuid = tb.uuid
+                AND tbp.proses_uuid = " . $this->db->escape($filkar_proses_uuid) . "
+                AND tbp.deleted_at IS NULL
+
+            LEFT JOIN badpro bp
+                ON bp.uuid = tbp.badpro_uuid
+
+            WHERE MONTH(tp.tanggal) = MONTH(CURDATE())
+              AND YEAR(tp.tanggal) = YEAR(CURDATE())
+
+              AND tp.deleted_at IS NULL
+              AND tb.deleted_at IS NULL
+
+            GROUP BY
+                tb.uuid,
+                tp.varian
+
+        ) b
+
+        INNER JOIN varian v
+            ON v.uuid = b.varian_uuid
+
+        GROUP BY
+            v.uuid,
+            v.varian
+
+        ORDER BY
+            v.varian
+    ";
+
+        return $this->db->query($sql)->result();
+    }
+
+    public function get_total_filkar()
+    {
+        $filkar_proses_uuid = $this->Proses_model->get_uuid('FILKAR');
+
+        $sql = "
+        SELECT
+            SUM(x.adonan) AS adonan,
+            SUM(x.filkar_box) AS filkar_box,
+            SUM(x.filkar_kg) AS filkar_kg,
+            SUM(x.filkar_rework) AS filkar_rework,
+            SUM(x.filkar_reject) AS filkar_reject,
+
+            CASE
+                WHEN SUM(x.adonan) > 0
+                THEN
+                    (
+                        SUM(x.filkar_kg)
+                        /
+                        SUM(x.adonan)
+                    ) * 100
+                ELSE 0
+            END AS yield_formula
+
+        FROM (
+
+            SELECT
+                tb.uuid AS tbatch_uuid,
+
+
+                MAX(tb.adonan) AS adonan,
+
+
+                MAX(tb.filkar_box) AS filkar_box,
+                MAX(tb.filkar_kg) AS filkar_kg,
+
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN bp.kategori = 1
+                            THEN bp.berat
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS filkar_rework,
+
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN bp.kategori = 2
+                            THEN bp.berat
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS filkar_reject
+
+            FROM t_planning tp
+
+            INNER JOIN tbatch tb
+                ON tb.t_planning_uuid = tp.uuid
+
+            LEFT JOIN t_badpro bp
+                ON bp.tbatch_uuid = tb.uuid
+                AND bp.proses_uuid = " . $this->db->escape($filkar_proses_uuid) . "
+                AND bp.deleted_at IS NULL
+
+            WHERE MONTH(tp.tanggal) = MONTH(CURDATE())
+              AND YEAR(tp.tanggal) = YEAR(CURDATE())
+
+              AND tp.deleted_at IS NULL
+              AND tb.deleted_at IS NULL
+
+            GROUP BY tb.uuid
+
+        ) x
+    ";
+
+        return $this->db->query($sql)->row();
+    }
+
+    public function get_monitoring_sortasi()
+    {
+        $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+
+        $this->db->select("
+        v.varian AS nama_varian,
+
+        /* =========================
+           SORTASI BOX
+        ========================= */
+
+        SUM(s.jumlah_wip) AS sortasi_box,
+
+        SUM(s.jml_release) AS release_box,
+
+        (
+            SUM(s.jumlah_wip)
+            -
+            SUM(s.jml_release)
+        ) AS blm_sortir,
+
+
+        /* =========================
+           BAD PRODUK SORTASI
+        ========================= */
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN bp.kategori = 1
+                    THEN tbp.berat
+                    ELSE 0
+                END
+            ),0
+        ) AS sortasi_rework,
+
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN bp.kategori = 2
+                    THEN tbp.berat
+                    ELSE 0
+                END
+            ),0
+        ) AS sortasi_reject,
+
+
+        COALESCE(
+            SUM(tbp.berat),
+            0
+        ) AS sortasi_bad,
+
+
+        /* =========================
+           YIELD SORTASI
+           Release box / sortasi box
+        ========================= */
+
+        CASE
+            WHEN SUM(s.jumlah_wip) > 0
+            THEN
+            (
+                SUM(s.jml_release)
+                /
+                SUM(s.jumlah_wip)
+            ) * 100
+            ELSE 0
+        END AS yield_sortasi
+
+
+    ");
+
+        $this->db->from('sortasi s');
+
+
+        // batch
+        $this->db->join(
+            'tbatch tb',
+            'tb.uuid = s.tbatch_uuid',
+            'left'
+        );
+
+
+        // planning
+        $this->db->join(
+            't_planning tp',
+            'tp.uuid = tb.t_planning_uuid',
+            'left'
+        );
+
+
+        // varian
+        $this->db->join(
+            'varian v',
+            'v.uuid = tp.varian',
+            'left'
+        );
+
+
+        // bad produk sortasi
+        $this->db->join(
+            't_badpro tbp',
+            "
+        tbp.ref_uuid = s.uuid
+        AND tbp.proses_uuid = '$proses_uuid'
+        AND tbp.deleted_at IS NULL
+        ",
+            'left'
+        );
+
+
+        $this->db->join(
+            'badpro bp',
+            'bp.uuid = tbp.badpro_uuid',
+            'left'
+        );
+
+
+        // bulan berjalan berdasarkan kegiatan sortasi
+        $this->db->where(
+            'MONTH(s.created_at)',
+            date('m')
+        );
+
+        $this->db->where(
+            'YEAR(s.created_at)',
+            date('Y')
+        );
+
+
+        $this->db->where(
+            's.deleted_at IS NULL',
+            NULL,
+            FALSE
+        );
+
+
+        $this->db->group_by([
+            'v.uuid',
+            'v.varian'
+        ]);
+
+
+        $this->db->order_by(
+            'v.varian'
+        );
+
+
+        return $this->db->get()->result();
+    }
+
+    public function get_total_sortasi()
+    {
+        $data = $this->get_monitoring_sortasi();
+
+        if (empty($data)) {
+            return null;
+        }
+
+
+        $total = new stdClass();
+
+        $total->sortasi_box = 0;
+        $total->release_box = 0;
+        $total->blm_sortir = 0;
+        $total->sortasi_rework = 0;
+        $total->sortasi_reject = 0;
+        $total->sortasi_bad = 0;
+
+
+        foreach ($data as $row) {
+
+            $total->sortasi_box += $row->sortasi_box;
+
+            $total->release_box += $row->release_box;
+
+            $total->blm_sortir += $row->blm_sortir;
+
+            $total->sortasi_rework += $row->sortasi_rework;
+
+            $total->sortasi_reject += $row->sortasi_reject;
+
+            $total->sortasi_bad += $row->sortasi_bad;
+        }
+
+
+        if ($total->sortasi_box > 0) {
+
+            $total->yield_sortasi =
+                ($total->release_box /
+                    $total->sortasi_box
+                ) * 100;
+        } else {
+
+            $total->yield_sortasi = 0;
+        }
+
+
+        return $total;
+    }
+
+    public function get_bad_produk_mesin_dominan()
+    {
+        $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+
+
+        $this->db->select("
+        m.uuid AS mesin_uuid,
+        m.nama_mesin AS mesin,
+
+        bp.uuid AS badpro_uuid,
+        bp.nama_badpro,
+
+        SUM(
+            tbp.berat *
+            (
+                tc.counter / tb.total
+            )
+        ) AS berat
+
+
+    ");
+
+
+        $this->db->from('t_badpro tbp');
+
+
+        $this->db->join(
+            'sortasi s',
+            's.uuid = tbp.ref_uuid',
+            'inner'
+        );
+
+
+        $this->db->join(
+            'tbatch tb',
+            'tb.uuid = s.tbatch_uuid',
+            'inner'
+        );
+
+
+        $this->db->join(
+            'tcounter tc',
+            'tc.tbatch_uuid = tb.uuid',
+            'inner'
+        );
+
+
+        $this->db->join(
+            'mesin m',
+            'm.uuid = tc.mesin_uuid',
+            'left'
+        );
+
+
+        $this->db->join(
+            'badpro bp',
+            'bp.uuid = tbp.badpro_uuid',
+            'left'
+        );
+
+
+        $this->db->where(
+            'tbp.proses_uuid',
+            $proses_uuid
+        );
+
+
+        $this->db->where(
+            'tbp.deleted_at',
+            NULL
+        );
+
+
+        $this->db->where(
+            's.deleted_at',
+            NULL
+        );
+
+
+        $this->db->where(
+            'MONTH(s.created_at)',
+            date('m')
+        );
+
+
+        $this->db->where(
+            'YEAR(s.created_at)',
+            date('Y')
+        );
+
+
+        $this->db->group_by([
+            'm.uuid',
+            'm.nama_mesin',
+            'bp.uuid',
+            'bp.nama_badpro'
+        ]);
+
+
+        return $this->db->get()->result();
     }
 }
