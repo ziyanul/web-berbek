@@ -91,7 +91,7 @@
                     <span>DASHBOARD</span>
                 </a>
             </li>
-            <li class="nav-item <?= $active_nav == 'filler' ? 'active' : '' ?>">
+            <li class="nav-item <?= $active_nav == 'yield' ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= base_url('yieldportal/analisa') ?>">
                     <i class="fa fa-list"></i>
                     <span>ANALISA</span>

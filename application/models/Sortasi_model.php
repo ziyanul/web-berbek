@@ -25,7 +25,7 @@ class Sortasi_model extends CI_Model
 	}
 	public function get_all()
 	{
-		$this->db->select('s.*, v.varian, v.keterangan, tb.kode_batch, v.box_kg');
+		$this->db->select('s.*, v.varian, v.keterangan, tb.kode_batch, v.box_kg, s.created_at');
 		$this->db->from('Sortasi s');
 		$this->db->join('tbatch tb', 'tb.uuid = s.tbatch_uuid', 'left');
 		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
@@ -33,6 +33,9 @@ class Sortasi_model extends CI_Model
 		$this->db->where('s.deleted_at IS NULL', null, false);
 		$this->db->order_by('s.created_at', 'DESC');
 		$data = $this->db->get()->result();
+		foreach ($data as $val) {
+			$val->tanggal = tanggal_indo($val->created_at);
+		}
 		return $data;
 	}
 	public function get_by_uuid($uuid)

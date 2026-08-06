@@ -22,6 +22,7 @@ class Sortasi extends CI_Controller
 			'data' => $this->Sortasi_model->get_all(),
 			'active_nav' => 'sortasi'
 		);
+
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('sortasi/sortasi', $data);
 		$this->load->view('partials/footer');

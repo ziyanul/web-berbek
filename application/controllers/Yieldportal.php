@@ -10,16 +10,66 @@ class Yieldportal extends CI_Controller
     }
     public function dashboard()
     {
-        $result = $this->Yield_model->get_yield_produksi();
-        $data['monitoring'] = $result['rows'];
-        $data['total']      = $result['total'];
+        $data['title'] = 'Dashboard Yield';
+
+
+        // ==========================================
+        // MONITORING FILKAR
+        // ==========================================
+
+        $data['monitoring_filkar'] =
+            $this->Yield_model
+            ->get_monitoring_filkar();
+
+
+        $data['total_filkar'] =
+            $this->Yield_model
+            ->get_total_filkar();
+
+
+
+        // ==========================================
+        // MONITORING SORTASI
+        // ==========================================
+
+        $data['monitoring_sortasi'] =
+            $this->Yield_model
+            ->get_monitoring_sortasi();
+
+
+        $data['total_sortasi'] =
+            $this->Yield_model
+            ->get_total_sortasi();
+
+
+
+        // ==========================================
+        // BAD PRODUK PER VARIAN
+        // sementara tetap
+        // ==========================================
+
         $data['varian'] = $this->Yield_model->get_varian_yield();
+
         $data['bad_produk_varian'] =
-            $this->Yield_model->get_bad_produk_varian();
+            $this->Yield_model->get_bad_produk_varian(
+                $data['varian']
+            );
+
+
+
+        // ==========================================
+        // BAD PRODUK PER MESIN
+        // revisi berikutnya
+        // ==========================================
+
+        $bad_mesin =
+            $this->Yield_model
+            ->get_bad_produk_mesin_dominan();
         $data['badproduk'] =
-            $this->Yield_model->get_master_bad_produk();
+            $bad_mesin['badproduk'];
         $data['bad_produk_mesin'] =
-            $this->Yield_model->get_bad_produk_mesin();
+            $bad_mesin['rows'];
+
         $this->load->view('dashboard/dashboard-yield', $data);
     }
     public function analisa()
@@ -27,7 +77,7 @@ class Yieldportal extends CI_Controller
         if (!$this->Auth_model->current_user()) {
             redirect('login');
         }
-        $data['title'] = 'Analisa Yield Produksi';
+
         // master filter
         $data['varian'] = $this->Yield_model->get_master_varian();
         $data['mesin']  = $this->Yield_model->get_master_mesin();
