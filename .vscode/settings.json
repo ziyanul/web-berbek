@@ -1,0 +1,22 @@
+{
+    // PHP Intelligence
+    "intelephense.environment.phpVersion": "8.1",
+
+    // Bersihkan whitespace saat save
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true,
+
+    // Save otomatis
+    "files.autoSave": "off",
+
+    // Trailing Spaces extension
+    "trailing-spaces.trimOnSave": true,
+
+    // Jangan format otomatis
+    "editor.formatOnSave": false,
+
+    // Tampilan PHP lebih nyaman
+    "editor.wordWrap": "off",
+    "remove-empty-lines.allowedNumberOfEmptyLines": 0,
+    "remove-empty-lines.runOnSave": true
+}
