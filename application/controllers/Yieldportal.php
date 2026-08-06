@@ -62,12 +62,14 @@ class Yieldportal extends CI_Controller
         // revisi berikutnya
         // ==========================================
 
-        $data['bad_produk_mesin'] =
+        $bad_mesin =
             $this->Yield_model
             ->get_bad_produk_mesin_dominan();
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
+        $data['badproduk'] =
+            $bad_mesin['badproduk'];
+        $data['bad_produk_mesin'] =
+            $bad_mesin['rows'];
+
         $this->load->view('dashboard/dashboard-yield', $data);
     }
     public function analisa()
