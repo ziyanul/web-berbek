@@ -472,25 +472,25 @@ MONITORING SORTASI
                                             <tr>
                                                 <td>TOTAL</td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->sortasi_box) ?>
+                                                    <?= number_format($total_sortasi->sortasi_box ?? 0) ?>
                                                 </td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->release_box) ?>
+                                                    <?= number_format($total_sortasi->release_box ?? 0) ?>
                                                 </td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->blm_sortir) ?>
+                                                    <?= number_format($total_sortasi->blm_sortir ?? 0) ?>
                                                 </td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->sortasi_rework, 2) ?>
+                                                    <?= number_format($total_sortasi->sortasi_rework ?? 0, 2) ?>
                                                 </td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->sortasi_reject, 2) ?>
+                                                    <?= number_format($total_sortasi->sortasi_reject ?? 0, 2) ?>
                                                 </td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->sortasi_bad, 2) ?>
+                                                    <?= number_format($total_sortasi->sortasi_bad ?? 0, 2) ?>
                                                 </td>
                                                 <td>
-                                                    <?= number_format($total_sortasi->yield_sortasi, 2) ?> %
+                                                    <?= number_format($total_sortasi->yield_sortasi ?? 0, 2) ?> %
                                                 </td>
                                             </tr>
                                         </tfoot>

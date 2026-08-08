@@ -761,12 +761,9 @@ class Yield_model extends CI_Model
             SELECT
                 tb.uuid AS tbatch_uuid,
                 tp.varian AS varian_uuid,
-                /* Adonan aktual batch */
                 MAX(tb.adonan) AS adonan,
-                /* Filkar aktual batch */
                 MAX(tb.filkar_box) AS filkar_box,
                 MAX(tb.filkar_kg) AS filkar_kg,
-                /* Bad Rework */
                 COALESCE(
                     SUM(
                         CASE

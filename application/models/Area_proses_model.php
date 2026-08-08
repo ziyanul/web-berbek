@@ -1,9 +1,9 @@
-<?php 
+<?php
 date_default_timezone_set('Asia/Jakarta');
 
 use Ramsey\Uuid\Uuid;
 
-class Area_proses_model extends CI_Model 
+class Area_proses_model extends CI_Model
 {
 	public function __construct()
 	{
@@ -34,7 +34,7 @@ class Area_proses_model extends CI_Model
 		return $this->db->get_where('m_proses', array('uuid' => $uuid ))->row();
 	}
 
-	
+
 	public function insert()
 	{
 		$uuid = Uuid::uuid4()->toString();
@@ -46,7 +46,7 @@ class Area_proses_model extends CI_Model
 			'kode' => $area,
             'nama_proses' => $area,
 			'created_by'     => $this->auth_model->current_user()->uuid
-		);	
+		);
 
 		$this->db->insert('m_proses', $data);
 		return ($this->db->affected_rows() > 0) ? true : false;
@@ -69,7 +69,7 @@ class Area_proses_model extends CI_Model
 
     public function delete($uuid)
 	{
-		$data = array( 
+		$data = array(
 			'deleted_by' => $this->auth_model->current_user()->username,
 			'deleted_at' => date('Y-m-d h:i:s')
 		);
