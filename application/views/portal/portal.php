@@ -218,7 +218,7 @@
             </div>
         </header>
         <!-- MAIN -->
-        <main class="flex-1 flex flex-col justify-center px-5 -mt-2">
+        <main class="flex-1 flex flex-col justify-center px-4 -mt-2">
             <!-- HERO -->
             <div class="flex flex-col items-center text-center">
                 <!-- WELCOME -->
@@ -394,7 +394,7 @@
                                 </div>
                             </div>
                             <!-- CARD SANITASI -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
+                            <!-- <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
                                 <i data-lucide="spray-can" class="icon-bg w-20 h-20"></i>
                                 <div class="relative z-10 flex flex-col h-full">
                                     <div class="flex items-center justify-between mb-3">
@@ -415,7 +415,7 @@
                                         OPEN
                                     </a>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
         </main>

@@ -37,6 +37,64 @@
         background: #f4f6fb;
     }
     /* =====================================================
+   LIVE INDICATOR
+===================================================== */
+.live-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #ed1c24;
+    border-radius: 20px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    box-shadow: 0 3px 8px rgba(237, 28, 36, .25);
+}
+.live-icon {
+    position: relative;
+    width: 25px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.live-icon .dot {
+    width: 7px;
+    height: 7px;
+    background: greenyellow;
+    border-radius: 50%;
+    animation: live-blink 1s infinite;
+}
+.live-icon .wave {
+    position: absolute;
+    width: 9px;
+    height: 16px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: live-blink 1s infinite;
+}
+.live-icon .wave-left {
+    left: 0;
+}
+.live-icon .wave-right {
+    right: 0;
+}
+@keyframes live-blink {
+    0%,
+    50% {
+        opacity: 1;
+    }
+    51%,
+    100% {
+        opacity: .2;
+    }
+}
+    /* =====================================================
    HEADER
 ===================================================== */
     .dashboard-top {
@@ -270,6 +328,15 @@ HEADER
                                 <i class="fa fa-home mr-1"></i>
                                 PORTAL
                             </a>
+                            <!-- LIVE -->
+        <div class="live-button">
+            <div class="live-icon">
+                <!-- <span class="wave wave-left"></span> -->
+                <span class="dot"></span>
+                <!-- <span class="wave wave-right"></span> -->
+            </div>
+            <span class="live-text">LIVE</span>
+        </div>
                         </div>
                         <div class="dashboard-title">
                             DASHBOARD YIELD
