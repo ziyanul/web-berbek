@@ -385,7 +385,7 @@
                         </div>
 
                         <!-- GRID -->
-                        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 items-stretch">
+                        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-stretch">
 
                             <!-- CARD -->
                             <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
@@ -571,7 +571,7 @@
                             </div>
 
                             <!-- CARD SANITASI -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
+                            <!-- <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
 
                                 <i data-lucide="spray-can" class="icon-bg w-20 h-20"></i>
 
@@ -600,7 +600,7 @@
                                     </a>
 
                                 </div>
-                            </div>
+                            </div> -->
 
                         </div>
 
