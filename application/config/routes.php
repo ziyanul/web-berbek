@@ -101,6 +101,7 @@
 
 	$route['maintenance'] = 'portal/maintenance';
 	$route['paperless'] = 'portal/paperless';
+	$route['yield'] = 'yieldportal/dashboard';
 
 
 	/* Bahan Baku */

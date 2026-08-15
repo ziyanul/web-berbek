@@ -7,18 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title><?= $title ?? ' CPI-Berbek' ?></title>
+    <title><?= $title ?? ' Paperless | CPI-Berbek' ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/img/Prod-title.png'); ?>">
     <link href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="<?= base_url('assets/vendor/fontawesome-free/webfonts/font-googleapis.css'); ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/datatables/datatables.min.css'); ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <link href="<?= base_url('assets/vendor/css/select2.min.css'); ?>" rel="stylesheet" />
+
+
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/daterangepicker/daterangepicker.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/vendor/lightbox/lightbox.min.css'); ?>">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css'); ?>">
     <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
-    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+    <script src="<?= base_url('assets/vendor/js/select2.min.js'); ?>">
+    </script>
     <style>
         .dropdown-user-header {
             padding: 0.75rem 1rem;

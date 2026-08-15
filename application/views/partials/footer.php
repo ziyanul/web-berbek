@@ -39,17 +39,17 @@
 <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
 <!-- Core plugin JavaScript-->
 <script src="<?= base_url('assets/vendor/jquery-easing/jquery.easing.min.js'); ?>"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="<?= base_url('assets/js/sweetalert2.js'); ?>"></script>
 <!-- Custom scripts for all pages-->
 <script src="<?= base_url('assets/js/sb-admin-2.min.js'); ?>"></script>
 <!-- Bootstrap 4 Datatable -->
 <script src="<?= base_url('assets/vendor/datatables/jquery.dataTables.min.js'); ?>"></script>
 <script src="<?= base_url('assets/vendor/datatables/datatables.min.js'); ?>"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.js') ?>" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="<?= base_url('assets/vendor/lightbox/lightbox.min.js'); ?>"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="<?= base_url('assets/js/moment.min.js') ?>"></script>
 <!-- Bootstrap DateRangePicker JavaScript -->
-<script type="text/javascript" charset="utf8" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.js"></script>
+<script type="text/javascript" charset="utf8" src="<?= base_url('assets/vendor/daterangepicker/daterangepicker.js') ?>"></script>
 
 <script src="<?= base_url('assets/js/script.js'); ?>"></script>
 

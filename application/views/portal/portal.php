@@ -303,7 +303,7 @@
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
                                         Monitoring produksi realtime.
                                     </p>
-                                    <a href="<?= base_url('yieldportal/dashboard'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg">
+                                    <a href="<?= base_url('yield/'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
@@ -330,7 +330,7 @@
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
                                         Form digital tanpa kertas.
                                     </p>
-                                    <a href="<?= base_url('portal/paperless'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-cyan-500 to-sky-500 shadow-lg">
+                                    <a href="<?= base_url('paperless'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-cyan-500 to-sky-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
@@ -387,7 +387,7 @@
                                         Sparepart<br>
                                         New & Repair Part
                                     </p>
-                                    <a href="<?= base_url('portal/maintenance'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
+                                    <a href="<?= base_url('maintenance'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
