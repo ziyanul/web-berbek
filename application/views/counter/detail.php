@@ -1,6 +1,5 @@
 <!-- Begin Page Content -->
 <div class="container-fluid">
-
     <!-- Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4 flex-wrap">
         <div class="mb-3 mb-sm-0">
@@ -11,12 +10,10 @@
                 <i class="fas fa-tag mr-1"></i> <?= $data->vrn; ?> (<?= $data->keterangan; ?>)
             </p>
         </div>
-
         <a href="<?= base_url('counter/tambahbatch/'.$data->uuid); ?>" class="btn btn-primary shadow-sm">
             <i class="fas fa-plus fa-sm text-white mr-1"></i> Tambah Batch
         </a>
     </div>
-
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-white shadow-sm">
@@ -28,7 +25,6 @@
             <li class="breadcrumb-item active" aria-current="page">Batch</li>
         </ol>
     </nav>
-
     <!-- Flash Message -->
     <?php if($this->session->flashdata('success_msg')): ?>
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
@@ -39,7 +35,6 @@
             </button>
         </div>
     <?php endif; ?>
-
     <?php if($this->session->flashdata('error_msg')): ?>
         <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
             <i class="fas fa-times-circle mr-2"></i>
@@ -49,13 +44,11 @@
             </button>
         </div>
     <?php endif; ?>
-
     <!-- Card Table -->
     <div class="card shadow mb-4 border-0">
         <div class="card-header py-3 bg-white">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Batch Produksi</h6>
         </div>
-
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle" id="datatables" width="100%" cellspacing="0">
@@ -64,13 +57,12 @@
                             <th width="5%">No</th>
                             <th>User</th>
                             <th>Batch Ke-</th>
-                            <th>kode_Batch</th>
+                            <th>kode Batch</th>
                             <th>Jam</th>
                             <th>Total Counter</th>
                             <th width="25%">Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         <?php $no = 1; ?>
                         <?php foreach ($batch as $row): ?>
@@ -92,12 +84,10 @@
                                         <a href="<?= base_url('counter/detailcounter/'.$row->uuid); ?>" class="btn btn-sm btn-success shadow-sm">
                                             <i class="fa fa-book mr-1"></i> Detail
                                         </a>
-
                                         <a href="<?= base_url('counter/editbatch/'.$row->uuid); ?>" class="btn btn-sm btn-warning shadow-sm">
                                             <i class="fa fa-edit mr-1"></i> Edit
                                         </a>
-
-                                        <a href="<?= base_url('counter/deletebatch/'.$row->uuid); ?>" 
+                                        <a href="<?= base_url('counter/deletebatch/'.$row->uuid); ?>"
                                          class="btn btn-sm btn-danger shadow-sm"
                                          onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                          <i class="fa fa-trash mr-1"></i> Hapus
@@ -112,16 +102,13 @@
      </div>
  </div>
 </div>
-
 <style>
     .table td, .table th {
     vertical-align: middle !important;
 }
-
 .badge {
     font-size: 13px;
 }
-
 .card-header h6 {
     font-size: 15px;
 }

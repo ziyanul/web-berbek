@@ -25,13 +25,13 @@
                 <table class="table table-bordered" id="datatables" width="100%" cellspacing="0">
                     <thead class="table bg-info text-light">
                         <tr>
-                            <th class='align-middle text-center'>No.</th>
+                            <th class='align-middle text-center' width="1">No.</th>
                             <th class='align-middle text-center'>Tanggal</th>
                             <th class='align-middle text-center'>Kode Batch</th>
                             <th class='align-middle text-center'>Varian</th>
-                            <th class='align-middle text-center'>Jumlah Box</th>
+                            <th class='align-middle text-center' width="1">Jumlah Box</th>
                             <th class='align-middle text-center'>Jumlah KG</th>
-                            <th class='align-middle text-center' width='35%'>Action</th>
+                            <th class='align-middle text-center' width='30%'>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,16 +44,16 @@
                                 <td class='align-middle text-center'><?= tanggal_indo($row->created_at) ?></td>
                                 <td class='align-middle text-center'><?= $row->kode_batch; ?></td>
                                 <td class='align-middle text-center'><?= $row->varian; ?></td>
-                                <td><?= $row->jumlah_box ?></td>
-                                <td><?= $row->jumlah_kg ?></td>
+                                <td class='align-middle text-center'><?= $row->jumlah_box ?></td>
+                                <td class='align-middle text-center'><?= $row->jumlah_kg ?></td>
                                 <td class='align-middle text-center'>
-                                    <a href="<?= base_url('filkar/detail/' . $row->uuid) ?>" class="btn btn-md btn-info shadow-sm mb-2"><i
+                                    <a href="<?= base_url('filkar/detail/' . $row->uuid) ?>" class="btn btn-sm btn-info shadow-sm mb-2"><i
                                             class="fa fa-edit fa-sm text-white mr-2"></i> Detail</a>
-                                    <a href="<?= base_url('filkar/edit/' . $row->uuid) ?>" class="btn btn-md btn-warning shadow-sm mb-2"><i
+                                    <a href="<?= base_url('filkar/edit/' . $row->uuid) ?>" class="btn btn-sm btn-warning shadow-sm mb-2"><i
                                             class="fa fa-edit fa-sm text-white mr-2"></i> Edit</a>
                                     <button
                                         type="button"
-                                        class="btn btn-danger btn-delete mb-2"
+                                        class="btn btn-sm btn-danger btn-delete mb-2"
                                         data-id="<?= $row->uuid ?>">
                                         <i class="fa fa-trash mr-2"></i> Hapus
                                     </button>

@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
-
 use Ramsey\Uuid\Uuid;
-
 class Counter_model extends CI_Model
 {
     public function __construct()
@@ -459,76 +457,85 @@ class Counter_model extends CI_Model
         return $data;
     }
     public function get_form_counter($tanggal_produksi, $varian_uuid)
-    {
-        $this->db->select("
-        tc.mesin_uuid,
-        tc.device_id,
-        m.nama_mesin,
+{
+    $this->db->select("
+        x.mesin_uuid,
+        x.device_id,
+        x.nama_mesin,
         GROUP_CONCAT(
-        tc.counter
-        ORDER BY tb.batch_ke ASC
-        ) as counters,
+            x.counter
+            ORDER BY x.batch_ke ASC
+        ) AS counters,
         GROUP_CONCAT(
-        tb.kode_batch
-        ORDER BY tb.batch_ke ASC
-        ) as kode_batch,
-        MAX(tb.batch_ke) as max_batch_ke,
-        v.panjang
-        ");
-        $this->db->from('tcounter tc');
-        $this->db->join(
-            'tbatch tb',
-            'tb.uuid = tc.tbatch_uuid'
+            x.kode_batch
+            ORDER BY x.batch_ke ASC
+        ) AS kode_batch,
+        MAX(x.batch_ke) AS max_batch_ke,
+        x.panjang
+    ");
+    $this->db->from("
+        (
+            SELECT
+                tc.mesin_uuid,
+                tc.device_id,
+                m.nama_mesin,
+                tb.kode_batch,
+                MIN(tb.batch_ke) AS batch_ke,
+                v.panjang,
+                SUM(tc.counter) AS counter
+            FROM tcounter tc
+            JOIN tbatch tb
+                ON tb.uuid = tc.tbatch_uuid
+            JOIN t_planning tp
+                ON tp.uuid = tb.t_planning_uuid
+            JOIN varian v
+                ON v.uuid = tp.varian
+            JOIN mesin m
+                ON m.uuid = tc.mesin_uuid
+            WHERE tb.tanggal_produksi = " .
+                $this->db->escape($tanggal_produksi) . "
+            AND tp.varian = " .
+                $this->db->escape($varian_uuid) . "
+            GROUP BY
+                tc.mesin_uuid,
+                tc.device_id,
+                m.nama_mesin,
+                tb.kode_batch,
+                v.panjang
+        ) x
+    ");
+    $this->db->group_by([
+        'x.mesin_uuid',
+        'x.device_id',
+        'x.nama_mesin',
+        'x.panjang'
+    ]);
+    $this->db->order_by(
+        'x.nama_mesin',
+        'ASC'
+    );
+    $rows = $this->db->get()->result();
+    foreach ($rows as $val) {
+        $film = ((float) $val->panjang / 100);
+        $counter_array = array_map(
+            'intval',
+            explode(',', $val->counters)
         );
-        $this->db->join(
-            't_planning tp',
-            'tp.uuid = tb.t_planning_uuid'
+        $val->counter_array = $counter_array;
+        $val->total = array_sum(
+            $counter_array
         );
-        $this->db->join(
-            'varian v',
-            'v.uuid = tp.varian'
+        $val->pvdc = round(
+            $val->total * $film,
+            2
         );
-        $this->db->join(
-            'mesin m',
-            'm.uuid = tc.mesin_uuid'
+        $val->wire = round(
+            $val->total * 0.000302,
+            3
         );
-        $this->db->where(
-            'tb.tanggal_produksi',
-            $tanggal_produksi
-        );
-        $this->db->where(
-            'tp.varian',
-            $varian_uuid
-        );
-        $this->db->group_by([
-            'tc.mesin_uuid',
-            'tc.device_id',
-            'm.nama_mesin',
-            'v.panjang'
-        ]);
-        $this->db->order_by('m.nama_mesin', 'ASC');
-        $rows = $this->db->get()->result();
-        foreach ($rows as $val) {
-            $film = ((float)$val->panjang / 100);
-            $counter_array = array_map(
-                'intval',
-                explode(',', $val->counters)
-            );
-            $val->counter_array = $counter_array;
-            $val->total = array_sum(
-                $counter_array
-            );
-            $val->pvdc = round(
-                $val->total * $film,
-                2
-            );
-            $val->wire = round(
-                $val->total * 0.000302,
-                3
-            );
-        }
-        return $rows;
     }
+    return $rows;
+}
     public function get_next_batch_data($t_planning_uuid)
     {
         $tanggal_produksi = date('Y-m-d');

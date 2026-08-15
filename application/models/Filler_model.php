@@ -27,8 +27,8 @@ class Filler_model extends CI_Model
 				'rules' => 'required'
 			],
 			[
-				'field' => 'f_clean',
-				'label' => 'Cleanning',
+				'field' => 'tanggal',
+				'label' => 'Tanggal',
 				'rules' => 'required'
 			]
 		];
@@ -171,6 +171,67 @@ class Filler_model extends CI_Model
 		}
 		return $data;
 	}
+	public function get_plan_data_total()
+{
+    $this->db->select('
+        tp.*,
+        v.varian,
+        v.keterangan,
+        COALESCE(counter.total_counter, 0) AS total_counter,
+        COALESCE(batch.total_batch, 0) AS total_batch
+    ');
+    $this->db->from('t_planning tp');
+    $this->db->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    );
+    // Total counter berdasarkan planning
+    $this->db->join(
+        '(
+            SELECT
+                tb.t_planning_uuid,
+                SUM(tc.counter) AS total_counter
+            FROM tbatch tb
+            INNER JOIN tcounter tc
+                ON tb.uuid = tc.tbatch_uuid
+            GROUP BY tb.t_planning_uuid
+        ) counter',
+        'counter.t_planning_uuid = tp.uuid',
+        'left',
+        false
+    );
+    // Total batch berdasarkan planning
+    $this->db->join(
+        '(
+            SELECT
+                t_planning_uuid,
+                SUM(batch_persen) AS total_batch
+            FROM mp_usage
+            GROUP BY t_planning_uuid
+        ) batch',
+        'batch.t_planning_uuid = tp.uuid',
+        'left',
+        false
+    );
+    $this->db->where(
+        'tp.deleted_at IS NULL',
+        null,
+        false
+    );
+    $this->db->order_by(
+        'tp.created_at',
+        'DESC'
+    );
+    $data = $this->db->get()->result();
+    foreach ($data as $val) {
+        $val->tgl = date(
+            'd M Y',
+            strtotime($val->tanggal)
+        );
+    }
+    return $data;
+}
 	public function getPlanningDataByVarian($varian)
 	{
 		$query = $this->db->where('varian', $varian)

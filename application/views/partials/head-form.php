@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,8 +13,6 @@
     <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/datatables/datatables.min.css'); ?>">
     <link href="<?= base_url('assets/vendor/css/select2.min.css'); ?>" rel="stylesheet" />
-
-
     <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/daterangepicker/daterangepicker.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/vendor/lightbox/lightbox.min.css'); ?>">
@@ -28,66 +25,52 @@
             padding: 0.75rem 1rem;
             border-bottom: 1px solid #eaecf4;
         }
-
         .dropdown-user-header .name {
             font-weight: 700;
             color: #3a3b45;
             margin-bottom: 2px;
         }
-
         .dropdown-user-header .meta {
             font-size: 0.8rem;
             color: #858796;
         }
-
-
         .sidebar-brand-icon {
             width: 200px;
         }
-
         .sidebar-brand-icon img {
             width: 200%;
         }
-
         @media (min-width: 768px) {
             .sidebar {
                 width: 20rem !important;
             }
-
             .sidebar-brand-icon img {
                 width: 100%;
             }
-
             @media (min-width: 768px) {
                 .sidebar {
                     width: 20rem !important;
                 }
-
                 .sidebar .nav-item .nav-link {
                     width: 100% !important;
                 }
             }
-
         }
     </style>
 </head>
-
 <body id="page-top">
     <div id="wrapper">
         <?php
         $type     = $this->session->userdata('type');
         $subrole  = $this->session->userdata('subrole');
         ?>
-
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
             <!-- LOGO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('') ?>">
                 <div class="sidebar-brand-icon mt-5">
                     <img src="<?= base_url('assets/img/Prod1.png'); ?>" alt="Logo" style="max-width: 100%; height: auto;">
                 </div>
             </a>
-
             <!-- DASHBOARD -->
             <li class="nav-item mt-5 <?= $active_nav == 'home' ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= base_url('paperless') ?>">
@@ -95,11 +78,7 @@
                     <span>DASHBOARD</span>
                 </a>
             </li>
-
-
-
             <!-- ================= FORM MP ================= -->
-
             <li class="nav-item <?= in_array($active_nav, ['cekmesin-mp', 'rework']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuMp">
                     <span>MP</span>
@@ -108,7 +87,6 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item <?= $active_nav == 'cekmesin-mp' ? 'active' : '' ?>" href="<?= base_url('cekmesin_mp') ?>">Pengecekan Mesin</a>
                         <a class="collapse-item <?= $active_nav == 'rework' ? 'active' : '' ?>" href="<?= base_url('') ?>">Penggunaan Rework</a>
-
                     </div>
                 </div>
             </li>
@@ -124,19 +102,17 @@
                     </div>
                 </div>
             </li>
-
             <!-- ================= FORM SUSUN ================= -->
-            <li class="nav-item <?= in_array($active_nav, ['formcounter', 'cekmesin_susun']) ? 'active' : '' ?>">
+            <li class="nav-item <?= in_array($active_nav, ['cekmesin_susun']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuSus">
                     <span>SUSUN</span>
                 </a>
-                <div id="formMenuSus" class="collapse <?= in_array($active_nav, ['formcounter', 'cekmesin', 'cekmesin_susun']) ? 'show' : '' ?>">
+                <div id="formMenuSus" class="collapse <?= in_array($active_nav, ['cekmesin', 'cekmesin_susun']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item <?= $active_nav == 'cekmesin_susun' ? 'active' : '' ?>" href="<?= base_url('cekmesin_susun') ?>">Pengecekan Mesin</a>
                     </div>
                 </div>
             </li>
-
             <!-- ================= FORM RETORT ================= -->
             <li class="nav-item <?= in_array($active_nav, ['cekmesin_retort', 'pergantian_varian_retort', 'rt_rjmesin']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuRt">
@@ -151,7 +127,6 @@
                     </div>
                 </div>
             </li>
-
             <!-- ================= FORM PACKING ================= -->
             <li class="nav-item <?= in_array($active_nav, ['zanasi', 'cekmesin', 'pergantian_varian_packing', 'filkar', 'pemusnahan_badproduct']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuPc">
@@ -168,7 +143,6 @@
                     </div>
                 </div>
             </li>
-
             <!-- ================= FORM SANITASI ================= -->
             <!-- <li class="nav-item <?= in_array($active_nav, ['sanitasi-data', 'pengenceran']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#formMenuSan">
@@ -194,29 +168,20 @@
                     </div>
                 </div>
             </li>
-
-
             <!-- <li class="nav-item <?= $active_nav == 'gmp-tpm' || $active_nav == 'gmp-history' || $active_nav == 'gmp' ? 'active' : ''; ?>">
-
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsehis" aria-expanded="true" aria-controls="collapsehis">
                     <span>ISO/TS</span>
                 </a>
                 <div id="collapsehis" class="collapse <?= $active_nav == 'gmp-tpm' || $active_nav == 'gmp' || $active_nav == 'gmp-history' ? 'show' : ''; ?>" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-
                         <a class="collapse-item <?= $active_nav == 'gmp-tpm' ? 'active' : ''; ?>" href="<?= base_url('gmp/tpm') ?>">TPM</a>
                         <a class="collapse-item <?= $active_nav == 'gmp' ? 'active' : ''; ?>" href="<?= base_url('gmp') ?>">MONITORING</a>
-
-
                         <a class="collapse-item <?= $active_nav == 'gmp-history' ? 'active' : ''; ?>" href="<?= base_url('gmp/history') ?>">HISTORY</a>
-
                     </div>
                 </div>
             </li> -->
-
             <hr class="sidebar-divider">
             <?php if ($type == 1 || $type == 2) { ?>
-
                 <li class="nav-item <?= in_array($active_nav, [
                                         'area', 'mesin', 'tl_mesin', 'sparepart', 'am-data', 'item-cm', 'masterspeed',
                                         'gmp-area', 'gmp-data', 'm_kondisi', 'varian', 'm_tindakan', 'pegawai', 'jenis-pbelah'
@@ -232,7 +197,6 @@
                             <!-- MESIN & PART -->
                             <a class="collapse-item <?= $active_nav == 'area' ? 'active' : ''; ?>" href="<?= base_url('area') ?>">AREA</a>
                             <a class="collapse-item <?= $active_nav == 'mesin' ? 'active' : ''; ?>" href="<?= base_url('mesin') ?>">MESIN</a>
-
                             <h6 class="collapse-header">PENGECEKAN MESIN</h6>
                             <a class="collapse-item <?= $active_nav == 'item-cm' ? 'active' : ''; ?>" href="<?= base_url('cekmesin/dataitem') ?>">ITEM PENGECEKAN</a>
                             <a class="collapse-item <?= $active_nav == 'dataitem-batch' ? 'active' : ''; ?>" href="<?= base_url('cekmesin_fillerbatch/dataitem') ?>">ITEM PENGECEKAN / BATCH</a>
@@ -242,30 +206,21 @@
                             <!-- DATA LAIN-LAIN -->
                             <h6 class="collapse-header">DATA LAIN-LAIN</h6>
                             <a class="collapse-item <?= $active_nav == 'pegawai' ? 'active' : '' ?>" href="<?= base_url('pegawai') ?>">PEGAWAI</a>
-
-
-
-
                         </div>
                     </div>
                 </li>
-
             <?php } ?>
-
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-
                 <!-- ================= TOPBAR ================= -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
-
                     <!-- Info User -->
                     <div class="d-none d-sm-flex flex-column">
                         <span class="h6 text-primary">
@@ -273,7 +228,6 @@
                             <?= $this->session->userdata('departemen'); ?>
                         </span>
                     </div>
-
                     <!-- Right Menu -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow">
@@ -283,9 +237,7 @@
                                 </span>
                                 <img src="<?= base_url('assets/img/Oooo.jpeg'); ?>" alt="Profile" class="rounded-circle border shadow-sm" style="width:38px; height:38px; object-fit:cover;">
                             </a>
-
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown" style="min-width: 260px;">
-
                                 <div class="dropdown-user-header">
                                     <div class="name"><?= $this->session->userdata('fullname'); ?></div>
                                     <div class="meta">
@@ -293,14 +245,11 @@
                                         <?= $this->session->userdata('departemen'); ?>
                                     </div>
                                 </div>
-
                                 <a class="dropdown-item" href="<?= base_url('pegawai/edit_password/' . $this->session->userdata('user_uuid')); ?>">
                                     <i class="fas fa-lock fa-sm fa-fw mr-2 text-primary"></i>
                                     Ganti Password
                                 </a>
-
                                 <div class="dropdown-divider"></div>
-
                                 <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-danger"></i>
                                     Logout

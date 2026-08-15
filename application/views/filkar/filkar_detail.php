@@ -7,7 +7,7 @@
         <!-- ===========================
              INFORMASI FILKAR
         ============================ -->
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header bg-primary text-white">
                     Informasi Filling Karantina
@@ -35,10 +35,21 @@
                             <td><?= number_format($data->jumlah_kg, 2) ?></td>
                         </tr>
                         <tr>
+                            <th>Jam Mulai</th>
+                            <td><?= date('H:i',strtotime($data->jam_mulai)) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Jam Selesai</th>
+                            <td><?= date('H:i',strtotime($data->jam_selesai)) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Jumlah Main Power</th>
+                            <td><?= $data->jml_mp ?></td>
+                        </tr>
+                        <tr>
                             <th>Keterangan</th>
                             <td><?= $data->keterangan ?: '-' ?></td>
                         </tr>
-                        
                     </table>
                 </div>
             </div>
@@ -46,7 +57,7 @@
         <!-- ===========================
              BAD PRODUK
         ============================ -->
-        <div class="col-lg-8">
+        <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-body p-0">
                     <table class="table table-bordered table-hover mb-0">
