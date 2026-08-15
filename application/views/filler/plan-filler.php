@@ -27,7 +27,7 @@
                             <th class="font-weight-bold align-middle text-center" width="1">No</th>
                             <th class="font-weight-bold align-middle text-center">Tanggal Produksi</th>
                             <th class="font-weight-bold align-middle text-center">Varian</th>
-                            <th class="font-weight-bold align-middle text-center">Jumlah Batch</th>
+                            <!-- <th class="font-weight-bold align-middle text-center">Jumlah Batch</th> -->
                             <th class="font-weight-bold align-middle text-center">Total Output</th>
                             <th class="font-weight-bold align-middle text-center">Action</th>
                         </tr>
@@ -41,7 +41,7 @@
                             <td><?= $no ?></td>
                             <td><?= tanggal_indo($row->tgl); ?></td>
                             <td><?= $row->varian ?> - <?= $row->keterangan ?></td>
-                            <td><?= $row->total_batch ?></td>
+                            <!-- <td><?= $row->total_batch ?></td> -->
                             <td><?= $row->total_counter ?></td>
                             <td class="text-center align-middle" style="white-space: nowrap;">
                                 <div class="d-flex justify-content-center flex-wrap" style="gap:6px;">
