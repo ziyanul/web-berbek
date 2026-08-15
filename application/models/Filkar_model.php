@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
-
 use Ramsey\Uuid\Uuid;
-
 class Filkar_model extends CI_Model
 {
 	public function __construct()
@@ -162,6 +160,31 @@ class Filkar_model extends CI_Model
 				'field' => 'berat',
 				'label' => 'Berat',
 				'rules' => 'required|numeric'
+			],
+			[
+				'field' => 'mulai',
+				'label' => 'Jam Mulai',
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} wajib diisi !',
+				]
+			],
+			[
+				'field' => 'selesai',
+				'label' => 'Jam Selesai',
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{field} wajib diisi !',
+				]
+			],
+			[
+				'field' => 'jml_mp',
+				'label' => 'Jumlah Manpower',
+				'rules' => 'required|numeric',
+				'errors' => [
+					'required' => '{field} wajib diisi !',
+					'numeric' => '{field} harus berupa angka !',
+				]
 			]
 		];
 	}
@@ -378,6 +401,9 @@ class Filkar_model extends CI_Model
 			'jumlah_box'    => $jumlah_box,
 			'jumlah_kg'     => $this->input->post('berat'),
 			'keterangan'    => $this->input->post('keterangan'),
+			'jam_mulai'    => $this->input->post('mulai'),
+			'jam_selesai'    => $this->input->post('selesai'),
+			'jml_mp'    => $this->input->post('jml_mp'),
 			'user_uuid'     => $this->Auth_model->current_user()->uuid
 		];
 		$this->db->insert('filkar', $data);
@@ -433,6 +459,9 @@ class Filkar_model extends CI_Model
 			'jumlah_box'  => $jumlah_box,
 			'jumlah_kg'   => $this->input->post('berat'),
 			'keterangan'  => $this->input->post('keterangan'),
+			'jml_mp'  => $this->input->post('jml_mp'),
+			'jam_mulai'  => $this->input->post('mulai'),
+			'jam_selesai'  => $this->input->post('selesai'),
 			'modified_at' => date('Y-m-d H:i:s')
 		];
 		$this->db->where('uuid', $uuid);

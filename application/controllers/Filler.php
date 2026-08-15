@@ -18,7 +18,7 @@ class Filler extends CI_Controller
 	public function planning()
 	{
 		$data = array(
-			'data' => $this->Filler_model->get_plan_data(),
+			'data' => $this->Filler_model->get_plan_data_total(),
 			'active_nav' => 'filler'
 		);
 		$this->load->view('partials/head-yield', $data);

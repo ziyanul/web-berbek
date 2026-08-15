@@ -1018,132 +1018,78 @@ class Yield_model extends CI_Model
         return $total;
     }
     public function get_bad_produk_mesin_dominan()
-    {
-        $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
-        // ===============================
-        // MASTER BAD PRODUK
-        // ===============================
-        $badproduk = $this->get_master_bad_produk();
-        // ===============================
-        // SELECT PIVOT
-        // ===============================
-        $select = "
+{
+    $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+    // ===============================
+    // MASTER BAD PRODUK
+    // ===============================
+    $badproduk = $this->get_master_bad_produk();
+    // ===============================
+    // SELECT PIVOT
+    // ===============================
+    $select = "
         m.uuid AS mesin_uuid,
         MAX(m.nama_mesin) AS mesin,
     ";
-        foreach ($badproduk as $bp) {
-            $uuid = $this->db->escape_str($bp->uuid);
-            $select .= "
+    foreach ($badproduk as $bp) {
+        $uuid = $this->db->escape_str($bp->uuid);
+        $select .= "
         SUM(
             CASE
                 WHEN tbp.badpro_uuid = '{$uuid}'
-                THEN
-                    tbp.berat *
-                    (
-                        tc.counter / NULLIF(tb.total,0)
-                    )
+                THEN tbp.berat * (tc.counter / NULLIF(tb.total, 0))
                 ELSE 0
             END
         ) AS `{$bp->nama_badpro}`,
         ";
-        }
-        $select .= "
-        SUM(
-            tbp.berat *
-            (
-                tc.counter / NULLIF(tb.total,0)
-            )
-        ) AS total,
+    }
+    $select .= "
+        SUM(tbp.berat * (tc.counter / NULLIF(tb.total, 0))) AS total,
         MAX(tc.counter) AS output_mesin,
+        -- Ditambahkan NULLIF agar tidak terjadi division by zero
         (
-            MAX(tc.counter)
-            /
-            MAX(tb.total)
+            MAX(tc.counter) / NULLIF(MAX(tb.total), 0)
         ) * 100 AS kontribusi_output,
         (
-            SUM(
-                tbp.berat *
-                (
-                    tc.counter / NULLIF(tb.total,0)
-                )
-            )
+            SUM(tbp.berat * (tc.counter / NULLIF(tb.total, 0)))
             /
-            NULLIF(MAX(tc.counter),0)
+            NULLIF(MAX(tc.counter), 0)
         ) * 100000 AS bad_per_output
     ";
-        $this->db->select($select, FALSE);
-        // ===============================
-        // SUMBER DATA
-        // ===============================
-        $this->db->from('t_badpro tbp');
-        // sortasi
-        $this->db->join(
-            'sortasi s',
-            's.uuid = tbp.ref_uuid',
-            'inner'
-        );
-        // batch
-        $this->db->join(
-            'tbatch tb',
-            'tb.uuid = s.tbatch_uuid',
-            'inner'
-        );
-        // mesin filler
-        $this->db->join(
-            'tcounter tc',
-            'tc.tbatch_uuid = tb.uuid',
-            'inner'
-        );
-        // master mesin
-        $this->db->join(
-            'mesin m',
-            'm.uuid = tc.mesin_uuid',
-            'left'
-        );
-        // master bad produk
-        $this->db->join(
-            'badpro bp',
-            'bp.uuid = tbp.badpro_uuid',
-            'left'
-        );
-        // ===============================
-        // FILTER
-        // ===============================
-        $this->db->where(
-            'tbp.proses_uuid',
-            $proses_uuid
-        );
-        $this->db->where(
-            'tbp.deleted_at',
-            NULL
-        );
-        $this->db->where(
-            's.deleted_at',
-            NULL
-        );
-        $this->db->where(
-            'MONTH(s.created_at)',
-            date('m')
-        );
-        $this->db->where(
-            'YEAR(s.created_at)',
-            date('Y')
-        );
-        // ===============================
-        // GROUP PIVOT
-        // ===============================
-        $this->db->group_by([
-            'm.uuid',
-            'm.nama_mesin'
-        ]);
-        $this->db->order_by(
-            'MAX(m.nama_mesin)',
-            'ASC',
-            FALSE
-        );
-        return [
-            'badproduk' => $badproduk,
-            'rows'      => $this->db->get()->result()
-        ];
-    }
+    $this->db->select($select, FALSE);
+    // ===============================
+    // SUMBER DATA
+    // ===============================
+    $this->db->from('t_badpro tbp');
+    // sortasi
+    $this->db->join('sortasi s', 's.uuid = tbp.ref_uuid', 'inner');
+    // batch
+    $this->db->join('tbatch tb', 'tb.uuid = s.tbatch_uuid', 'inner');
+    // mesin filler
+    $this->db->join('tcounter tc', 'tc.tbatch_uuid = tb.uuid', 'inner');
+    // master mesin
+    $this->db->join('mesin m', 'm.uuid = tc.mesin_uuid', 'left');
+    // master bad produk
+    $this->db->join('badpro bp', 'bp.uuid = tbp.badpro_uuid', 'left');
+    // ===============================
+    // FILTER
+    // ===============================
+    $this->db->where('tbp.proses_uuid', $proses_uuid);
+    $this->db->where('tbp.deleted_at', NULL);
+    $this->db->where('s.deleted_at', NULL);
+    $this->db->where('MONTH(s.created_at)', date('m'));
+    $this->db->where('YEAR(s.created_at)', date('Y'));
+    // ===============================
+    // GROUP PIVOT
+    // ===============================
+    $this->db->group_by([
+        'm.uuid',
+        'm.nama_mesin'
+    ]);
+    $this->db->order_by('MAX(m.nama_mesin)', 'ASC', FALSE);
+    return [
+        'badproduk' => $badproduk,
+        'rows'      => $this->db->get()->result()
+    ];
+}
 }

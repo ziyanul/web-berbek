@@ -51,9 +51,39 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Jam Mulai</label>
+                            <input type="time" name="mulai" class="form-control" value="<?= set_value('mulai') ?>">
+                            <small class="text-danger">
+                                <?= form_error('mulai') ?>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>jam Selesai</label>
+                            <input type="time" name="selesai" class="form-control" value="<?= set_value('selesai') ?>">
+                            <small class="text-danger">
+                                <?= form_error('selesai') ?>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                <div class="form-group">
+                    <label>Jumlah Man Power</label>
+                    <input type=number step="1" name="jml_mp" class="form-control" value="<?= set_value('jml_mp') ?>">
+                </div>
+                    </div>
+                    <div class="col-6">
                 <div class="form-group">
                     <label>Keterangan</label>
-                    <textarea name="keterangan" class="form-control" rows="2"><?= set_value('keterangan') ?></textarea>
+                    <textarea name="keterangan" class="form-control" rows="1"><?= set_value('keterangan') ?></textarea>
+                </div>
+                    </div>
                 </div>
                 <hr>
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -115,7 +145,6 @@
             }
         });
     });
-
     function getBadproRow() {
         return `
 <tr>

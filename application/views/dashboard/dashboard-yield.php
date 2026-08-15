@@ -94,6 +94,137 @@
         opacity: .2;
     }
 }
+/* =====================================================
+   HEADER LEFT
+===================================================== */
+.card-modern {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
+        }
+        .card-modern .card-body {
+            padding: 18px;
+        }
+        .shortcut-card {
+            display: block;
+            text-align: center;
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px 10px;
+            color: #5a5c69;
+            transition: .2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .05);
+            text-decoration: none !important;
+            height: 100%;
+        }
+        .shortcut-card:hover {
+            transform: translateY(-5px);
+            color: #4e73df;
+        }
+        .shortcut-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+/* =====================================================
+   LIVE STATUS
+===================================================== */
+.live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 32px;
+    padding: 0 11px;
+    background: #f0fff4;
+    border: 1px solid #b7ebc6;
+    border-radius: 18px;
+    color: #16803c;
+    box-shadow: 0 2px 6px rgba(22, 128, 60, .08);
+}
+/* DOT */
+.live-pulse {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.live-dot {
+    width: 7px;
+    height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+    animation: live-blink 1s infinite;
+}
+/* Lingkaran pulse */
+.live-pulse::before {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, .35);
+    animation: live-pulse 1.5s infinite;
+}
+/* TEXT */
+.live-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .8px;
+}
+/* SIGNAL */
+.live-signal {
+    height: 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    margin-left: 1px;
+}
+.live-signal i {
+    display: block;
+    width: 3px;
+    background: #22c55e;
+    border-radius: 2px;
+}
+.live-signal i:nth-child(1) {
+    height: 5px;
+    opacity: .45;
+}
+.live-signal i:nth-child(2) {
+    height: 8px;
+    opacity: .65;
+}
+.live-signal i:nth-child(3) {
+    height: 11px;
+    opacity: .8;
+}
+.live-signal i:nth-child(4) {
+    height: 14px;
+    opacity: 1;
+}
+/* ANIMATION */
+@keyframes live-pulse {
+    0% {
+        transform: scale(.8);
+        opacity: .8;
+    }
+    70% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
     /* =====================================================
    HEADER
 ===================================================== */
@@ -262,21 +393,12 @@
         background: #dcecff;
         font-weight: bold;
     }
-    /* =====================================================
-   SHORTCUT
-===================================================== */
-    .shortcut-btn {
-        width: 90%;
-        margin:
-            5px auto;
-        font-size: 12px;
-        padding:
-            8px 5px;
-        border-radius: 6px;
-    }
-    .shortcut-btn i {
-        width: 15px;
-    }
+    /* SHORTCUT */
+    .shortcut-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+    .shortcut-link{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 10px;border-radius:8px;background:#f8fafc;border:1px solid #4e73df;color:#263746;font-size:12px;font-weight:700;text-decoration:none!important;transition:.2s;}
+    .shortcut-link:hover{transform:translateY(-2px);background:#4e73df;color:#163d6b;border-color:#b9d8eb;}
+    .shortcut-link i{width:16px;text-align:center;}
+    @media(max-width:768px){.shortcut-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
     /* =====================================================
    BADGE
 ===================================================== */
@@ -328,15 +450,19 @@ HEADER
                                 <i class="fa fa-home mr-1"></i>
                                 PORTAL
                             </a>
-                            <!-- LIVE -->
-        <div class="live-button">
-            <div class="live-icon">
-                <!-- <span class="wave wave-left"></span> -->
-                <span class="dot"></span>
-                <!-- <span class="wave wave-right"></span> -->
-            </div>
-            <span class="live-text">LIVE</span>
-        </div>
+<!-- LIVE STATUS -->
+    <div class="live-status">
+        <span class="live-pulse">
+            <span class="live-dot"></span>
+        </span>
+        <span class="live-label">LIVE</span>
+        <!-- <span class="live-signal">
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+        </span> -->
+    </div>
                         </div>
                         <div class="dashboard-title">
                             DASHBOARD YIELD
@@ -347,7 +473,7 @@ HEADER
                             </span>
                         </div>
                     </div>
-                    <div class="monitoring-row">
+                    <div class="monitoring-row mb-2">
                         <!-- =====================================================
                         MONITORING FILKAR
                         ===================================================== -->
@@ -662,223 +788,116 @@ BAD PRODUK PER VARIAN
                                 </div>
                             </div>
                         </div>
-                        <!-- =====================================================
-BAD PRODUK MESIN DOMINAN
-===================================================== -->
-                        <div class="col-lg-7 px-lg-1">
-                            <div class="dashboard-card h-100">
-                                <div class="dashboard-card-header">
-                                    <h6>
-                                        Bad Produk berdasarkan Mesin Filler
-                                    </h6>
+                        <!-- BAD PRODUK BERDASARKAN MESIN DOMINAN -->
+                        <div class="col-9 px-lg-1">
+    <div class="dashboard-card h-100">
+        <div class="dashboard-card-header">
+            <h6>Bad Produk berdasarkan Mesin Filler</h6>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="table-responsive">
+                <table class="table table-dashboard bad-mesin-table">
+                    <thead>
+                        <tr>
+                            <th>Bad Produk</th>
+                            <?php if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) : ?>
+                                <th><?= $row->mesin ?></th>
+                            <?php endforeach; endif; ?>
+                            <th>TOTAL BAD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($bad_produk_mesin) && !empty($badproduk)) : foreach ($badproduk as $bp) : ?>
+                            <?php $badTotal = 0; ?>
+                            <tr>
+                                <td><?= $bp->nama_badpro ?></td>
+                                <?php foreach ($bad_produk_mesin as $row) : ?>
+                                    <?php
+                                        $nilaiBad = (float)($row->{$bp->nama_badpro} ?? 0);
+                                        $badTotal += $nilaiBad;
+                                    ?>
+                                    <td><?= number_format($nilaiBad, 2) ?></td>
+                                <?php endforeach; ?>
+                                <td><b><?= number_format($badTotal, 2) ?></b></td>
+                            </tr>
+                        <?php endforeach; else : ?>
+                            <tr>
+                                <td colspan="<?= max(2, count($bad_produk_mesin ?? []) + 2) ?>" class="text-center text-muted">Belum ada data mesin dominan</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td><b>TOTAL BAD</b></td>
+                            <?php
+                            $grandTotalBad = 0;
+                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
+                                $totalMesin = (float)($row->total ?? 0);
+                                $grandTotalBad += $totalMesin;
+                            ?>
+                                <td><b><?= number_format($totalMesin, 2) ?></b></td>
+                            <?php endforeach; endif; ?>
+                            <td><b><?= number_format($grandTotalBad, 2) ?></b></td>
+                        </tr>
+                        <tr>
+                            <td><b>OUTPUT PCS</b></td>
+                            <?php
+                            $grandTotalOutput = 0;
+                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
+                                $outputMesin = (float)($row->output_mesin ?? 0);
+                                $grandTotalOutput += $outputMesin;
+                            ?>
+                                <td><b><?= number_format($outputMesin, 0) ?></b></td>
+                            <?php endforeach; endif; ?>
+                            <td><b><?= number_format($grandTotalOutput, 0) ?></b></td>
+                        </tr>
+                        <tr>
+                            <td><b>KONTRIBUSI OUTPUT</b></td>
+                            <?php
+                            $totalKontribusi = 0;
+                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
+                                $kontribusi = (float)($row->kontribusi_output ?? 0);
+                                $totalKontribusi += $kontribusi;
+                            ?>
+                                <td><b><?= number_format($kontribusi, 2) ?> %</b></td>
+                            <?php endforeach; endif; ?>
+                            <td><b><?= number_format($totalKontribusi, 2) ?> %</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>BAD / OUTPUT</b></td>
+                            <?php
+                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
+                                $bpo = (float)($row->bad_per_output ?? 0);
+                            ?>
+                                <td><b><?= number_format($bpo, 2) ?></b></td>
+                            <?php endforeach; endif; ?>
+                            <?php
+                                // Kalkulasi rata-rata BAD / OUTPUT untuk kolom Grand Total (Skala 100.000)
+                                $grandBPO = ($grandTotalOutput > 0) ? ($grandTotalBad / $grandTotalOutput) * 100000 : 0;
+                            ?>
+                            <td><b><?= number_format($grandBPO, 2) ?></b></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card-modern"><div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="font-weight-bold mb-0 text-info"><i class="fas fa-bolt text-success mr-2"></i>Shortcut</h5>
                                 </div>
-                                <div class="dashboard-card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-dashboard bad-mesin-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        Mesin
-                                                    </th>
-                                                    <?php foreach ($badproduk as $bp) : ?>
-                                                        <th>
-                                                            <?= $bp->nama_badpro ?>
-                                                        </th>
-                                                    <?php endforeach; ?>
-                                                    <th>
-                                                        TOTAL BAD
-                                                    </th>
-                                                    <th>
-                                                        OUTPUT PCS
-                                                    </th>
-                                                    <th>
-                                                        KONTRIBUSI OUTPUT
-                                                    </th>
-                                                    <th>
-                                                        BAD / OUTPUT
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if (!empty($bad_produk_mesin)) : ?>
-                                                    <?php foreach ($bad_produk_mesin as $row) : ?>
-                                                        <tr>
-                                                            <td>
-                                                                <?= $row->mesin ?>
-                                                            </td>
-                                                            <?php foreach ($badproduk as $bp) : ?>
-                                                                <td>
-                                                                    <?= number_format(
-                                                                        $row->{$bp->nama_badpro} ?? 0,
-                                                                        2
-                                                                    ) ?>
-                                                                </td>
-                                                            <?php endforeach; ?>
-                                                            <td>
-                                                                <b>
-                                                                    <?= number_format(
-                                                                        $row->total ?? 0,
-                                                                        2
-                                                                    ) ?>
-                                                                </b>
-                                                            </td>
-                                                            <td>
-                                                                <?= number_format(
-                                                                    $row->output_mesin ?? 0,
-                                                                    0
-                                                                ) ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= number_format(
-                                                                    $row->kontribusi_output ?? 0,
-                                                                    2
-                                                                ) ?>%
-                                                            </td>
-                                                            <td>
-                                                                <?= number_format(
-                                                                    $row->bad_per_output ?? 0,
-                                                                    4
-                                                                ) ?>%
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                <?php else : ?>
-                                                    <tr>
-                                                        <td colspan="<?= count($badproduk) + 5 ?>" class="text-center text-muted">
-                                                            Belum ada data mesin dominan
-                                                        </td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td>
-                                                        TOTAL
-                                                    </td>
-                                                    <?php foreach ($badproduk as $bp) : ?>
-                                                        <td>
-                                                            <?php
-                                                            $totalBad = 0;
-                                                            if (!empty($bad_produk_mesin)) {
-                                                                foreach ($bad_produk_mesin as $row) {
-                                                                    $totalBad +=
-                                                                        $row->{$bp->nama_badpro} ?? 0;
-                                                                }
-                                                            }
-                                                            ?>
-                                                            <?= number_format(
-                                                                $totalBad,
-                                                                2
-                                                            ) ?>
-                                                        </td>
-                                                    <?php endforeach; ?>
-                                                    <td>
-                                                        <?php
-                                                        $grandTotalMesin = 0;
-                                                        if (!empty($bad_produk_mesin)) {
-                                                            foreach ($bad_produk_mesin as $row) {
-                                                                $grandTotalMesin +=
-                                                                    $row->total ?? 0;
-                                                            }
-                                                        }
-                                                        ?>
-                                                        <b>
-                                                            <?= number_format(
-                                                                $grandTotalMesin,
-                                                                2
-                                                            ) ?>
-                                                        </b>
-                                                    </td>
-                                                    <td>
-                                                        <?php
-                                                        $totalOutput = 0;
-                                                        if (!empty($bad_produk_mesin)) {
-                                                            foreach ($bad_produk_mesin as $row) {
-                                                                $totalOutput +=
-                                                                    $row->output_mesin ?? 0;
-                                                            }
-                                                        }
-                                                        ?>
-                                                        <b>
-                                                            <?= number_format(
-                                                                $totalOutput,
-                                                                0
-                                                            ) ?>
-                                                        </b>
-                                                    </td>
-                                                    <td>
-                                                        <?php
-                                                        $totalKontribusi = 0;
-                                                        if (!empty($bad_produk_mesin)) {
-                                                            foreach ($bad_produk_mesin as $row) {
-                                                                $totalKontribusi +=
-                                                                    $row->kontribusi_output ?? 0;
-                                                            }
-                                                        }
-                                                        ?>
-                                                        <b>
-                                                            <?= number_format(
-                                                                $totalKontribusi,
-                                                                2
-                                                            ) ?>%
-                                                        </b>
-                                                    </td>
-                                                    <td>
-                                                        <b>
-                                                            <?= number_format(
-                                                                $totalBadOutput ?? 0,
-                                                                4
-                                                            ) ?>%
-                                                        </b>
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
+                                <div class="shortcut-grid">
+                                <a href="<?= base_url('filler/planning') ?>" class="shortcut-link"><i class="fas fa-route"></i><span>PLAN PRODUKSI</span></a>
+                                    <a href="<?= base_url('mpusage') ?>" class="shortcut-link"><i class="fas fa-cogs"></i><span>MP</span></a>
+                                    <a href="<?= base_url('counter') ?>" class="shortcut-link"><i class="fas fa-industry"></i><span>FILLER</span></a>
+                                    <a href="<?= base_url('filkar') ?>" class="shortcut-link"><i class="fas fa-temperature-high"></i><span>FILKAR</span></a>
+                                    <a href="<?= base_url('sortasi') ?>" class="shortcut-link"><i class="fas fa-box"></i><span>SORTASI</span></a>
                                 </div>
-                            </div>
-                        </div>
-                        <!-- =====================================================
-SHORTCUT
-===================================================== -->
-                        <div class="col-lg-2 pl-lg-1">
-                            <div class="dashboard-card h-100">
-                                <div class="dashboard-card-header">
-                                    <h6>
-                                        Shortcut
-                                    </h6>
-                                </div>
-                                <div class="dashboard-card-body text-center">
-                                    <a href="<?= base_url('filler/planning') ?>" class="btn btn-success shortcut-btn">
-                                        <i class="fa fa-list"></i>
-                                        Planning Produksi
-                                    </a>
-                                    <a href="<?= base_url('mpusage/') ?>" class="btn btn-info shortcut-btn">
-                                        <i class="fa fa-list"></i>
-                                        Data MP
-                                    </a>
-                                    <a href="<?= base_url('counter/') ?>" class="btn btn-warning shortcut-btn">
-                                        <i class="fa fa-list"></i>
-                                        Data Filler
-                                    </a>
-                                    <a href="<?= base_url('filkar/') ?>" class="btn btn-primary shortcut-btn">
-                                        <i class="fa fa-list"></i>
-                                        Data Filkar
-                                    </a>
-                                    <a href="<?= base_url('sortasi/') ?>" class="btn btn-secondary shortcut-btn">
-                                        <i class="fa fa-list"></i>
-                                        Data Sortasi
-                                    </a>
-                                    <a href="<?= base_url('varian/') ?>" class="btn btn-primary shortcut-btn">
-                                        <i class="fa fa-list"></i>
-                                        Master Varian
-                                    </a>
-                                    <a href="<?= base_url('yieldportal/analisa') ?>" class="btn btn-danger shortcut-btn">
-                                        <i class="fa fa-chart-line"></i>
-                                        Analisa
-                                    </a>
-                                </div>
-                            </div>
+                            </div></div>
                         </div>
                     </div>
                     <!-- =====================================================
