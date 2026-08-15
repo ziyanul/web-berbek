@@ -78,7 +78,7 @@
         ?>
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- LOGO -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('portal') ?>">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('') ?>">
                 <div class="sidebar-brand-icon mt-5">
                     <img src="<?= base_url('assets/img/Prod1.png'); ?>" alt="Logo" style="max-width: 100%; height: auto;">
                 </div>
