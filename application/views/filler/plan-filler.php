@@ -42,7 +42,7 @@
                             <td><?= tanggal_indo($row->tgl); ?></td>
                             <td><?= $row->varian ?> - <?= $row->keterangan ?></td>
                             <!-- <td><?= $row->total_batch ?></td> -->
-                            <td><?= $row->total_counter ?></td>
+                            <td><?= number_format((int)$row->total_counter, 0, ',', '.') ?></td>
                             <td class="text-center align-middle" style="white-space: nowrap;">
                                 <div class="d-flex justify-content-center flex-wrap" style="gap:6px;">
                                     <a href="<?= base_url('filler/detailplan/'.$row->uuid); ?>"
