@@ -303,39 +303,13 @@
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
                                         Monitoring produksi realtime.
                                     </p>
-                                    <a href="<?= base_url('yield/'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg">
+                                    <a href="<?= base_url('yield/'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-orange-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
                                 </div>
                             </div>
-                            <!-- CARD -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="file-text" class="icon-bg w-20 h-20"></i>
-                                <div class="relative z-10 flex flex-col h-full">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
-                                        </div>
-                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-green-700 pulse"></span>
-                                            <span class="text-[10px] font-bold text-green-700">
-                                                ONLINE
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <h3 class="text-base font-black mb-1">
-                                        PAPERLESS
-                                    </h3>
-                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
-                                        Form digital tanpa kertas.
-                                    </p>
-                                    <a href="<?= base_url('paperless'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-cyan-500 to-sky-500 shadow-lg">
-                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-                                        OPEN
-                                    </a>
-                                </div>
-                            </div>
+
                             <!-- CARD -->
                             <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
                                 <i data-lucide="activity" class="icon-bg w-20 h-20"></i>
@@ -387,10 +361,37 @@
                                         Sparepart<br>
                                         New & Repair Part
                                     </p>
-                                    <a href="<?= base_url('maintenance'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
+                                    <a href="<?= base_url('maintenance'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-green-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
+                                </div>
+                            </div>
+                            <!-- CARD -->
+                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
+                                <i data-lucide="file-text" class="icon-bg w-20 h-20"></i>
+                                <div class="relative z-10 flex flex-col h-full">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-500 flex items-center justify-center shadow-lg">
+                                            <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
+                                        </div>
+                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
+                                            <span class="w-2 h-2 rounded-full bg-red-700"></span>
+                                            <span class="text-[10px] font-bold text-red-700">
+                                                COMMING SOON
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <h3 class="text-base font-black mb-1">
+                                        PAPERLESS
+                                    </h3>
+                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
+                                        Form digital tanpa kertas.
+                                    </p>
+                                    <a href="<?= base_url('paperless'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-green-500 to-sky-500 shadow-lg">
+                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                                        OPEN
+            </a>
                                 </div>
                             </div>
                             <!-- CARD SANITASI -->

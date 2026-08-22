@@ -1,9 +1,9 @@
-<?php 
+<?php
 date_default_timezone_set('Asia/Jakarta');
 
 use Ramsey\Uuid\Uuid;
 
-class Formula_model extends CI_Model 
+class Formula_model extends CI_Model
 {
 	public function __construct()
 	{
@@ -35,7 +35,7 @@ class Formula_model extends CI_Model
 		$this->db->join('varian v', 'v.uuid = mf.varian_uuid', 'left');
 		$this->db->where('mf.uuid', $uuid);
 		$this->db->where('mf.deleted_at IS NULL', null, false);
-		
+
 		$formula = $this->db->get()->row();
 
 		$detail = $this->db->get_where('m_formula_detail', [
@@ -57,6 +57,16 @@ class Formula_model extends CI_Model
 		->order_by('nama_formula', 'ASC')
 		->get('m_formula')
 		->result();
+	}
+
+	public function get_formula_by_varian($varian_uuid)
+	{
+		return $this->db
+		->where('varian_uuid', $varian_uuid)
+		->where('deleted_at IS NULL', NULL, FALSE)
+		->order_by('nama_formula', 'ASC')
+		->get('m_formula')
+		->row();
 	}
 
 	public function insert_master_detail($post)

@@ -732,7 +732,6 @@ class Filkar_model extends CI_Model
 		$this->db->where('b.deleted_at', NULL);
 		$this->db->order_by('b.created_at', 'DESC');
 		$this->db->order_by('b.kode_batch', 'DESC');
-		$this->db->limit(10);
 		return $this->db->get()->result();
 	}
 	public function update_total_bad_filkar($tbatch_uuid)

@@ -132,7 +132,7 @@
 
 						<input
 						type="number"
-						step="0.01"
+						step="0.001"
 						min="0"
 						class="form-control qty"
 						name="qty[]"

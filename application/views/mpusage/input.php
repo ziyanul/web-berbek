@@ -39,12 +39,12 @@
                                 name="formula_uuid"
                                 id="formula_uuid"
                                 class="form-control">
-                                <option value="">Pilih Formula</option>
+
                                 <?php foreach ($formula as $f): ?>
                                     <option
                                         value="<?= $f->uuid ?>"
                                         data-kg="<?= $f->total ?>"
-                                        <?= (!empty($data->formula_uuid) && $data->formula_uuid == $f->uuid) ? 'selected' : '' ?>>
+                                        <?= ($data->formula_uuid == NULL && $data->formula_uuid == $f->uuid) ? 'selected' : '' ?>>
                                         <?= $f->nama_formula ?>
                                     </option>
                                 <?php endforeach; ?>

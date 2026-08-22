@@ -36,8 +36,12 @@ class Mpusage extends CI_Controller
 		$data = array(
 			'data' => $mpusage,
 			'formula' => $this->Formula_model->get_by_varian($mpusage->uuid_varian),
+			'fvarian' => $this->Formula_model->get_formula_by_varian($mpusage->uuid_varian),
 			'active_nav' => 'mpusage'
 		);
+		echo "<pre>";
+		print_r ($data);
+		echo "</pre>";
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('mpusage/input', $data);
 		$this->load->view('partials/footer');
