@@ -28,6 +28,7 @@
                              <th>No.</th>
                              <th>Tanggal Produksi</th>
                              <th>Varian</th>
+                             <th>Kode Batch</th>
                              <th>Formula (KG)</th>
                              <th>Rework (KG)</th>
                              <th>Total (KG)</th>
@@ -43,6 +44,7 @@
                                  <td width="1"><?= $no; ?></td>
                                  <td><?= tanggal_indo($row->tanggal); ?></td>
                                  <td><?= $row->varian; ?></td>
+                                 <td><?= $row->kode_batch; ?></td>
                                  <td><?= number_format(($row->formula_kg ?? 0), 2, ',', '.'); ?></td>
                                  <td><?= number_format(($row->rework_kg ?? 0), 2, ',', '.'); ?></td>
                                  <td><?= number_format(($row->formula_kg ?? 0) + ($row->rework_kg ?? 0), 2, ',', '.'); ?></td>
