@@ -1135,13 +1135,27 @@ class Yield_model extends CI_Model
 function get_pvdc_wire()
 {
     $filkar = $this->get_monitoring_filkar();
-    foreach ($filkar as $val) {
-        $val->pvdc = round(($val->filkar_kg / $val->panjang / 100), 3);
-        $val->wire = round(($val->filkar_kg / $val->berat * 0.000302), 3);
-        $val->reject_pvdc = '-';
-        $val->reject_wire = '-';
-    }
-    return $filkar;
 
+    foreach ($filkar as $val) {
+
+        // PVDC
+        if ((float) $val->panjang > 0) {
+            $val->pvdc = round(($val->filkar_kg / $val->panjang / 100), 3);
+        } else {
+            $val->pvdc = 0;
+        }
+
+        // Wire
+        if ((float) $val->berat > 0) {
+            $val->wire = round(($val->filkar_kg / $val->berat * 0.000302), 3);
+        } else {
+            $val->wire = 0;
+        }
+
+        $val->reject_pvdc = 0;
+        $val->reject_wire = 0;
+    }
+
+    return $filkar;
 }
 }
