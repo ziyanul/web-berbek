@@ -725,8 +725,6 @@ BAD PRODUK PER VARIAN
                                                     <th rowspan="2">
                                                         Varian
                                                     </th>
-
-
                                                     <th colspan="2">
                                                         PVDC
                                                     </th>
@@ -756,7 +754,6 @@ $total_reject_pvdc = 0;
 $total_wire = 0;
 $total_reject_wire = 0;
 ?>
-
 <tbody>
     <?php foreach ($pvdc as $v) : ?>
         <?php
@@ -821,7 +818,6 @@ $total_reject_wire = 0;
                                 <?php endforeach; ?>
                                 <td><b><?= number_format($badTotal, 2) ?></b></td>
                             </tr>
-
                         <?php endforeach; else : ?>
                             <tr>
                                 <td colspan="<?= max(2, count($bad_produk_mesin ?? []) + 2) ?>" class="text-center text-muted">Belum ada data mesin dominan</td>
@@ -934,7 +930,6 @@ FOOTER
     <!-- =====================================================
 LOGOUT MODAL
 ===================================================== -->
-
     <!-- =====================================================
 JAVASCRIPT
 ===================================================== -->

@@ -445,21 +445,26 @@ class Sortasi_model extends CI_Model
 	}
 	public function get_batch()
 	{
-		$this->db->select("
-			b.uuid,
-			b.kode_batch,
-			b.adonan,
-			b.filkar_box, (b.filkar_box - b.sortasi_box) AS sisa_wip,
-			v.varian, v.keterangan, v.kontainer_kg, v.box_kg
-			");
-		$this->db->from('tbatch b');
-		$this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid', 'left');
-		$this->db->join('varian v', 'v.uuid = p.varian', 'left');
-		$this->db->where('b.deleted_at', NULL);
-		$this->db->where('(b.filkar_box - b.sortasi_box)!=', 0);
-		$this->db->order_by('b.created_at', 'DESC');
-		$this->db->order_by('b.kode_batch', 'DESC');
-		return $this->db->get()->result();
+		$this->db->select
+		("
+        b.uuid,
+        b.kode_batch,
+        b.adonan,
+        b.filkar_box,
+        (b.filkar_box - COALESCE(b.sortasi_box, 0)) AS sisa_wip,
+        v.varian,
+        v.keterangan,
+        v.kontainer_kg,
+        v.box_kg
+		");
+    $this->db->from('tbatch b');
+    $this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid', 'left');
+    $this->db->join('varian v', 'v.uuid = p.varian', 'left');
+    $this->db->where('b.deleted_at', NULL);
+    $this->db->where('(b.filkar_box - COALESCE(b.sortasi_box, 0)) !=', 0);
+    $this->db->order_by('b.created_at', 'DESC');
+    $this->db->order_by('b.kode_batch', 'DESC');
+	return $this->db->get()->result();
 	}
 	public function get_badpro($proses = null)
 	{
