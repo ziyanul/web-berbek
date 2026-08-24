@@ -191,20 +191,22 @@ class Sortasi_model extends CI_Model
          * INSERT MESIN DOMINAN
          * ==========================================
          */
-					$mesin_list = isset($mesin_uuid[$index])
-						? $mesin_uuid[$index]
-						: ['Lain-lain'];
-					if (!empty($mesin_list) && is_array($mesin_list)) {
-						foreach ($mesin_list as $mesin) {
-							$this->db->insert('t_badpro_mesin', [
-								'uuid'         => Uuid::uuid4()->toString(),
-								't_badpro_uuid' => $t_badpro_uuid,
-								'mesin_uuid'   => $mesin
-							]);
+					$mesin_list = [];
+					if (isset($mesin_uuid[$index]) && is_array($mesin_uuid[$index])) {
+						$mesin_list = $mesin_uuid[$index];
 						}
-					}
-				}
-			}
+						foreach ($mesin_list as $mesin) {
+							if (empty($mesin)) {
+								continue;
+								}
+								$this->db->insert('t_badpro_mesin', [
+									'uuid'          => Uuid::uuid4()->toString(),
+									't_badpro_uuid' => $t_badpro_uuid,
+									'mesin_uuid'    => $mesin
+									]);
+									}
+									}
+									}
 			/* =====================================================
            UPDATE TOTAL SORTASI
         ====================================================== */
