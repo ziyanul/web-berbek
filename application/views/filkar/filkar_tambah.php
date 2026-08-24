@@ -20,7 +20,7 @@
             <b>Input Data Filling Karantina</b>
         </div>
         <div class="card-body">
-            <form action="<?= base_url('filkar/tambah') ?>" method="post">
+            <form id="formData" action="<?= base_url('filkar/tambah') ?>" method="post">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -189,4 +189,6 @@ class="btn btn-danger btnRemove">
 </tr>
         `;
     }
+
+
 </script>

@@ -31,7 +31,7 @@
                     <thead class="table bg-info text-light">
                         <tr>
                             <th width="1" class="font-weight-bold">No</th>
-                            <th class="font-weight-bold">Kode Bahan</th>
+                            <th class="font-weight-bold">Kode Material</th>
                             <th class="font-weight-bold">Nama Bahan</th>
                             <th class="font-weight-bold">Keterangan</th>
                             <th class="font-weight-bold">Action</th>

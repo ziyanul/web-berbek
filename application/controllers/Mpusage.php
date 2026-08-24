@@ -19,6 +19,7 @@ class Mpusage extends CI_Controller
 			'data' => $this->Mpusage_model->get_all(),
 			'active_nav' => 'mpusage'
 		);
+
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('mpusage/mpusage', $data);
 		$this->load->view('partials/footer');

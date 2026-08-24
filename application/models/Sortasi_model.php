@@ -193,12 +193,9 @@ class Sortasi_model extends CI_Model
          */
 					$mesin_list = isset($mesin_uuid[$index])
 						? $mesin_uuid[$index]
-						: [];
+						: ['Lain-lain'];
 					if (!empty($mesin_list) && is_array($mesin_list)) {
 						foreach ($mesin_list as $mesin) {
-							if (empty($mesin)) {
-								continue;
-							}
 							$this->db->insert('t_badpro_mesin', [
 								'uuid'         => Uuid::uuid4()->toString(),
 								't_badpro_uuid' => $t_badpro_uuid,
@@ -452,13 +449,14 @@ class Sortasi_model extends CI_Model
 			b.uuid,
 			b.kode_batch,
 			b.adonan,
-			b.filkar_box,
+			b.filkar_box, (b.filkar_box - b.sortasi_box) AS sisa_wip,
 			v.varian, v.keterangan, v.kontainer_kg, v.box_kg
 			");
 		$this->db->from('tbatch b');
-		$this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid');
+		$this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid', 'left');
 		$this->db->join('varian v', 'v.uuid = p.varian', 'left');
 		$this->db->where('b.deleted_at', NULL);
+		$this->db->where('(b.filkar_box - b.sortasi_box)!=', 0);
 		$this->db->order_by('b.created_at', 'DESC');
 		$this->db->order_by('b.kode_batch', 'DESC');
 		return $this->db->get()->result();
