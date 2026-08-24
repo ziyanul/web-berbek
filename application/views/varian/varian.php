@@ -34,7 +34,7 @@
                     <th class="font-weight-bold">Varian</th>
                     <th class="font-weight-bold">Keterangan</th>
                     <th class="font-weight-bold">Action</th>
-                </tr> 
+                </tr>
             </thead>
             <tbody>
                 <?php
@@ -45,9 +45,10 @@
                         <td><?= $no; ?></td>
                         <td><?= $row->varian; ?></td>
                         <td><?= $row->keterangan; ?></td>
-                        
+
 
                         <td>
+                            <a href="<?= base_url('Varian/detail/' . $row->uuid); ?>" class="btn btn-md btn-success shadow-sm btn-block">Detail</a>
                          <a href="<?= base_url('Varian/edit/' . $row->uuid); ?>" class="btn btn-md btn-warning shadow-sm btn-block">Edit</a>
 
 

@@ -59,6 +59,7 @@ class Filkar extends CI_Controller
             'badpro'     => $this->Filkar_model->get_badpro('FILKAR'),
             'active_nav' => 'filkar'
         );
+
         $this->load->view('partials/head-yield', $data);
         $this->load->view('filkar/filkar_tambah', $data);
         $this->load->view('partials/footer');

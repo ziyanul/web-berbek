@@ -195,6 +195,28 @@ class Yield_model extends CI_Model
             ->get()
             ->result();
     }
+
+    public function get_bad_produk()
+    {
+        return $this->db
+            ->select("
+            tbp.badpro_uuid,
+            MAX(bp.nama_badpro) AS nama_badpro,
+            MAX(bp.urutan) AS urutan,
+            SUM(
+            tbp.berat
+            ) AS berat_badpro,
+        ")
+            ->from('t_badpro tbp')
+            ->join('badpro bp', 'bp.uuid = tbp.badpro_uuid', 'left')
+            ->group_by('tbp.badpro_uuid')
+            ->order_by('berat_badpro', 'DESC')
+            ->where('bp.deleted_at IS NULL')
+            ->limit(8)
+            ->get()
+            ->result();
+    }
+
     public function get_bad_produk_mesin($bulan = null, $tahun = null)
     {
         if (!$bulan) $bulan = date('m');
@@ -726,7 +748,7 @@ class Yield_model extends CI_Model
         $filkar_proses_uuid = $this->Proses_model->get_uuid('FILKAR');
         $sql = "
         SELECT
-            v.varian AS nama_varian,
+            v.varian AS nama_varian, v.berat, v.panjang,
             /* =========================
              * ADONAN
              * ========================= */
@@ -806,7 +828,7 @@ class Yield_model extends CI_Model
             ON v.uuid = b.varian_uuid
         GROUP BY
             v.uuid,
-            v.varian
+            v.varian, v.berat, v.panjang
         ORDER BY
             v.varian
     ";
@@ -879,16 +901,19 @@ class Yield_model extends CI_Model
         $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
         $this->db->select("
         v.varian AS nama_varian,
+        v.box_kg AS berat_box,
         /* =========================
            SORTASI BOX
         ========================= */
         SUM(s.jumlah_wip) AS sortasi_box,
+        SUM(s.jml_release) AS release_box,
         SUM(s.jml_release) AS release_box,
         (
             SUM(s.jumlah_wip)
             -
             SUM(s.jml_release)
         ) AS blm_sortir,
+
         /* =========================
            BAD PRODUK SORTASI
         ========================= */
@@ -914,6 +939,9 @@ class Yield_model extends CI_Model
             SUM(tbp.berat),
             0
         ) AS sortasi_bad,
+        COALESCE(SUM(s.jumlah_wip) * v.box_kg, 0) AS sortasi_kg,
+
+        COALESCE(SUM(tbp.berat) / NULLIF(SUM(s.jumlah_wip) * v.box_kg, 0) *100, 0) AS bad_persen,
         /* =========================
            YIELD SORTASI
            Release box / sortasi box
@@ -979,7 +1007,7 @@ class Yield_model extends CI_Model
         );
         $this->db->group_by([
             'v.uuid',
-            'v.varian'
+            'v.varian', 'v.box_kg'
         ]);
         $this->db->order_by(
             'v.varian'
@@ -999,6 +1027,7 @@ class Yield_model extends CI_Model
         $total->sortasi_rework = 0;
         $total->sortasi_reject = 0;
         $total->sortasi_bad = 0;
+        $total->sortasi_kg = 0;
         foreach ($data as $row) {
             $total->sortasi_box += $row->sortasi_box;
             $total->release_box += $row->release_box;
@@ -1006,6 +1035,15 @@ class Yield_model extends CI_Model
             $total->sortasi_rework += $row->sortasi_rework;
             $total->sortasi_reject += $row->sortasi_reject;
             $total->sortasi_bad += $row->sortasi_bad;
+            $total->sortasi_kg += $row->sortasi_kg;
+        }
+        if ($total->sortasi_bad > 0) {
+            $total->bad_persen =
+                ($total->sortasi_bad /
+                    $total->sortasi_kg
+                ) * 100;
+        } else {
+            $total->bad_persen = 0;
         }
         if ($total->sortasi_box > 0) {
             $total->yield_sortasi =
@@ -1023,7 +1061,7 @@ class Yield_model extends CI_Model
     // ===============================
     // MASTER BAD PRODUK
     // ===============================
-    $badproduk = $this->get_master_bad_produk();
+    $badproduk = $this->get_bad_produk();
     // ===============================
     // SELECT PIVOT
     // ===============================
@@ -1032,7 +1070,7 @@ class Yield_model extends CI_Model
         MAX(m.nama_mesin) AS mesin,
     ";
     foreach ($badproduk as $bp) {
-        $uuid = $this->db->escape_str($bp->uuid);
+        $uuid = $this->db->escape_str($bp->badpro_uuid);
         $select .= "
         SUM(
             CASE
@@ -1087,9 +1125,23 @@ class Yield_model extends CI_Model
         'm.nama_mesin'
     ]);
     $this->db->order_by('MAX(m.nama_mesin)', 'ASC', FALSE);
+
     return [
         'badproduk' => $badproduk,
         'rows'      => $this->db->get()->result()
     ];
+}
+
+function get_pvdc_wire()
+{
+    $filkar = $this->get_monitoring_filkar();
+    foreach ($filkar as $val) {
+        $val->pvdc = round(($val->filkar_kg / $val->panjang / 100), 3);
+        $val->wire = round(($val->filkar_kg / $val->berat * 0.000302), 3);
+        $val->reject_pvdc = '-';
+        $val->reject_wire = '-';
+    }
+    return $filkar;
+
 }
 }

@@ -136,7 +136,7 @@
 
                         </button>
 
-                        <a href="<?= base_url('rework'); ?>" class="btn btn-danger">
+                        <a href="<?= base_url('rework/kupas'); ?>" class="btn btn-danger">
 
                             <i class="fa fa-times"></i>
                             Batal

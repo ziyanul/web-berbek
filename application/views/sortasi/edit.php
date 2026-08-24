@@ -54,7 +54,7 @@
 												<?= $b->kode_batch ?>
 												-
 												<?= $b->varian ?>
-												(<?= $b->keterangan ?>)
+                                                (Belum Sortir : <?= $b->sisa_wip ?> Box)
 											</option>
 										<?php endforeach; ?>
 									</select>
@@ -590,7 +590,7 @@
                             </label>
                             <select
                                 name="mesin_uuid[${index}][]"
-                                class="form-control mesinDominan"
+                                class="form-control mesinDominan select2Mesin"
                                 multiple>
                                 ${optionMesin}
                             </select>

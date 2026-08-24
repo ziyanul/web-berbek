@@ -13,7 +13,7 @@
     <link href="<?= base_url('assets/vendor/fontawesome-free/webfonts/font-googleapis.css'); ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/datatables/datatables.min.css'); ?>">
-    <link href="<?= base_url('assets/vendor/css/select2.min.css'); ?>" rel="stylesheet" />
+    <link href="<?= base_url('assets/css/select2.min.css'); ?>" rel="stylesheet" />
 
 
     <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="<?= base_url('assets/vendor/lightbox/lightbox.min.css'); ?>">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css'); ?>">
     <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
-    <script src="<?= base_url('assets/vendor/js/select2.min.js'); ?>">
+    <script src="<?= base_url('assets/js/select2.min.js'); ?>">
     </script>
     <style>
         .dropdown-user-header {

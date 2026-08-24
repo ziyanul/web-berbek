@@ -492,7 +492,7 @@ HEADER
                                                     Varian
                                                 </th>
                                                 <th rowspan="2">
-                                                    Adonan Kg
+                                                    Adonan (Kg)
                                                 </th>
                                                 <th colspan="2">
                                                     Filkar
@@ -501,7 +501,7 @@ HEADER
                                                     Bad Produk Filkar
                                                 </th>
                                                 <th rowspan="2">
-                                                    Yield %
+                                                    Yield (%)
                                                 </th>
                                             </tr>
                                             <tr>
@@ -512,10 +512,10 @@ HEADER
                                                     Kg
                                                 </th>
                                                 <th>
-                                                    Rework
+                                                    Rework (kg)
                                                 </th>
                                                 <th>
-                                                    Reject
+                                                    Reject (kg)
                                                 </th>
                                             </tr>
                                         </thead>
@@ -599,33 +599,36 @@ MONITORING SORTASI
                                                     Varian
                                                 </th>
                                                 <th colspan="3">
-                                                    Sortasi
+                                                    Sortasi (box)
                                                 </th>
-                                                <th colspan="3">
-                                                    Bad Produk
+                                                <th colspan="4">
+                                                    Bad Produk (kg)
                                                 </th>
                                                 <th rowspan="2">
-                                                    Yield %
+                                                    Yield (%)
                                                 </th>
                                             </tr>
                                             <tr>
                                                 <th>
-                                                    Sortir Box
+                                                    Sortir (Box)
                                                 </th>
                                                 <th>
-                                                    Release
+                                                    Release (box)
                                                 </th>
                                                 <th>
-                                                    Belum
+                                                    Sisa WIP (box)
                                                 </th>
                                                 <th>
-                                                    Rework
+                                                    Rework (kg)
                                                 </th>
                                                 <th>
-                                                    Reject
+                                                    Reject (kg)
                                                 </th>
                                                 <th>
-                                                    Total
+                                                    Total Bad (kg)
+                                                </th>
+                                                <th>
+                                                    Total (%)
                                                 </th>
                                             </tr>
                                         </thead>
@@ -656,6 +659,11 @@ MONITORING SORTASI
                                                         </b>
                                                     </td>
                                                     <td>
+                                                        <b>
+                                                            <?= number_format($row->bad_persen, 2) ?>
+                                                        </b>
+                                                    </td>
+                                                    <td>
                                                         <?= number_format($row->yield_sortasi, 2) ?> %
                                                     </td>
                                                 </tr>
@@ -683,6 +691,9 @@ MONITORING SORTASI
                                                     <?= number_format($total_sortasi->sortasi_bad ?? 0, 2) ?>
                                                 </td>
                                                 <td>
+                                                    <?= number_format($total_sortasi->bad_persen ?? 0, 2) ?>
+                                                </td>
+                                                <td>
                                                     <?= number_format($total_sortasi->yield_sortasi ?? 0, 2) ?> %
                                                 </td>
                                             </tr>
@@ -703,7 +714,7 @@ BAD PRODUK PER VARIAN
                             <div class="dashboard-card h-100">
                                 <div class="dashboard-card-header">
                                     <h6>
-                                        Bad Produk per Varian (Kg)
+                                        PVDC & WIRE
                                     </h6>
                                 </div>
                                 <div class="dashboard-card-body">
@@ -711,78 +722,68 @@ BAD PRODUK PER VARIAN
                                         <table class="table table-dashboard bad-varian-table">
                                             <thead>
                                                 <tr>
-                                                    <th>
-                                                        Bad Produk
+                                                    <th rowspan="2">
+                                                        Varian
                                                     </th>
-                                                    <?php foreach ($varian as $v) : ?>
-                                                        <th>
-                                                            <?= $v->varian ?>
-                                                        </th>
-                                                    <?php endforeach; ?>
-                                                    <th>
-                                                        Total
+
+
+                                                    <th colspan="2">
+                                                        PVDC
+                                                    </th>
+                                                    <th colspan="2">
+                                                        WIRE
                                                     </th>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($bad_produk_varian as $row) : ?>
-                                                    <tr>
-                                                        <td>
-                                                            <?= $row->nama_badpro ?>
-                                                        </td>
-                                                        <?php foreach ($varian as $v) : ?>
-                                                            <td>
-                                                                <?= number_format(
-                                                                    $row->{$v->varian} ?? 0,
-                                                                    0
-                                                                ) ?>
-                                                            </td>
-                                                        <?php endforeach; ?>
-                                                        <td>
-                                                            <b>
-                                                                <?= number_format(
-                                                                    $row->total ?? 0,
-                                                                    0
-                                                                ) ?>
-                                                            </b>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                            <tfoot>
                                                 <tr>
-                                                    <td>
-                                                        TOTAL
-                                                    </td>
-                                                    <?php
-                                                    $grandTotal = 0;
-                                                    foreach ($varian as $v) :
-                                                        $totalVarian = 0;
-                                                        foreach ($bad_produk_varian as $row) {
-                                                            $totalVarian +=
-                                                                $row->{$v->varian} ?? 0;
-                                                        }
-                                                        $grandTotal += $totalVarian;
-                                                    ?>
-                                                        <td>
-                                                            <b>
-                                                                <?= number_format(
-                                                                    $totalVarian,
-                                                                    0
-                                                                ) ?>
-                                                            </b>
-                                                        </td>
-                                                    <?php endforeach; ?>
-                                                    <td>
-                                                        <b>
-                                                            <?= number_format(
-                                                                $grandTotal,
-                                                                0
-                                                            ) ?>
-                                                        </b>
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
+                                                <th>
+                                                            Pakai (M)
+                                                        </th>
+                                                   <th>
+                                                            Reject (M)
+                                                        </th>
+                                                        <th>
+                                                            Pakai (kg)
+                                                        </th>
+                                                   <th>
+                                                            Reject (kg)
+                                                        </th>
+                                            </tr>
+                                            </thead>
+                                            <?php
+// Initialize totals
+$total_pvdc = 0;
+$total_reject_pvdc = 0;
+$total_wire = 0;
+$total_reject_wire = 0;
+?>
+
+<tbody>
+    <?php foreach ($pvdc as $v) : ?>
+        <?php
+        // Accumulate values
+        $total_pvdc += (float)$v->pvdc;
+        $total_reject_pvdc += (float)$v->reject_pvdc;
+        $total_wire += (float)$v->wire;
+        $total_reject_wire += (float)$v->reject_wire;
+        ?>
+        <tr>
+            <td> <?= $v->nama_varian ?> </td>
+            <td> <?= $v->pvdc ?> </td>
+            <td> <?= $v->reject_pvdc ?> </td>
+            <td> <?= $v->wire ?> </td>
+            <td> <?= $v->reject_wire ?> </td>
+        </tr>
+    <?php endforeach; ?>
+</tbody>
+<tfoot>
+    <tr>
+        <td> TOTAL </td>
+        <td> <b> <?= $total_pvdc ?> </b> </td>
+        <td> <b> <?= $total_reject_pvdc ?> </b> </td>
+        <td> <b> <?= $total_wire ?> </b> </td>
+        <td> <b> <?= $total_reject_wire ?> </b> </td>
+    </tr>
+</tfoot>
                                         </table>
                                     </div>
                                 </div>
@@ -820,11 +821,24 @@ BAD PRODUK PER VARIAN
                                 <?php endforeach; ?>
                                 <td><b><?= number_format($badTotal, 2) ?></b></td>
                             </tr>
+
                         <?php endforeach; else : ?>
                             <tr>
                                 <td colspan="<?= max(2, count($bad_produk_mesin ?? []) + 2) ?>" class="text-center text-muted">Belum ada data mesin dominan</td>
                             </tr>
                         <?php endif; ?>
+                        <tr>
+                                <td>Performa</td>
+                                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <td>Down Time</td>
+                                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <td>Lost Time</td>
+                                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                            </tr>
                     </tbody>
                     <tfoot class="bg-light">
                         <tr>

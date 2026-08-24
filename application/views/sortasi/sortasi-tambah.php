@@ -51,7 +51,7 @@
                                                 <?= $b->kode_batch ?>
                                                 -
                                                 <?= $b->varian ?>
-                                                (<?= $b->keterangan ?>)
+                                                (Belum Sortir : <?= $b->sisa_wip ?> Box)
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -452,8 +452,7 @@
         <select
             name="mesin_uuid[${index}][]"
             class="form-control mesinDominan select2Mesin"
-            multiple
-            required>
+            multiple>
             ${generateOptionMesinDominan()}
         </select>
         <small class="text-muted">
@@ -856,13 +855,13 @@
                         valid = false;
                         return false;
                     }
-                    if (mesin.length === 0) {
-                        alert(
-                            'Setiap Bad Produk harus memiliki minimal satu Mesin Dominan.'
-                        );
-                        valid = false;
-                        return false;
-                    }
+                    // if (mesin.length === 0) {
+                    //     alert(
+                    //         'Setiap Bad Produk harus memiliki minimal satu Mesin Dominan.'
+                    //     );
+                    //     valid = false;
+                    //     return false;
+                    // }
                 });
                 if (!valid) {
                     e.preventDefault();

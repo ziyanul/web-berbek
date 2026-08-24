@@ -74,4 +74,17 @@ class Varian extends CI_Controller
         $this->load->view('varian/edit', $data);
         $this->load->view('partials/footer');
     }
+
+
+    public function detail($uuid)
+    {        $data = array(
+            'data' => $this->Varian_model->get_by_uuid($uuid),
+
+            'active_nav' => 'varian'
+        );
+
+        $this->load->view('partials/head-yield', $data);
+        $this->load->view('varian/detail', $data);
+        $this->load->view('partials/footer');
+    }
 }
