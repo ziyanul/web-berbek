@@ -11,40 +11,30 @@ class Yieldportal extends CI_Controller
     public function dashboard()
     {
         $data['title'] = 'Dashboard Yield';
-
         $data['monitoring_filkar'] =
             $this->Yield_model
             ->get_monitoring_filkar();
-
-
+            $data['dashboard_mesin'] = $this->Yield_model
+        ->get_dashboard_mesin_bulan_berjalan();
         $data['total_filkar'] =
             $this->Yield_model
             ->get_total_filkar();
-
         $data['monitoring_sortasi'] =
             $this->Yield_model
             ->get_monitoring_sortasi();
-
         $data['total_sortasi'] =
             $this->Yield_model
             ->get_total_sortasi();
-
         $data['varian'] = $this->Yield_model->get_varian_yield();
-
         $data['pvdc'] = $this->Yield_model->get_pvdc_wire();
-
         $data['bad_produk_varian'] =
             $this->Yield_model->get_bad_produk_varian(
                 $data['varian']
             );
-
-
-
         // ==========================================
         // BAD PRODUK PER MESIN
         // revisi berikutnya
         // ==========================================
-
         $bad_mesin =
             $this->Yield_model
             ->get_bad_produk_mesin_dominan();
@@ -52,7 +42,8 @@ class Yieldportal extends CI_Controller
             $bad_mesin['badproduk'];
         $data['bad_produk_mesin'] =
             $bad_mesin['rows'];
-
+        $data['total_sortasi_kg'] =
+            $bad_mesin['total_sortasi_kg'];
         $this->load->view('dashboard/dashboard-yield', $data);
     }
     public function analisa()
@@ -60,7 +51,6 @@ class Yieldportal extends CI_Controller
         if (!$this->Auth_model->current_user()) {
             redirect('login');
         }
-
         // master filter
         $data['varian'] = $this->Yield_model->get_master_varian();
         $data['mesin']  = $this->Yield_model->get_master_mesin();

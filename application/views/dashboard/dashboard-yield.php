@@ -660,7 +660,7 @@ MONITORING SORTASI
                                                     </td>
                                                     <td>
                                                         <b>
-                                                            <?= number_format($row->bad_persen, 2) ?>
+                                                            <?= number_format($row->bad_persen, 2) ?> %
                                                         </b>
                                                     </td>
                                                     <td>
@@ -725,8 +725,6 @@ BAD PRODUK PER VARIAN
                                                     <th rowspan="2">
                                                         Varian
                                                     </th>
-
-
                                                     <th colspan="2">
                                                         PVDC
                                                     </th>
@@ -756,7 +754,6 @@ $total_reject_pvdc = 0;
 $total_wire = 0;
 $total_reject_wire = 0;
 ?>
-
 <tbody>
     <?php foreach ($pvdc as $v) : ?>
         <?php
@@ -793,7 +790,7 @@ $total_reject_wire = 0;
                         <div class="col-9 px-lg-1">
     <div class="dashboard-card h-100">
         <div class="dashboard-card-header">
-            <h6>Bad Produk berdasarkan Mesin Filler</h6>
+            <h6>Bad Produk berdasarkan Mesin Dominan</h6>
         </div>
         <div class="dashboard-card-body">
             <div class="table-responsive">
@@ -801,98 +798,301 @@ $total_reject_wire = 0;
                     <thead>
                         <tr>
                             <th>Bad Produk</th>
-                            <?php if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) : ?>
-                                <th><?= $row->mesin ?></th>
-                            <?php endforeach; endif; ?>
+                            <?php if (!empty($bad_produk_mesin)) : ?>
+                                <?php foreach ($bad_produk_mesin as $row) : ?>
+                                    <th>
+                                        <?= htmlspecialchars(
+                                            $row->mesin,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </th>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                             <th>TOTAL BAD</th>
+                            <th>%</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($bad_produk_mesin) && !empty($badproduk)) : foreach ($badproduk as $bp) : ?>
-                            <?php $badTotal = 0; ?>
+                        <?php if (
+                            !empty($bad_produk_mesin)
+                            &&
+                            !empty($badproduk)
+                        ) : ?>
+                            <?php foreach ($badproduk as $bp) : ?>
+                                <?php
+                                $badTotal = 0;
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $bp->nama_badpro,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </td>
+                                    <?php foreach (
+                                        $bad_produk_mesin
+                                        as $row
+                                    ) : ?>
+                                        <?php
+                                        $nilaiBad =
+                                            (float) (
+                                                $row->{$bp->nama_badpro}
+                                                ?? 0
+                                            );
+                                        $badTotal +=
+                                            $nilaiBad;
+                                        ?>
+                                        <td>
+                                            <?= number_format(
+                                                $nilaiBad,
+                                                2
+                                            ) ?>
+                                        </td>
+                                    <?php endforeach; ?>
+                                    <td>
+                                        <b>
+                                            <?= number_format(
+                                                $badTotal,
+                                                2
+                                            ) ?>
+                                        </b>
+                                    </td>
+                                    <td>
+            <b>
+                <?php
+                if ($total_sortasi_kg > 0) {
+                    $persenBad =
+                        ($badTotal / $total_sortasi_kg) * 100;
+                } else {
+                    $persenBad = 0;
+                }
+                ?>
+                <?= number_format(
+                    $persenBad,
+                    2
+                ) ?>%
+            </b>
+        </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else : ?>
                             <tr>
-                                <td><?= $bp->nama_badpro ?></td>
-                                <?php foreach ($bad_produk_mesin as $row) : ?>
-                                    <?php
-                                        $nilaiBad = (float)($row->{$bp->nama_badpro} ?? 0);
-                                        $badTotal += $nilaiBad;
-                                    ?>
-                                    <td><?= number_format($nilaiBad, 2) ?></td>
-                                <?php endforeach; ?>
-                                <td><b><?= number_format($badTotal, 2) ?></b></td>
-                            </tr>
-
-                        <?php endforeach; else : ?>
-                            <tr>
-                                <td colspan="<?= max(2, count($bad_produk_mesin ?? []) + 2) ?>" class="text-center text-muted">Belum ada data mesin dominan</td>
+                                <td
+                                    colspan="<?= max(
+                                        2,
+                                        count(
+                                            $bad_produk_mesin
+                                            ?? []
+                                        ) + 2
+                                    ) ?>"
+                                    class="text-center text-muted"
+                                >
+                                    Belum ada data Bad Produk Sortasi
+                                </td>
                             </tr>
                         <?php endif; ?>
-                        <tr>
-                                <td>Performa</td>
-                                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                            </tr>
-                            <tr>
-                                <td>Down Time</td>
-                                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                            </tr>
-                            <tr>
-                                <td>Lost Time</td>
-                                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                            </tr>
                     </tbody>
                     <tfoot class="bg-light">
                         <tr>
-                            <td><b>TOTAL BAD</b></td>
+                            <td>
+                                <b>TOTAL BAD PRODUK</b>
+                            </td>
                             <?php
                             $grandTotalBad = 0;
-                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
-                                $totalMesin = (float)($row->total ?? 0);
-                                $grandTotalBad += $totalMesin;
                             ?>
-                                <td><b><?= number_format($totalMesin, 2) ?></b></td>
-                            <?php endforeach; endif; ?>
-                            <td><b><?= number_format($grandTotalBad, 2) ?></b></td>
-                        </tr>
-                        <tr>
-                            <td><b>OUTPUT PCS</b></td>
-                            <?php
-                            $grandTotalOutput = 0;
-                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
-                                $outputMesin = (float)($row->output_mesin ?? 0);
-                                $grandTotalOutput += $outputMesin;
-                            ?>
-                                <td><b><?= number_format($outputMesin, 0) ?></b></td>
-                            <?php endforeach; endif; ?>
-                            <td><b><?= number_format($grandTotalOutput, 0) ?></b></td>
-                        </tr>
-                        <tr>
-                            <td><b>KONTRIBUSI OUTPUT</b></td>
-                            <?php
-                            $totalKontribusi = 0;
-                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
-                                $kontribusi = (float)($row->kontribusi_output ?? 0);
-                                $totalKontribusi += $kontribusi;
-                            ?>
-                                <td><b><?= number_format($kontribusi, 2) ?> %</b></td>
-                            <?php endforeach; endif; ?>
-                            <td><b><?= number_format($totalKontribusi, 2) ?> %</b></td>
-                        </tr>
-                        <tr>
-                            <td><b>BAD / OUTPUT</b></td>
-                            <?php
-                            if (!empty($bad_produk_mesin)) : foreach ($bad_produk_mesin as $row) :
-                                $bpo = (float)($row->bad_per_output ?? 0);
-                            ?>
-                                <td><b><?= number_format($bpo, 2) ?></b></td>
-                            <?php endforeach; endif; ?>
-                            <?php
-                                // Kalkulasi rata-rata BAD / OUTPUT untuk kolom Grand Total (Skala 100.000)
-                                $grandBPO = ($grandTotalOutput > 0) ? ($grandTotalBad / $grandTotalOutput) * 100000 : 0;
-                            ?>
-                            <td><b><?= number_format($grandBPO, 2) ?></b></td>
+                            <?php if (
+                                !empty(
+                                    $bad_produk_mesin
+                                )
+                            ) : ?>
+                                <?php foreach (
+                                    $bad_produk_mesin
+                                    as $row
+                                ) : ?>
+                                    <?php
+                                    $totalMesin =
+                                        (float) (
+                                            $row->total
+                                            ?? 0
+                                        );
+                                    $grandTotalBad +=
+                                        $totalMesin;
+                                    ?>
+                                    <td>
+                                        <b>
+                                            <?= number_format(
+                                                $totalMesin,
+                                                2
+                                            ) ?>
+                                        </b>
+                                    </td>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            <td>
+                                <b>
+                                    <?= number_format(
+                                        $grandTotalBad,
+                                        2
+                                    ) ?>
+                                </b>
+                            </td>
+                            <td>
+    <b>
+        <?php
+        if ($total_sortasi_kg > 0) {
+            $grandPersen =
+                ($grandTotalBad / $total_sortasi_kg) * 100;
+        } else {
+            $grandPersen = 0;
+        }
+        ?>
+        <?= number_format(
+            $grandPersen,
+            2
+        ) ?>%
+    </b>
+</td>
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+                    </div>
+      <div class="row">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h6>
+                    Performa Mesin
+                    <?= date('F') ?> <?= date('Y') ?>
+                </h6>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="table-responsive">
+                    <table class="table table-dashboard text-center">
+                        <thead>
+                            <tr>
+                                <th class="text-left">
+                                    METRIC
+                                </th>
+                                <?php if (!empty($dashboard_mesin)) : ?>
+                                    <?php foreach ($dashboard_mesin as $mesin) : ?>
+                                        <th>
+                                            <?= htmlspecialchars(
+                                                $mesin->nama_mesin
+                                            ) ?>
+                                        </th>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                                <!-- KOLOM PALING KANAN -->
+                                <th>
+                                    RATA-RATA / TOTAL
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- =================================================
+                                 PERFORMA
+                            ================================================== -->
+                            <tr>
+                                <td class="text-left">
+                                    <strong>PERFORMA</strong>
+                                </td>
+                                <?php
+                                $total_performa = 0;
+                                $jumlah_mesin = count($dashboard_mesin);
+                                ?>
+                                <?php foreach ($dashboard_mesin as $mesin) : ?>
+                                    <?php
+                                    $total_performa += (float) $mesin->performa;
+                                    ?>
+                                    <td>
+                                        <strong>
+                                            <?= number_format(
+                                                $mesin->performa,
+                                                1
+                                            ) ?>%
+                                        </strong>
+                                    </td>
+                                <?php endforeach; ?>
+                                <td>
+                                    <strong>
+                                        <?= number_format(
+                                            $jumlah_mesin > 0
+                                                ? $total_performa / $jumlah_mesin
+                                                : 0,
+                                            1
+                                        ) ?>%
+                                    </strong>
+                                </td>
+                            </tr>
+                            <!-- =================================================
+                                 DOWNTIME
+                            ================================================== -->
+                            <tr>
+                                <td class="text-left">
+                                    <strong>DOWNTIME</strong>
+                                </td>
+                                <?php
+                                $total_downtime = 0;
+                                ?>
+                                <?php foreach ($dashboard_mesin as $mesin) : ?>
+                                    <?php
+                                    $total_downtime += (float) $mesin->downtime;
+                                    ?>
+                                    <td>
+                                        <?= number_format(
+                                            $mesin->downtime,
+                                            0
+                                        ) ?> menit
+                                    </td>
+                                <?php endforeach; ?>
+                                <td>
+                                    <strong>
+                                        <?= number_format(
+                                            $total_downtime,
+                                            0
+                                        ) ?> menit
+                                    </strong>
+                                </td>
+                            </tr>
+                            <!-- =================================================
+                                 LOST TIME
+                            ================================================== -->
+                            <tr>
+                                <td class="text-left">
+                                    <strong>LOST TIME</strong>
+                                </td>
+                                <?php
+                                $total_losttime = 0;
+                                ?>
+                                <?php foreach ($dashboard_mesin as $mesin) : ?>
+                                    <?php
+                                    $total_losttime += (float) $mesin->losttime;
+                                    ?>
+                                    <td>
+                                        <?= number_format(
+                                            $mesin->losttime,
+                                            0
+                                        ) ?> menit
+                                    </td>
+                                <?php endforeach; ?>
+                                <td>
+                                    <strong>
+                                        <?= number_format(
+                                            $total_losttime,
+                                            0
+                                        ) ?> menit
+                                    </strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -934,7 +1134,6 @@ FOOTER
     <!-- =====================================================
 LOGOUT MODAL
 ===================================================== -->
-
     <!-- =====================================================
 JAVASCRIPT
 ===================================================== -->

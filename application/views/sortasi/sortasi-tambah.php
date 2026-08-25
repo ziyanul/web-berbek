@@ -350,23 +350,19 @@
            TAMBAH BAD PRODUK
         ======================================================== */
         $('#btnTambahBadProduk').on('click', function() {
-            if ($('#tbatch_uuid').val() === '') {
-                alert('Silakan pilih batch terlebih dahulu.');
-                return;
-            }
-            if (daftarMesin.length === 0) {
-                alert('Mesin untuk batch belum tersedia.');
-                return;
-            }
-            $('#badProdukContainer .text-muted').remove();
-            $('#badProdukContainer').append(
-                createBadProdukCard(indexBadProduk)
-            );
-            indexBadProduk++;
-            initSelect2Mesin();
-            hitungTotalBad();
-            hitungTotalMesin();
-        });
+    if ($('#tbatch_uuid').val() === '') {
+        alert('Silakan pilih batch terlebih dahulu.');
+        return;
+    }
+    $('#badProdukContainer .text-muted').remove();
+    $('#badProdukContainer').append(
+        createBadProdukCard(indexBadProduk)
+    );
+    indexBadProduk++;
+    initSelect2Mesin();
+    hitungTotalBad();
+    hitungTotalMesin();
+});
         /* ========================================================
            BUAT CARD BAD PRODUK
         ======================================================== */

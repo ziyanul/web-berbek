@@ -195,7 +195,6 @@ class Yield_model extends CI_Model
             ->get()
             ->result();
     }
-
     public function get_bad_produk()
     {
         return $this->db
@@ -216,7 +215,6 @@ class Yield_model extends CI_Model
             ->get()
             ->result();
     }
-
     public function get_bad_produk_mesin($bulan = null, $tahun = null)
     {
         if (!$bulan) $bulan = date('m');
@@ -897,9 +895,9 @@ class Yield_model extends CI_Model
         return $this->db->query($sql)->row();
     }
     public function get_monitoring_sortasi()
-    {
-        $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
-        $this->db->select("
+{
+    $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+    $this->db->select("
         v.varian AS nama_varian,
         v.box_kg AS berat_box,
         /* =========================
@@ -907,41 +905,39 @@ class Yield_model extends CI_Model
         ========================= */
         SUM(s.jumlah_wip) AS sortasi_box,
         SUM(s.jml_release) AS release_box,
-        SUM(s.jml_release) AS release_box,
         (
-            SUM(s.jumlah_wip)
+            SUM(tb.filkar_box)
             -
-            SUM(s.jml_release)
+            SUM(tb.sortasi_box)
         ) AS blm_sortir,
-
         /* =========================
            BAD PRODUK SORTASI
         ========================= */
         COALESCE(
-            SUM(
-                CASE
-                    WHEN bp.kategori = 1
-                    THEN tbp.berat
-                    ELSE 0
-                END
-            ),0
+            SUM(tbp.sortasi_rework),
+            0
         ) AS sortasi_rework,
         COALESCE(
-            SUM(
-                CASE
-                    WHEN bp.kategori = 2
-                    THEN tbp.berat
-                    ELSE 0
-                END
-            ),0
+            SUM(tbp.sortasi_reject),
+            0
         ) AS sortasi_reject,
         COALESCE(
-            SUM(tbp.berat),
+            SUM(tbp.sortasi_bad),
             0
         ) AS sortasi_bad,
-        COALESCE(SUM(s.jumlah_wip) * v.box_kg, 0) AS sortasi_kg,
-
-        COALESCE(SUM(tbp.berat) / NULLIF(SUM(s.jumlah_wip) * v.box_kg, 0) *100, 0) AS bad_persen,
+        COALESCE(
+            SUM(s.jumlah_wip) * v.box_kg,
+            0
+        ) AS sortasi_kg,
+        COALESCE(
+            SUM(tbp.sortasi_bad)
+            /
+            NULLIF(
+                SUM(s.jumlah_wip) * v.box_kg,
+                0
+            ) * 100,
+            0
+        ) AS bad_persen,
         /* =========================
            YIELD SORTASI
            Release box / sortasi box
@@ -957,63 +953,83 @@ class Yield_model extends CI_Model
             ELSE 0
         END AS yield_sortasi
     ");
-        $this->db->from('sortasi s');
-        // batch
-        $this->db->join(
-            'tbatch tb',
-            'tb.uuid = s.tbatch_uuid',
-            'left'
-        );
-        // planning
-        $this->db->join(
-            't_planning tp',
-            'tp.uuid = tb.t_planning_uuid',
-            'left'
-        );
-        // varian
-        $this->db->join(
-            'varian v',
-            'v.uuid = tp.varian',
-            'left'
-        );
-        // bad produk sortasi
-        $this->db->join(
-            't_badpro tbp',
-            "
-        tbp.ref_uuid = s.uuid
-        AND tbp.proses_uuid = '$proses_uuid'
-        AND tbp.deleted_at IS NULL
-        ",
-            'left'
-        );
-        $this->db->join(
-            'badpro bp',
-            'bp.uuid = tbp.badpro_uuid',
-            'left'
-        );
-        // bulan berjalan berdasarkan kegiatan sortasi
-        $this->db->where(
-            'MONTH(s.created_at)',
-            date('m')
-        );
-        $this->db->where(
-            'YEAR(s.created_at)',
-            date('Y')
-        );
-        $this->db->where(
-            's.deleted_at IS NULL',
-            NULL,
-            FALSE
-        );
-        $this->db->group_by([
-            'v.uuid',
-            'v.varian', 'v.box_kg'
-        ]);
-        $this->db->order_by(
-            'v.varian'
-        );
-        return $this->db->get()->result();
-    }
+    $this->db->from('sortasi s');
+    // batch
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    );
+    // planning
+    $this->db->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    );
+    // varian
+    // RELASI DIKEMBALIKAN PERSIS SEPERTI PUNYA ANDA
+    $this->db->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    );
+    $badpro_subquery = "
+        (
+            SELECT
+                tbp.ref_uuid,
+                SUM(
+                    CASE
+                        WHEN bp.kategori = 1
+                        THEN tbp.berat
+                        ELSE 0
+                    END
+                ) AS sortasi_rework,
+                SUM(
+                    CASE
+                        WHEN bp.kategori = 2
+                        THEN tbp.berat
+                        ELSE 0
+                    END
+                ) AS sortasi_reject,
+                SUM(tbp.berat) AS sortasi_bad
+            FROM t_badpro tbp
+            LEFT JOIN badpro bp
+                ON bp.uuid = tbp.badpro_uuid
+            WHERE tbp.proses_uuid = '$proses_uuid'
+              AND tbp.deleted_at IS NULL
+            GROUP BY tbp.ref_uuid
+        ) tbp
+    ";
+    $this->db->join(
+        $badpro_subquery,
+        'tbp.ref_uuid = s.uuid',
+        'left',
+        FALSE
+    );
+    // bulan berjalan berdasarkan kegiatan sortasi
+    $this->db->where(
+        'MONTH(s.created_at)',
+        date('m')
+    );
+    $this->db->where(
+        'YEAR(s.created_at)',
+        date('Y')
+    );
+    $this->db->where(
+        's.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->group_by([
+        'v.uuid',
+        'v.varian',
+        'v.box_kg'
+    ]);
+    $this->db->order_by(
+        'v.varian'
+    );
+    return $this->db->get()->result();
+}
     public function get_total_sortasi()
     {
         $data = $this->get_monitoring_sortasi();
@@ -1058,86 +1074,296 @@ class Yield_model extends CI_Model
     public function get_bad_produk_mesin_dominan()
 {
     $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
-    // ===============================
-    // MASTER BAD PRODUK
-    // ===============================
-    $badproduk = $this->get_bad_produk();
-    // ===============================
-    // SELECT PIVOT
-    // ===============================
-    $select = "
-        m.uuid AS mesin_uuid,
-        MAX(m.nama_mesin) AS mesin,
-    ";
-    foreach ($badproduk as $bp) {
-        $uuid = $this->db->escape_str($bp->badpro_uuid);
-        $select .= "
-        SUM(
-            CASE
-                WHEN tbp.badpro_uuid = '{$uuid}'
-                THEN tbp.berat * (tc.counter / NULLIF(tb.total, 0))
-                ELSE 0
-            END
-        ) AS `{$bp->nama_badpro}`,
-        ";
+    /*
+     * =====================================================
+     * TOTAL SORTASI BOX BULAN BERJALAN
+     *
+     * Dipakai sebagai pembagi persentase:
+     *
+     * total bad / seluruh jumlah_wip * 100
+     * =====================================================
+     */
+    $total_sortasi = $this->db
+    ->select("
+        COALESCE(
+            SUM(s.jumlah_wip * v.box_kg),
+            0
+        ) AS total_sortasi_kg
+    ")
+    ->from('sortasi s')
+    ->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    )
+    ->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    )
+    ->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    )
+    ->where('s.deleted_at', NULL)
+    ->where(
+        'MONTH(s.created_at)',
+        date('m')
+    )
+    ->where(
+        'YEAR(s.created_at)',
+        date('Y')
+    )
+    ->get()
+    ->row();
+$total_sortasi_kg = (float) $total_sortasi->total_sortasi_kg;
+    /*
+     * =====================================================
+     * MASTER BAD PRODUK
+     * =====================================================
+     */
+    $badproduk = $this->db
+        ->select("
+            bp.uuid AS badpro_uuid,
+            MAX(bp.nama_badpro) AS nama_badpro,
+            MAX(bp.urutan) AS urutan
+        ")
+        ->from('badpro bp')
+        ->where('bp.proses_uuid', $proses_uuid)
+        ->where('bp.deleted_at', NULL)
+        ->group_by([
+            'bp.uuid'
+        ])
+        ->order_by('urutan', 'ASC')
+        ->get()
+        ->result();
+    /*
+     * =====================================================
+     * MESIN DOMINAN
+     * =====================================================
+     */
+    $mesin = $this->db
+        ->select("
+            m.uuid AS mesin_uuid,
+            m.nama_mesin AS mesin
+        ")
+        ->from('t_badpro_mesin tbpm')
+        ->join(
+            't_badpro tbp',
+            'tbp.uuid = tbpm.t_badpro_uuid',
+            'inner'
+        )
+        ->join(
+            'sortasi s',
+            's.uuid = tbp.ref_uuid',
+            'inner'
+        )
+        ->join(
+            'mesin m',
+            'm.uuid = tbpm.mesin_uuid',
+            'inner'
+        )
+        ->where('tbp.proses_uuid', $proses_uuid)
+        ->where('tbp.deleted_at', NULL)
+        ->where('tbpm.deleted_at', NULL)
+        ->where('s.deleted_at', NULL)
+        ->where(
+            'MONTH(s.created_at)',
+            date('m')
+        )
+        ->where(
+            'YEAR(s.created_at)',
+            date('Y')
+        )
+        ->group_by([
+            'm.uuid',
+            'm.nama_mesin'
+        ])
+        ->order_by(
+            'm.nama_mesin',
+            'ASC'
+        )
+        ->get()
+        ->result();
+    /*
+     * =====================================================
+     * BUAT ROW MESIN
+     * =====================================================
+     */
+    $rows = [];
+    foreach ($mesin as $m) {
+        $row = new stdClass();
+        $row->mesin_uuid = $m->mesin_uuid;
+        $row->mesin = $m->mesin;
+        foreach ($badproduk as $bp) {
+            $row->{$bp->nama_badpro} = 0;
+        }
+        $row->total = 0;
+        $row->persentase = 0;
+        $rows[] = $row;
     }
-    $select .= "
-        SUM(tbp.berat * (tc.counter / NULLIF(tb.total, 0))) AS total,
-        MAX(tc.counter) AS output_mesin,
-        -- Ditambahkan NULLIF agar tidak terjadi division by zero
-        (
-            MAX(tc.counter) / NULLIF(MAX(tb.total), 0)
-        ) * 100 AS kontribusi_output,
-        (
-            SUM(tbp.berat * (tc.counter / NULLIF(tb.total, 0)))
-            /
-            NULLIF(MAX(tc.counter), 0)
-        ) * 100000 AS bad_per_output
-    ";
-    $this->db->select($select, FALSE);
-    // ===============================
-    // SUMBER DATA
-    // ===============================
-    $this->db->from('t_badpro tbp');
-    // sortasi
-    $this->db->join('sortasi s', 's.uuid = tbp.ref_uuid', 'inner');
-    // batch
-    $this->db->join('tbatch tb', 'tb.uuid = s.tbatch_uuid', 'inner');
-    // mesin filler
-    $this->db->join('tcounter tc', 'tc.tbatch_uuid = tb.uuid', 'inner');
-    // master mesin
-    $this->db->join('mesin m', 'm.uuid = tc.mesin_uuid', 'left');
-    // master bad produk
-    $this->db->join('badpro bp', 'bp.uuid = tbp.badpro_uuid', 'left');
-    // ===============================
-    // FILTER
-    // ===============================
-    $this->db->where('tbp.proses_uuid', $proses_uuid);
-    $this->db->where('tbp.deleted_at', NULL);
-    $this->db->where('s.deleted_at', NULL);
-    $this->db->where('MONTH(s.created_at)', date('m'));
-    $this->db->where('YEAR(s.created_at)', date('Y'));
-    // ===============================
-    // GROUP PIVOT
-    // ===============================
-    $this->db->group_by([
-        'm.uuid',
-        'm.nama_mesin'
-    ]);
-    $this->db->order_by('MAX(m.nama_mesin)', 'ASC', FALSE);
-
+    /*
+     * =====================================================
+     * LAIN-LAIN
+     * =====================================================
+     */
+    $lain = new stdClass();
+    $lain->mesin_uuid = NULL;
+    $lain->mesin = 'Lain-lain';
+    foreach ($badproduk as $bp) {
+        $lain->{$bp->nama_badpro} = 0;
+    }
+    $lain->total = 0;
+    $lain->persentase = 0;
+    /*
+     * =====================================================
+     * AMBIL BAD PRODUK SORTASI
+     * =====================================================
+     */
+    $bad_data = $this->db
+        ->select("
+            tbp.uuid,
+            tbp.badpro_uuid,
+            tbp.berat
+        ")
+        ->from('t_badpro tbp')
+        ->join(
+            'sortasi s',
+            's.uuid = tbp.ref_uuid',
+            'inner'
+        )
+        ->where(
+            'tbp.proses_uuid',
+            $proses_uuid
+        )
+        ->where(
+            'tbp.deleted_at',
+            NULL
+        )
+        ->where(
+            's.deleted_at',
+            NULL
+        )
+        ->where(
+            'MONTH(s.created_at)',
+            date('m')
+        )
+        ->where(
+            'YEAR(s.created_at)',
+            date('Y')
+        )
+        ->get()
+        ->result();
+    /*
+     * =====================================================
+     * PROSES SETIAP BAD PRODUK
+     * =====================================================
+     */
+    foreach ($bad_data as $bad) {
+        /*
+         * Ambil Mesin Dominan
+         */
+        $mesin_bad = $this->db
+            ->select('mesin_uuid')
+            ->from('t_badpro_mesin')
+            ->where(
+                't_badpro_uuid',
+                $bad->uuid
+            )
+            ->where(
+                'deleted_at',
+                NULL
+            )
+            ->get()
+            ->result();
+        /*
+         * =================================================
+         * TIDAK ADA MESIN DOMINAN
+         * =================================================
+         */
+        if (empty($mesin_bad)) {
+            foreach ($badproduk as $bp) {
+                if (
+                    $bp->badpro_uuid ===
+                    $bad->badpro_uuid
+                ) {
+                    $lain->{$bp->nama_badpro} +=
+                        (float) $bad->berat;
+                    $lain->total +=
+                        (float) $bad->berat;
+                    break;
+                }
+            }
+            continue;
+        }
+        /*
+         * =================================================
+         * ADA MESIN DOMINAN
+         *
+         * Berat dibagi rata
+         * =================================================
+         */
+        $jumlah_mesin = count($mesin_bad);
+        $berat_per_mesin =
+            (float) $bad->berat /
+            $jumlah_mesin;
+        foreach ($mesin_bad as $mb) {
+            foreach ($rows as $row) {
+                if (
+                    $row->mesin_uuid ===
+                    $mb->mesin_uuid
+                ) {
+                    foreach ($badproduk as $bp) {
+                        if (
+                            $bp->badpro_uuid ===
+                            $bad->badpro_uuid
+                        ) {
+                            $row->{$bp->nama_badpro} +=
+                                $berat_per_mesin;
+                            $row->total +=
+                                $berat_per_mesin;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    /*
+     * =====================================================
+     * SORT BERDASARKAN TOTAL BAD TERBESAR
+     * =====================================================
+     */
+    usort($rows, function ($a, $b) {
+        return $b->total <=> $a->total;
+    });
+    /*
+     * =====================================================
+     * AMBIL 8 MESIN TERBESAR
+     * =====================================================
+     */
+    $rows = array_slice($rows, 0, 8);
+    /*
+     * =====================================================
+     * LAIN-LAIN
+     * Tetap ditampilkan jika ada.
+     * =====================================================
+     */
+    if ($lain->total > 0) {
+        $rows[] = $lain;
+    }
     return [
         'badproduk' => $badproduk,
-        'rows'      => $this->db->get()->result()
+        'rows'      => $rows,
+        'total_sortasi_kg' => $total_sortasi_kg
     ];
 }
-
 function get_pvdc_wire()
 {
     $filkar = $this->get_monitoring_filkar();
-
     foreach ($filkar as $val) {
-
         // PVDC
         if ((float) $val->panjang > 0) {
             $val->pvdc = round(($val->filkar_kg / $val->panjang / 100), 3);
@@ -1155,7 +1381,505 @@ function get_pvdc_wire()
         $val->reject_pvdc = 0;
         $val->reject_wire = 0;
     }
-
     return $filkar;
+}
+public function get_dashboard_mesin_bulan_berjalan()
+{
+    $bulan = date('m');
+    $tahun = date('Y');
+    /*
+    |--------------------------------------------------------------------------
+    | MESIN
+    |--------------------------------------------------------------------------
+    | Ambil mesin yang benar-benar mempunyai counter pada bulan berjalan.
+    |--------------------------------------------------------------------------
+    */
+    $this->db->select('
+        m.uuid AS mesin_uuid,
+        m.nama_mesin
+    ');
+    $this->db->from('tcounter tc');
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = tc.tbatch_uuid'
+    );
+    $this->db->join(
+        't_planning p',
+        'p.uuid = tb.t_planning_uuid'
+    );
+    $this->db->join(
+        'mesin m',
+        'm.uuid = tc.mesin_uuid',
+        'left'
+    );
+    $this->db->where('MONTH(p.tanggal)', $bulan);
+    $this->db->where('YEAR(p.tanggal)', $tahun);
+    $this->db->where(
+        'p.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'tb.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'tc.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'm.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'tc.mesin_uuid IS NOT NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where('tc.counter >', 0);
+    $this->db->group_by([
+        'm.uuid',
+        'm.nama_mesin'
+    ]);
+    $this->db->order_by(
+        'm.nama_mesin',
+        'ASC'
+    );
+    $mesin = $this->db->get()->result();
+    /*
+    |--------------------------------------------------------------------------
+    | SUB COUNTER
+    |--------------------------------------------------------------------------
+    | Counter dikelompokkan berdasarkan:
+    |
+    | planning + mesin
+    |
+    | sehingga counter tidak terduplikasi ketika di-join dengan target.
+    |--------------------------------------------------------------------------
+    */
+    $sub_counter = $this->db
+        ->select('
+            tb.t_planning_uuid,
+            tc.mesin_uuid,
+            SUM(tc.counter) AS total_counter
+        ', FALSE)
+        ->from('tcounter tc')
+        ->join(
+            'tbatch tb',
+            'tb.uuid = tc.tbatch_uuid'
+        )
+        ->join(
+            't_planning p',
+            'p.uuid = tb.t_planning_uuid'
+        )
+        ->where('MONTH(p.tanggal)', $bulan)
+        ->where('YEAR(p.tanggal)', $tahun)
+        ->where(
+            'tc.deleted_at IS NULL',
+            NULL,
+            FALSE
+        )
+        ->where(
+            'tb.deleted_at IS NULL',
+            NULL,
+            FALSE
+        )
+        ->where(
+            'p.deleted_at IS NULL',
+            NULL,
+            FALSE
+        )
+        ->where(
+            'tc.mesin_uuid IS NOT NULL',
+            NULL,
+            FALSE
+        )
+        ->group_by([
+            'tb.t_planning_uuid',
+            'tc.mesin_uuid'
+        ])
+        ->get_compiled_select();
+    /*
+    |--------------------------------------------------------------------------
+    | SUB TARGET
+    |--------------------------------------------------------------------------
+    |
+    | Target dihitung:
+    |
+    | speed * 50 * jumlah jam planning
+    |
+    | kemudian dikelompokkan berdasarkan:
+    |
+    | planning + mesin
+    |--------------------------------------------------------------------------
+    */
+    $this->db->select('
+        s.t_planning_uuid,
+        s.mesin_uuid,
+        SUM(
+            s.speed * 50 *
+            (
+                TIMESTAMPDIFF(
+                    SECOND,
+                    p.start,
+                    p.end
+                ) / 3600
+            )
+        ) AS total_target
+    ', FALSE);
+    $this->db->from('t_speed s');
+    $this->db->join(
+        't_planning p',
+        'p.uuid = s.t_planning_uuid'
+    );
+    $this->db->where('MONTH(p.tanggal)', $bulan);
+    $this->db->where('YEAR(p.tanggal)', $tahun);
+    $this->db->where(
+        's.speed >',
+        0
+    );
+    $this->db->where(
+        'p.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        's.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        's.mesin_uuid IS NOT NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->group_by([
+        's.t_planning_uuid',
+        's.mesin_uuid'
+    ]);
+    $sub_target = $this->db->get_compiled_select();
+    /*
+    |--------------------------------------------------------------------------
+    | PERFORMA
+    |--------------------------------------------------------------------------
+    |
+    | Gabungkan counter + target berdasarkan:
+    |
+    | planning + mesin
+    |--------------------------------------------------------------------------
+    */
+    $this->db->select('
+        tc.mesin_uuid,
+        SUM(tc.total_counter) AS total_counter,
+        SUM(COALESCE(tg.total_target, 0)) AS total_target
+    ', FALSE);
+    $this->db->from(
+        "($sub_counter) tc"
+    );
+    $this->db->join(
+        "($sub_target) tg",
+        'tg.t_planning_uuid = tc.t_planning_uuid
+         AND tg.mesin_uuid = tc.mesin_uuid',
+        'left',
+        FALSE
+    );
+    $this->db->group_by(
+        'tc.mesin_uuid'
+    );
+    $performa = $this->db->get()->result();
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNTIME
+    |--------------------------------------------------------------------------
+    |
+    | Total downtime berdasarkan mesin.
+    |
+    | Struktur:
+    |
+    | t_downtime
+    |      ↓
+    | t_speed
+    |      ↓
+    | t_planning
+    |--------------------------------------------------------------------------
+    */
+    $this->db->select('
+        s.mesin_uuid,
+        SUM(td.downtime) AS total_downtime
+    ', FALSE);
+    $this->db->from(
+        't_downtime td'
+    );
+    $this->db->join(
+        't_speed s',
+        's.uuid = td.t_speed_uuid'
+    );
+    $this->db->join(
+        't_planning p',
+        'p.uuid = s.t_planning_uuid'
+    );
+    $this->db->where('MONTH(p.tanggal)', $bulan);
+    $this->db->where('YEAR(p.tanggal)', $tahun);
+    $this->db->where(
+        's.speed >',
+        0
+    );
+    $this->db->where(
+        'td.downtime >',
+        0
+    );
+    $this->db->where(
+        'p.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        's.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->group_by(
+        's.mesin_uuid'
+    );
+    $downtime = $this->db->get()->result();
+    /*
+    |--------------------------------------------------------------------------
+    | SUB DOWNTIME PER SPEED
+    |--------------------------------------------------------------------------
+    |
+    | PENTING:
+    |
+    | Subquery ini dibuat SEBELUM query losttime dimulai.
+    |
+    | Ini untuk menghindari Query Builder CodeIgniter membawa state
+    | dari query losttime ke dalam subquery.
+    |--------------------------------------------------------------------------
+    */
+    $sub_downtime = $this->db
+        ->select('
+            td.t_speed_uuid,
+            SUM(td.downtime) AS total_downtime
+        ', FALSE)
+        ->from('t_downtime td')
+        ->where(
+            'td.downtime >',
+            0
+        )
+        ->group_by(
+            'td.t_speed_uuid'
+        )
+        ->get_compiled_select();
+    /*
+    |--------------------------------------------------------------------------
+    | LOST TIME
+    |--------------------------------------------------------------------------
+    |
+    | Rumus:
+    |
+    | total waktu
+    | - running time
+    | - adjustment
+    | - downtime
+    |
+    | Jika hasil negatif maka menjadi 0.
+    |--------------------------------------------------------------------------
+    */
+    $this->db->select('
+        s.mesin_uuid,
+        SUM(
+            GREATEST(
+                (
+                    (
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            p.start,
+                            p.end
+                        ) / 3600
+                    )
+                    -
+                    (
+                        COALESCE(
+                            tc.total_counter,
+                            0
+                        )
+                        / s.speed
+                        / 60
+                    )
+                    -
+                    (
+                        (
+                            TIMESTAMPDIFF(
+                                SECOND,
+                                p.start,
+                                p.end
+                            ) / 3600
+                        )
+                        * 10 / 60
+                    )
+                ) * 60
+                -
+                COALESCE(
+                    td.total_downtime,
+                    0
+                ),
+                0
+            )
+        ) AS total_losses
+    ', FALSE);
+    $this->db->from(
+        't_speed s'
+    );
+    $this->db->join(
+        't_planning p',
+        'p.uuid = s.t_planning_uuid'
+    );
+    /*
+    |--------------------------------------------------------------------------
+    | COUNTER
+    |--------------------------------------------------------------------------
+    */
+    $this->db->join(
+        "($sub_counter) tc",
+        'tc.t_planning_uuid = s.t_planning_uuid
+         AND tc.mesin_uuid = s.mesin_uuid',
+        'left',
+        FALSE
+    );
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNTIME PER SPEED
+    |--------------------------------------------------------------------------
+    */
+    $this->db->join(
+        "($sub_downtime) td",
+        'td.t_speed_uuid = s.uuid',
+        'left',
+        FALSE
+    );
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER
+    |--------------------------------------------------------------------------
+    */
+    $this->db->where(
+        'MONTH(p.tanggal)',
+        $bulan
+    );
+    $this->db->where(
+        'YEAR(p.tanggal)',
+        $tahun
+    );
+    $this->db->where(
+        's.speed >',
+        0
+    );
+    $this->db->where(
+        's.mesin_uuid IS NOT NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'p.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        's.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    /*
+    |--------------------------------------------------------------------------
+    | GROUP
+    |--------------------------------------------------------------------------
+    */
+    $this->db->group_by(
+        's.mesin_uuid'
+    );
+    $losttime = $this->db->get()->result();
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX DATA BERDASARKAN MESIN
+    |--------------------------------------------------------------------------
+    */
+    $performa_map = [];
+    foreach ($performa as $row) {
+        $performa_map[$row->mesin_uuid] = $row;
+    }
+    $downtime_map = [];
+    foreach ($downtime as $row) {
+        $downtime_map[$row->mesin_uuid] = $row;
+    }
+    $losttime_map = [];
+    foreach ($losttime as $row) {
+        $losttime_map[$row->mesin_uuid] = $row;
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | HASIL FINAL
+    |--------------------------------------------------------------------------
+    */
+    foreach ($mesin as $row) {
+        $p = $performa_map[$row->mesin_uuid] ?? null;
+        $d = $downtime_map[$row->mesin_uuid] ?? null;
+        $l = $losttime_map[$row->mesin_uuid] ?? null;
+        /*
+        |--------------------------------------------------------------------------
+        | COUNTER
+        |--------------------------------------------------------------------------
+        */
+        $total_counter = $p
+            ? (float) $p->total_counter
+            : 0;
+        /*
+        |--------------------------------------------------------------------------
+        | TARGET
+        |--------------------------------------------------------------------------
+        */
+        $total_target = $p
+            ? (float) $p->total_target
+            : 0;
+        /*
+        |--------------------------------------------------------------------------
+        | SET COUNTER & TARGET
+        |--------------------------------------------------------------------------
+        */
+        $row->counter = $total_counter;
+        $row->target = $total_target;
+        /*
+        |--------------------------------------------------------------------------
+        | PERFORMA
+        |--------------------------------------------------------------------------
+        */
+        $row->performa = $total_target > 0
+            ? ($total_counter / $total_target) * 100
+            : 0;
+        /*
+        |--------------------------------------------------------------------------
+        | DOWNTIME
+        |--------------------------------------------------------------------------
+        */
+        $row->downtime = $d
+            ? (float) $d->total_downtime
+            : 0;
+        /*
+        |--------------------------------------------------------------------------
+        | LOST TIME
+        |--------------------------------------------------------------------------
+        */
+        $row->losttime = $l
+            ? (float) $l->total_losses
+            : 0;
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN
+    |--------------------------------------------------------------------------
+    */
+    return $mesin;
+>>>>>>> 42d971f2ad2e1e41f3998fac19da7a82a2751028
 }
 }
