@@ -895,9 +895,9 @@ class Yield_model extends CI_Model
         return $this->db->query($sql)->row();
     }
     public function get_monitoring_sortasi()
-    {
-        $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
-        $this->db->select("
+{
+    $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+    $this->db->select("
         v.varian AS nama_varian,
         v.box_kg AS berat_box,
         /* =========================
@@ -905,39 +905,39 @@ class Yield_model extends CI_Model
         ========================= */
         SUM(s.jumlah_wip) AS sortasi_box,
         SUM(s.jml_release) AS release_box,
-        SUM(s.jml_release) AS release_box,
         (
-            SUM(s.jumlah_wip)
+            SUM(tb.filkar_box)
             -
-            SUM(s.jml_release)
+            SUM(tb.sortasi_box)
         ) AS blm_sortir,
         /* =========================
            BAD PRODUK SORTASI
         ========================= */
         COALESCE(
-            SUM(
-                CASE
-                    WHEN bp.kategori = 1
-                    THEN tbp.berat
-                    ELSE 0
-                END
-            ),0
+            SUM(tbp.sortasi_rework),
+            0
         ) AS sortasi_rework,
         COALESCE(
-            SUM(
-                CASE
-                    WHEN bp.kategori = 2
-                    THEN tbp.berat
-                    ELSE 0
-                END
-            ),0
+            SUM(tbp.sortasi_reject),
+            0
         ) AS sortasi_reject,
         COALESCE(
-            SUM(tbp.berat),
+            SUM(tbp.sortasi_bad),
             0
         ) AS sortasi_bad,
-        COALESCE(SUM(s.jumlah_wip) * v.box_kg, 0) AS sortasi_kg,
-        COALESCE(SUM(tbp.berat) / NULLIF(SUM(s.jumlah_wip) * v.box_kg, 0) *100, 0) AS bad_persen,
+        COALESCE(
+            SUM(s.jumlah_wip) * v.box_kg,
+            0
+        ) AS sortasi_kg,
+        COALESCE(
+            SUM(tbp.sortasi_bad)
+            /
+            NULLIF(
+                SUM(s.jumlah_wip) * v.box_kg,
+                0
+            ) * 100,
+            0
+        ) AS bad_persen,
         /* =========================
            YIELD SORTASI
            Release box / sortasi box
@@ -953,63 +953,83 @@ class Yield_model extends CI_Model
             ELSE 0
         END AS yield_sortasi
     ");
-        $this->db->from('sortasi s');
-        // batch
-        $this->db->join(
-            'tbatch tb',
-            'tb.uuid = s.tbatch_uuid',
-            'left'
-        );
-        // planning
-        $this->db->join(
-            't_planning tp',
-            'tp.uuid = tb.t_planning_uuid',
-            'left'
-        );
-        // varian
-        $this->db->join(
-            'varian v',
-            'v.uuid = tp.varian',
-            'left'
-        );
-        // bad produk sortasi
-        $this->db->join(
-            't_badpro tbp',
-            "
-        tbp.ref_uuid = s.uuid
-        AND tbp.proses_uuid = '$proses_uuid'
-        AND tbp.deleted_at IS NULL
-        ",
-            'left'
-        );
-        $this->db->join(
-            'badpro bp',
-            'bp.uuid = tbp.badpro_uuid',
-            'left'
-        );
-        // bulan berjalan berdasarkan kegiatan sortasi
-        $this->db->where(
-            'MONTH(s.created_at)',
-            date('m')
-        );
-        $this->db->where(
-            'YEAR(s.created_at)',
-            date('Y')
-        );
-        $this->db->where(
-            's.deleted_at IS NULL',
-            NULL,
-            FALSE
-        );
-        $this->db->group_by([
-            'v.uuid',
-            'v.varian', 'v.box_kg'
-        ]);
-        $this->db->order_by(
-            'v.varian'
-        );
-        return $this->db->get()->result();
-    }
+    $this->db->from('sortasi s');
+    // batch
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    );
+    // planning
+    $this->db->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    );
+    // varian
+    // RELASI DIKEMBALIKAN PERSIS SEPERTI PUNYA ANDA
+    $this->db->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    );
+    $badpro_subquery = "
+        (
+            SELECT
+                tbp.ref_uuid,
+                SUM(
+                    CASE
+                        WHEN bp.kategori = 1
+                        THEN tbp.berat
+                        ELSE 0
+                    END
+                ) AS sortasi_rework,
+                SUM(
+                    CASE
+                        WHEN bp.kategori = 2
+                        THEN tbp.berat
+                        ELSE 0
+                    END
+                ) AS sortasi_reject,
+                SUM(tbp.berat) AS sortasi_bad
+            FROM t_badpro tbp
+            LEFT JOIN badpro bp
+                ON bp.uuid = tbp.badpro_uuid
+            WHERE tbp.proses_uuid = '$proses_uuid'
+              AND tbp.deleted_at IS NULL
+            GROUP BY tbp.ref_uuid
+        ) tbp
+    ";
+    $this->db->join(
+        $badpro_subquery,
+        'tbp.ref_uuid = s.uuid',
+        'left',
+        FALSE
+    );
+    // bulan berjalan berdasarkan kegiatan sortasi
+    $this->db->where(
+        'MONTH(s.created_at)',
+        date('m')
+    );
+    $this->db->where(
+        'YEAR(s.created_at)',
+        date('Y')
+    );
+    $this->db->where(
+        's.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->group_by([
+        'v.uuid',
+        'v.varian',
+        'v.box_kg'
+    ]);
+    $this->db->order_by(
+        'v.varian'
+    );
+    return $this->db->get()->result();
+}
     public function get_total_sortasi()
     {
         $data = $this->get_monitoring_sortasi();
@@ -1056,10 +1076,51 @@ class Yield_model extends CI_Model
     $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
     /*
      * =====================================================
-     * MASTER BAD PRODUK
+     * TOTAL SORTASI BOX BULAN BERJALAN
      *
-     * Hanya bad produk yang benar-benar berasal dari
-     * proses SORTASI.
+     * Dipakai sebagai pembagi persentase:
+     *
+     * total bad / seluruh jumlah_wip * 100
+     * =====================================================
+     */
+    $total_sortasi = $this->db
+    ->select("
+        COALESCE(
+            SUM(s.jumlah_wip * v.box_kg),
+            0
+        ) AS total_sortasi_kg
+    ")
+    ->from('sortasi s')
+    ->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    )
+    ->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    )
+    ->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    )
+    ->where('s.deleted_at', NULL)
+    ->where(
+        'MONTH(s.created_at)',
+        date('m')
+    )
+    ->where(
+        'YEAR(s.created_at)',
+        date('Y')
+    )
+    ->get()
+    ->row();
+$total_sortasi_kg = (float) $total_sortasi->total_sortasi_kg;
+    /*
+     * =====================================================
+     * MASTER BAD PRODUK
      * =====================================================
      */
     $badproduk = $this->db
@@ -1080,12 +1141,6 @@ class Yield_model extends CI_Model
     /*
      * =====================================================
      * MESIN DOMINAN
-     *
-     * Ambil mesin yang benar-benar dipilih sebagai
-     * Mesin Dominan pada Sortasi.
-     *
-     * Jangan menggunakan tcounter untuk menentukan
-     * mesin Bad Produk.
      * =====================================================
      */
     $mesin = $this->db
@@ -1113,7 +1168,6 @@ class Yield_model extends CI_Model
         ->where('tbp.deleted_at', NULL)
         ->where('tbpm.deleted_at', NULL)
         ->where('s.deleted_at', NULL)
-        ->where('m.deleted_at', NULL)
         ->where(
             'MONTH(s.created_at)',
             date('m')
@@ -1134,11 +1188,7 @@ class Yield_model extends CI_Model
         ->result();
     /*
      * =====================================================
-     * TAMBAHKAN KOLOM "LAIN-LAIN"
-     *
-     * Lain-lain bukan mesin database.
-     * Ini adalah kategori untuk Bad Produk yang
-     * tidak mempunyai Mesin Dominan.
+     * BUAT ROW MESIN
      * =====================================================
      */
     $rows = [];
@@ -1150,11 +1200,12 @@ class Yield_model extends CI_Model
             $row->{$bp->nama_badpro} = 0;
         }
         $row->total = 0;
+        $row->persentase = 0;
         $rows[] = $row;
     }
     /*
      * =====================================================
-     * KOLOM LAIN-LAIN
+     * LAIN-LAIN
      * =====================================================
      */
     $lain = new stdClass();
@@ -1164,11 +1215,10 @@ class Yield_model extends CI_Model
         $lain->{$bp->nama_badpro} = 0;
     }
     $lain->total = 0;
+    $lain->persentase = 0;
     /*
      * =====================================================
      * AMBIL BAD PRODUK SORTASI
-     *
-     * Satu record t_badpro = satu nilai berat aktual.
      * =====================================================
      */
     $bad_data = $this->db
@@ -1212,7 +1262,7 @@ class Yield_model extends CI_Model
      */
     foreach ($bad_data as $bad) {
         /*
-         * Ambil Mesin Dominan untuk Bad Produk ini.
+         * Ambil Mesin Dominan
          */
         $mesin_bad = $this->db
             ->select('mesin_uuid')
@@ -1230,8 +1280,6 @@ class Yield_model extends CI_Model
         /*
          * =================================================
          * TIDAK ADA MESIN DOMINAN
-         *
-         * Masuk Lain-lain 100%.
          * =================================================
          */
         if (empty($mesin_bad)) {
@@ -1253,9 +1301,7 @@ class Yield_model extends CI_Model
          * =================================================
          * ADA MESIN DOMINAN
          *
-         * Opsi B:
-         *
-         * berat dibagi rata berdasarkan jumlah mesin.
+         * Berat dibagi rata
          * =================================================
          */
         $jumlah_mesin = count($mesin_bad);
@@ -1287,7 +1333,22 @@ class Yield_model extends CI_Model
     }
     /*
      * =====================================================
-     * MASUKKAN LAIN-LAIN HANYA JIKA ADA DATA
+     * SORT BERDASARKAN TOTAL BAD TERBESAR
+     * =====================================================
+     */
+    usort($rows, function ($a, $b) {
+        return $b->total <=> $a->total;
+    });
+    /*
+     * =====================================================
+     * AMBIL 8 MESIN TERBESAR
+     * =====================================================
+     */
+    $rows = array_slice($rows, 0, 8);
+    /*
+     * =====================================================
+     * LAIN-LAIN
+     * Tetap ditampilkan jika ada.
      * =====================================================
      */
     if ($lain->total > 0) {
@@ -1295,7 +1356,8 @@ class Yield_model extends CI_Model
     }
     return [
         'badproduk' => $badproduk,
-        'rows'      => $rows
+        'rows'      => $rows,
+        'total_sortasi_kg' => $total_sortasi_kg
     ];
 }
 function get_pvdc_wire()

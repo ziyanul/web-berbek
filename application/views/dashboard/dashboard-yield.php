@@ -810,6 +810,7 @@ $total_reject_wire = 0;
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <th>TOTAL BAD</th>
+                            <th>%</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -858,6 +859,22 @@ $total_reject_wire = 0;
                                             ) ?>
                                         </b>
                                     </td>
+                                    <td>
+            <b>
+                <?php
+                if ($total_sortasi_kg > 0) {
+                    $persenBad =
+                        ($badTotal / $total_sortasi_kg) * 100;
+                } else {
+                    $persenBad = 0;
+                }
+                ?>
+                <?= number_format(
+                    $persenBad,
+                    2
+                ) ?>%
+            </b>
+        </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else : ?>
@@ -921,6 +938,22 @@ $total_reject_wire = 0;
                                     ) ?>
                                 </b>
                             </td>
+                            <td>
+    <b>
+        <?php
+        if ($total_sortasi_kg > 0) {
+            $grandPersen =
+                ($grandTotalBad / $total_sortasi_kg) * 100;
+        } else {
+            $grandPersen = 0;
+        }
+        ?>
+        <?= number_format(
+            $grandPersen,
+            2
+        ) ?>%
+    </b>
+</td>
                         </tr>
                     </tfoot>
                 </table>

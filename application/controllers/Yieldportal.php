@@ -42,6 +42,8 @@ class Yieldportal extends CI_Controller
             $bad_mesin['badproduk'];
         $data['bad_produk_mesin'] =
             $bad_mesin['rows'];
+        $data['total_sortasi_kg'] =
+            $bad_mesin['total_sortasi_kg'];
         $this->load->view('dashboard/dashboard-yield', $data);
     }
     public function analisa()
