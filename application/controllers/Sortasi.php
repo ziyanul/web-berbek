@@ -1,9 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-
 use Dompdf\Dompdf;
 use Dompdf\Options;
-
 class Sortasi extends CI_Controller
 {
 	public function __construct()
@@ -22,7 +20,6 @@ class Sortasi extends CI_Controller
 			'data' => $this->Sortasi_model->get_all(),
 			'active_nav' => 'sortasi'
 		);
-
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('sortasi/sortasi', $data);
 		$this->load->view('partials/footer');
@@ -41,13 +38,11 @@ class Sortasi extends CI_Controller
 				redirect('sortasi');
 			}
 		}
-
 		$data = array(
 			'batch'      => $this->Sortasi_model->get_batch(),
 			'badpro'     => $this->Sortasi_model->get_badpro('SORTASI'),
 			'active_nav' => 'sortasi'
 		);
-
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('sortasi/sortasi-tambah', $data);
 		$this->load->view('partials/footer');
@@ -55,129 +50,96 @@ class Sortasi extends CI_Controller
 	public function edit($uuid)
 	{
 		if (empty($uuid)) {
-
 			$this->session->set_flashdata(
 				'error_msg',
 				'UUID tidak valid.'
 			);
-
 			redirect('sortasi');
 		}
-
-
 		$rules = $this->Sortasi_model->rules();
-
 		$this->form_validation->set_rules(
 			$rules
 		);
-
-
 		/*
      * =====================================================
      * SIMPAN
      * =====================================================
      */
-
 		if (
 			$this->form_validation->run()
 			=== TRUE
 		) {
-
 			$update =
 				$this->Sortasi_model
 				->update($uuid);
-
-
 			if ($update) {
-
 				$this->session->set_flashdata(
 					'success_msg',
 					'Data Sortasi berhasil diubah.'
 				);
 			} else {
-
 				$this->session->set_flashdata(
 					'error_msg',
 					'Data Sortasi gagal diubah.'
 				);
 			}
-
 			redirect('sortasi/');
 		}
-
-
 		/*
      * =====================================================
      * DATA SORTASI
      * =====================================================
      */
-
 		$sortasi =
 			$this->Sortasi_model
 			->get_by_uuid($uuid);
-
-
 		if (!$sortasi) {
-
 			$this->session->set_flashdata(
 				'error_msg',
 				'Data Sortasi tidak ditemukan.'
 			);
-
 			redirect('sortasi');
 		}
-
-
 		/*
      * =====================================================
      * DATA VIEW
      * =====================================================
      */
-
 		$data = [
-
 			'data' =>
 			$sortasi,
-
 			'batch' =>
-			$this->Sortasi_model
-				->get_batch(),
-
+$this->Sortasi_model
+    ->get_batch_edit(
+        $sortasi->tbatch_uuid
+    ),
 			'badpro' =>
 			$this->Sortasi_model
 				->get_badpro('SORTASI'),
-
 			'badpro_input' =>
 			$this->Sortasi_model
 				->get_badpro_by_ref($uuid),
-
 			'batch_info' =>
 			$this->Sortasi_model
 				->get_batch_info(
 					$sortasi->tbatch_uuid
 				),
-
 			'mesin' =>
 			$this->Sortasi_model
 				->get_mesin_batch(
 					$sortasi->tbatch_uuid
 				),
-
 			'active_nav' =>
 			'sortasi'
 		];
-
-
 		$this->load->view(
 			'partials/head-yield',
 			$data
 		);
-
 		$this->load->view(
 			'sortasi/edit',
 			$data
 		);
-
 		$this->load->view(
 			'partials/footer'
 		);
@@ -227,7 +189,6 @@ class Sortasi extends CI_Controller
 			);
 			redirect('sortasi');
 		}
-
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('sortasi/detail', $data);
 		$this->load->view('partials/footer');

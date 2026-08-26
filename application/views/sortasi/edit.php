@@ -153,15 +153,6 @@
 								</div>
 							</div>
 						</div>
-						<div class="alert alert-warning">
-							Maksimal Bad Produk :
-							<b>
-								<span id="maksimalBadProduk">
-									0
-								</span>
-								Kg
-							</b>
-						</div>
 						<div class="row">
                 <div class="col-md-6">
                         <div class="form-group">
@@ -419,7 +410,6 @@
 						.text(data.sisa_sortasi);
 					$('#boxKg')
 						.text(data.box_kg);
-					hitungMaksimalBadProduk();
 				}
 			});
 		}
@@ -687,17 +677,6 @@
 				.text(
 					total.toFixed(2)
 				);
-			let maksimal =
-				hitungMaksimalBadProduk();
-			if (total > maksimal) {
-				$('#totalBadKg')
-					.removeClass('text-success')
-					.addClass('text-danger');
-			} else {
-				$('#totalBadKg')
-					.removeClass('text-danger')
-					.addClass('text-success');
-			}
 		}
 		/*
 		 * =====================================================
@@ -735,36 +714,6 @@
 		}
 		/*
 		 * =====================================================
-		 * MAKSIMAL BAD PRODUK
-		 * =====================================================
-		 */
-		function hitungMaksimalBadProduk() {
-			let sortir =
-				parseFloat(
-					$('#jumlah_sortir').val()
-				) || 0;
-			let release =
-				parseFloat(
-					$('#release_box').val()
-				) || 0;
-			let beratBox =
-				parseFloat(
-					$('#boxKg').text()
-				) || 0;
-			let maksimal =
-				(sortir - release) *
-				beratBox;
-			if (maksimal < 0) {
-				maksimal = 0;
-			}
-			$('#maksimalBadProduk')
-				.text(
-					maksimal.toFixed(2)
-				);
-			return maksimal;
-		}
-		/*
-		 * =====================================================
 		 * JUMLAH SORTIR
 		 * =====================================================
 		 */
@@ -790,7 +739,6 @@
 				 * Validasi batas tetap dilakukan
 				 * saat submit.
 				 */
-				hitungMaksimalBadProduk();
 			}
 		);
 		/*
@@ -815,7 +763,6 @@
 					);
 					$(this).val('');
 				}
-				hitungMaksimalBadProduk();
 			}
 		);
 		/*
@@ -923,22 +870,6 @@
 			 * TOTAL BAD
 			 * -------------------------------------------------
 			 */
-			let totalBad =
-				parseFloat(
-					$('#totalBadKg').text()
-				) ||
-				0;
-			let maksimal =
-				hitungMaksimalBadProduk();
-			if (totalBad > maksimal) {
-				alert(
-					'Total Bad Produk melebihi maksimal ' +
-					maksimal.toFixed(2) +
-					' Kg.'
-				);
-				e.preventDefault();
-				return false;
-			}
 			return true;
 		});
 		/*
@@ -948,6 +879,5 @@
 		 */
 		hitungTotalBad();
 		hitungTotalMesin();
-		hitungMaksimalBadProduk();
 	});
 </script>
