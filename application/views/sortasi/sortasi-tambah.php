@@ -150,15 +150,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="alert alert-warning">
-                            Maksimal Bad Produk :
-                            <b>
-                                <span id="maksimalBadProduk">
-                                    0.00
-                                </span>
-                                Kg
-                            </b>
-                        </div>
                         <div class="row">
                 <div class="col-md-6">
                         <div class="form-group">
@@ -310,7 +301,6 @@
                         .text(data.sisa_sortasi || 0);
                     $('#boxKg')
                         .text(data.box_kg || 0);
-                    hitungMaksimalBadProduk();
                 },
                 error: function() {
                     resetInfoBatch();
@@ -633,17 +623,6 @@
                 .text(baris);
             $('#totalBadKg')
                 .text(total.toFixed(2));
-            let maksimal =
-                hitungMaksimalBadProduk();
-            if (total > maksimal) {
-                $('#totalBadKg')
-                    .removeClass('text-success')
-                    .addClass('text-danger');
-            } else {
-                $('#totalBadKg')
-                    .removeClass('text-danger')
-                    .addClass('text-success');
-            }
         }
         /* ========================================================
            HITUNG TOTAL MESIN DOMINAN
@@ -657,25 +636,6 @@
             });
             $('#totalMesin')
                 .text(total);
-        }
-        /* ========================================================
-           HITUNG MAKSIMAL BAD PRODUK
-        ======================================================== */
-        function hitungMaksimalBadProduk() {
-            let sortir =
-                parseFloat($('#jumlah_sortir').val()) || 0;
-            let release =
-                parseFloat($('#release_box').val()) || 0;
-            let beratBox =
-                parseFloat($('#boxKg').text()) || 0;
-            let maksimal =
-                (sortir - release) * beratBox;
-            if (maksimal < 0) {
-                maksimal = 0;
-            }
-            $('#maksimalBadProduk')
-                .text(maksimal.toFixed(2));
-            return maksimal;
         }
         /* ========================================================
            JUMLAH SORTIR
@@ -693,7 +653,6 @@
                     );
                     $(this).val('');
                 }
-                hitungMaksimalBadProduk();
                 hitungTotalBad();
             }
         );
@@ -713,7 +672,6 @@
                     );
                     $(this).val('');
                 }
-                hitungMaksimalBadProduk();
                 hitungTotalBad();
             }
         );
@@ -866,28 +824,6 @@
                 /* ------------------------------------------------
                    TOTAL BAD PRODUK
                 ------------------------------------------------ */
-                let totalBad =
-                    parseFloat(
-                        $('#totalBadKg').text()
-                    ) || 0;
-                let maksimal =
-                    hitungMaksimalBadProduk();
-                // if (totalBad <= 0) {
-                //     alert(
-                //         'Total Bad Produk harus lebih dari 0 Kg.'
-                //     );
-                //     e.preventDefault();
-                //     return false;
-                // }
-                if (totalBad > maksimal) {
-                    alert(
-                        'Total Bad Produk melebihi maksimal ' +
-                        maksimal.toFixed(2) +
-                        ' Kg.'
-                    );
-                    e.preventDefault();
-                    return false;
-                }
                 /* ------------------------------------------------
                    SEMUA VALID
                 ------------------------------------------------ */
