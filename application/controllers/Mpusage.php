@@ -19,7 +19,6 @@ class Mpusage extends CI_Controller
 			'data' => $this->Mpusage_model->get_all(),
 			'active_nav' => 'mpusage'
 		);
-
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('mpusage/mpusage', $data);
 		$this->load->view('partials/footer');
@@ -40,7 +39,6 @@ class Mpusage extends CI_Controller
 			'fvarian' => $this->Formula_model->get_formula_by_varian($mpusage->uuid_varian),
 			'active_nav' => 'mpusage'
 		);
-
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('mpusage/input', $data);
 		$this->load->view('partials/footer');

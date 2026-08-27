@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
-
 use Ramsey\Uuid\Uuid;
-
 class Mpusage_model extends CI_Model
 {
 	public function __construct()
@@ -22,9 +20,10 @@ class Mpusage_model extends CI_Model
 	}
 	public function get_all()
 	{
-		$this->db->select('tp.tanggal, v.varian, mp.kode_batch, mp.formula_kg, mp.rework_kg, mp.total_output, mp.batch_persen, mp.uuid as uuid_mp');
+		$this->db->select('tp.tanggal, v.varian, tb.kode_batch, mp.formula_kg, mp.rework_kg, mp.total_output, mp.batch_persen, mp.uuid as uuid_mp');
 		$this->db->from('mp_usage mp');
 		$this->db->join('t_planning tp', 'mp.t_planning_uuid = tp.uuid', 'left');
+		$this->db->join('tbatch tb', 'mp.tbatch_uuid = tb.uuid', 'left');
 		$this->db->join('varian v', 'mp.varian_uuid = v.uuid', 'left');
 		// $this->db->order_by('mp.kode_batch', 'ASC');
 		$this->db->order_by('mp.created_at', 'DESC');
@@ -76,20 +75,16 @@ class Mpusage_model extends CI_Model
         rk.berat,
         rk.created_at
     ');
-
 		$this->db->from('rwk_kupas rk');
-
 		$this->db->where(
 			'rk.varian_uuid',
 			$varian_uuid
 		);
-
 		$this->db->where(
 			'rk.deleted_at IS NULL',
 			null,
 			false
 		);
-
 		/*
      * FIFO:
      * kupas paling lama digunakan lebih dahulu.
@@ -98,12 +93,10 @@ class Mpusage_model extends CI_Model
 			'rk.created_at',
 			'ASC'
 		);
-
 		$this->db->order_by(
 			'rk.uuid',
 			'ASC'
 		);
-
 		return $this->db->get()->result();
 	}
 	public function get_remaining_stock($rwk_kupas_uuid)
@@ -113,7 +106,6 @@ class Mpusage_model extends CI_Model
      */
 		$this->db->select('
         rk.berat,
-
         COALESCE((
             SELECT SUM(rp.dipakai)
             FROM rwk_pakai rp
@@ -121,31 +113,23 @@ class Mpusage_model extends CI_Model
               AND rp.deleted_at IS NULL
         ), 0) AS total_dipakai
     ');
-
 		$this->db->from('rwk_kupas rk');
-
 		$this->db->where(
 			'rk.uuid',
 			$rwk_kupas_uuid
 		);
-
 		$this->db->where(
 			'rk.deleted_at IS NULL',
 			null,
 			false
 		);
-
 		$row = $this->db->get()->row();
-
 		if (!$row) {
 			return 0;
 		}
-
 		$berat = (float) $row->berat;
 		$dipakai = (float) $row->total_dipakai;
-
 		$sisa = $berat - $dipakai;
-
 		return max(0, $sisa);
 	}
 	public function update_mp_usage($uuid)
@@ -265,17 +249,13 @@ class Mpusage_model extends CI_Model
 						'rwk_pakai',
 						$rwk_pakai
 					);
-
 					if (!$insert) {
-
 						$error = $this->db->error();
-
 						throw new Exception(
 							'Gagal menyimpan rwk_pakai: '
 								. ($error['message'] ?? 'Database error.')
 						);
 					}
-
 					$need -= $pakai;
 				}
 				/*
