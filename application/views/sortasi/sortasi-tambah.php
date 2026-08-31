@@ -647,12 +647,7 @@
                     parseFloat($(this).val()) || 0;
                 let sisa =
                     parseFloat($('#sisaBox').text()) || 0;
-                if (jumlah > sisa) {
-                    alert(
-                        'Jumlah sortir melebihi sisa batch.'
-                    );
-                    $(this).val('');
-                }
+
                 hitungTotalBad();
             }
         );
@@ -666,12 +661,7 @@
                     parseFloat($('#jumlah_sortir').val()) || 0;
                 let release =
                     parseFloat($(this).val()) || 0;
-                if (release > sortir) {
-                    alert(
-                        'Release tidak boleh melebihi jumlah sortir.'
-                    );
-                    $(this).val('');
-                }
+
                 hitungTotalBad();
             }
         );
