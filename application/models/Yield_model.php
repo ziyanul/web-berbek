@@ -1881,6 +1881,5 @@ public function get_dashboard_mesin_bulan_berjalan()
     |--------------------------------------------------------------------------
     */
     return $mesin;
->>>>>>> 42d971f2ad2e1e41f3998fac19da7a82a2751028
 }
 }
