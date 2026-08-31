@@ -330,7 +330,7 @@
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
                                         Monitoring Release Produksi & Warehouse.
                                     </p>
-                                    <a href="http://127.0.0.1:8000/" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-red-500 to-orange-500 shadow-lg">
+                                    <a href="http://prod.io:8000/" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-red-500 to-orange-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
