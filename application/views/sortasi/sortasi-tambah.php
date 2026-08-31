@@ -259,6 +259,62 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL KONFIRMASI RELEASE -->
+<div class="modal fade" id="modalKonfirmasiRelease" tabindex="-1" role="dialog"
+    aria-labelledby="modalKonfirmasiReleaseLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="modalKonfirmasiReleaseLabel">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Konfirmasi Data
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body text-center">
+                <p class="mb-3">
+                    Release Box lebih besar daripada Jumlah Sortasi.
+                </p>
+
+                <div class="row">
+                    <div class="col-6">
+                        <small class="text-muted">Jumlah Sortasi</small>
+                        <h4>
+                            <span id="modalJumlahSortasi">0</span>
+                            Box
+                        </h4>
+                    </div>
+
+                    <div class="col-6">
+                        <small class="text-muted">Release Box</small>
+                        <h4>
+                            <span id="modalReleaseBox">0</span>
+                            Box
+                        </h4>
+                    </div>
+                </div>
+
+                <p class="mt-3 mb-0">
+                    Apakah data yang Anda masukkan sudah sesuai?
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Tidak
+                </button>
+
+                <button type="button" class="btn btn-success" id="btnKonfirmasiRelease">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     let daftarMesin = [];
     let indexBadProduk = 0;
@@ -718,107 +774,93 @@
         /* ========================================================
            VALIDASI SUBMIT
         ======================================================== */
-        $('form').on(
-            'submit',
-            function(e) {
-                let valid = true;
-                /* ------------------------------------------------
-                   BATCH
-                ------------------------------------------------ */
-                if ($('#tbatch_uuid').val() === '') {
-                    alert(
-                        'Batch belum dipilih.'
-                    );
-                    e.preventDefault();
-                    return false;
-                }
-                /* ------------------------------------------------
-                   JUMLAH SORTIR
-                ------------------------------------------------ */
-                let jumlahSortir =
-                    parseFloat($('#jumlah_sortir').val()) || 0;
-                if (jumlahSortir <= 0) {
-                    alert(
-                        'Jumlah sortir harus lebih dari 0.'
-                    );
-                    e.preventDefault();
-                    return false;
-                }
-                /* ------------------------------------------------
-                   RELEASE
-                ------------------------------------------------ */
-                let releaseBox =
-                    parseFloat($('#release_box').val()) || 0;
-                if (releaseBox > jumlahSortir) {
-                    alert(
-                        'Release tidak boleh melebihi jumlah sortir.'
-                    );
-                    e.preventDefault();
-                    return false;
-                }
-                /* ------------------------------------------------
-                   BAD PRODUK HARUS ADA
-                ------------------------------------------------ */
-                // if ($('.bad-card').length === 0) {
-                //     alert(
-                //         'Minimal harus ada satu Bad Produk.'
-                //     );
-                //     e.preventDefault();
-                //     return false;
-                // }
-                /* ------------------------------------------------
-                   VALIDASI SETIAP BAD PRODUK
-                ------------------------------------------------ */
-                $('.bad-card').each(function() {
-                    let card = $(this);
-                    let badpro =
-                        card
-                        .find('.badproSelect')
-                        .val();
-                    let berat =
-                        parseFloat(
-                            card
-                            .find('.jumlahBad')
-                            .val()
-                        ) || 0;
-                    let mesin =
-                        card
-                        .find('.mesinDominan')
-                        .val() || [];
-                    if (!badpro) {
-                        alert(
-                            'Bad Produk belum dipilih.'
-                        );
-                        valid = false;
-                        return false;
-                    }
-                    if (berat <= 0) {
-                        alert(
-                            'Berat Bad Produk harus lebih dari 0.'
-                        );
-                        valid = false;
-                        return false;
-                    }
-                    // if (mesin.length === 0) {
-                    //     alert(
-                    //         'Setiap Bad Produk harus memiliki minimal satu Mesin Dominan.'
-                    //     );
-                    //     valid = false;
-                    //     return false;
-                    // }
-                });
-                if (!valid) {
-                    e.preventDefault();
-                    return false;
-                }
-                /* ------------------------------------------------
-                   TOTAL BAD PRODUK
-                ------------------------------------------------ */
-                /* ------------------------------------------------
-                   SEMUA VALID
-                ------------------------------------------------ */
-                return true;
-            }
-        );
+        let konfirmasiRelease = false;
+
+$('form').on('submit', function(e) {
+
+    let valid = true;
+
+    /* ------------------------------------------------
+       BATCH
+    ------------------------------------------------ */
+    if ($('#tbatch_uuid').val() === '') {
+        alert('Batch belum dipilih.');
+        e.preventDefault();
+        return false;
+    }
+
+    /* ------------------------------------------------
+       JUMLAH SORTIR
+    ------------------------------------------------ */
+    let jumlahSortir =
+        parseFloat($('#jumlah_sortir').val()) || 0;
+
+    if (jumlahSortir <= 0) {
+        alert('Jumlah sortir harus lebih dari 0.');
+        e.preventDefault();
+        return false;
+    }
+
+    /* ------------------------------------------------
+       RELEASE
+    ------------------------------------------------ */
+    let releaseBox =
+        parseFloat($('#release_box').val()) || 0;
+
+    if (releaseBox > jumlahSortir && !konfirmasiRelease) {
+
+        e.preventDefault();
+
+        $('#modalJumlahSortasi').text(jumlahSortir);
+        $('#modalReleaseBox').text(releaseBox);
+
+        $('#modalKonfirmasiRelease').modal('show');
+
+        return false;
+    }
+
+    /* ------------------------------------------------
+       BAD PRODUK
+    ------------------------------------------------ */
+    $('.bad-card').each(function() {
+
+        let card = $(this);
+
+        let badpro =
+            card.find('.badproSelect').val();
+
+        let berat =
+            parseFloat(
+                card.find('.jumlahBad').val()
+            ) || 0;
+
+        if (!badpro) {
+            alert('Bad Produk belum dipilih.');
+            valid = false;
+            return false;
+        }
+
+        if (berat <= 0) {
+            alert('Berat Bad Produk harus lebih dari 0.');
+            valid = false;
+            return false;
+        }
+    });
+
+    if (!valid) {
+        e.preventDefault();
+        return false;
+    }
+
+    return true;
+});
+$('#btnKonfirmasiRelease').on('click', function() {
+
+    konfirmasiRelease = true;
+
+    $('#modalKonfirmasiRelease').modal('hide');
+
+    $('form').submit();
+});
     });
 </script>

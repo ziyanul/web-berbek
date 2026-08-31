@@ -103,6 +103,7 @@ class Counter_model extends CI_Model
         $kode_batch = strtoupper(trim($this->input->post('kode_batch')));
         $total_counter = $this->input->post('total_counter');
         $parse = $this->parse_kode_batch($kode_batch);
+        $varian = $planning->varian;
         // ======================
         // 1. INSERT TBATCH
         // ======================
@@ -111,6 +112,7 @@ class Counter_model extends CI_Model
             'user_uuid'         => $this->auth_model->current_user()->uuid,
             'username'          => $this->auth_model->current_user()->username,
             't_planning_uuid'   => $t_planning_uuid,
+            'varian_uuid'       => $varian,
             'kode_batch'        => $kode_batch,
             'total'             => $total_counter,
             'tanggal_produksi'  => $parse['tanggal_produksi'],

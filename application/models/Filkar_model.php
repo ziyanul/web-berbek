@@ -196,7 +196,7 @@ class Filkar_model extends CI_Model
 		$this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
 		$this->db->join('varian v', 'v.uuid=tp.varian', 'left');
 		$this->db->where('f.deleted_at IS NULL', null, false);
-		$this->db->order_by('f.created_at', 'DESC');
+		$this->db->order_by('tb.kode_batch', 'DESC');
 		$data = $this->db->get()->result();
 		return $data;
 	}
@@ -708,8 +708,8 @@ class Filkar_model extends CI_Model
 		$this->db->where('tbatch_uuid', $tbatch_uuid);
 		$this->db->where('deleted_at', NULL);
 		$total = $this->db->get()->row();
-		$jumlah_kg = $total->jumlah_kg ?? 0;
-		$jumlah_box = $total->jumlah_box ?? 0;
+		$jumlah_kg = $total->jumlah_kg ?? NULL;
+		$jumlah_box = $total->jumlah_box ?? NULL;
 		$this->db
 			->where('uuid', $tbatch_uuid)
 			->update('tbatch', [
@@ -730,6 +730,7 @@ class Filkar_model extends CI_Model
 		$this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid');
 		$this->db->join('varian v', 'v.uuid = p.varian', 'left');
 		$this->db->where('b.deleted_at', NULL);
+		$this->db->where('b.filkar_kg', NULL);
 		$this->db->order_by('b.created_at', 'DESC');
 		$this->db->order_by('b.kode_batch', 'DESC');
 		$data = $this->db->get()->result();
@@ -754,8 +755,8 @@ class Filkar_model extends CI_Model
 		$total = $this->db->get()->row();
 		$this->db->where('uuid', $tbatch_uuid);
 		$this->db->update('tbatch', [
-			'bad_filkar_rework_kg' => $total->rework ?? 0,
-			'bad_filkar_reject_kg' => $total->reject ?? 0,
+			'bad_filkar_rework_kg' => $total->rework ?? NULL,
+			'bad_filkar_reject_kg' => $total->reject ?? NULL,
 		]);
 	}
 }

@@ -814,86 +814,111 @@ $total_reject_wire = 0;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (
-                            !empty($bad_produk_mesin)
-                            &&
-                            !empty($badproduk)
-                        ) : ?>
-                            <?php foreach ($badproduk as $bp) : ?>
-                                <?php
-                                $badTotal = 0;
-                                ?>
-                                <tr>
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $bp->nama_badpro,
-                                            ENT_QUOTES,
-                                            'UTF-8'
-                                        ) ?>
-                                    </td>
-                                    <?php foreach (
-                                        $bad_produk_mesin
-                                        as $row
-                                    ) : ?>
-                                        <?php
-                                        $nilaiBad =
-                                            (float) (
-                                                $row->{$bp->nama_badpro}
-                                                ?? 0
-                                            );
-                                        $badTotal +=
-                                            $nilaiBad;
-                                        ?>
-                                        <td>
-                                            <?= number_format(
-                                                $nilaiBad,
-                                                2
-                                            ) ?>
-                                        </td>
-                                    <?php endforeach; ?>
-                                    <td>
-                                        <b>
-                                            <?= number_format(
-                                                $badTotal,
-                                                2
-                                            ) ?>
-                                        </b>
-                                    </td>
-                                    <td>
-            <b>
-                <?php
-                if ($total_sortasi_kg > 0) {
-                    $persenBad =
-                        ($badTotal / $total_sortasi_kg) * 100;
-                } else {
-                    $persenBad = 0;
-                }
-                ?>
-                <?= number_format(
-                    $persenBad,
-                    2
-                ) ?>%
-            </b>
-        </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else : ?>
-                            <tr>
-                                <td
-                                    colspan="<?= max(
-                                        2,
-                                        count(
-                                            $bad_produk_mesin
-                                            ?? []
-                                        ) + 2
-                                    ) ?>"
-                                    class="text-center text-muted"
-                                >
-                                    Belum ada data Bad Produk Sortasi
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
+    <?php if (
+        !empty($bad_produk_mesin)
+        &&
+        !empty($badproduk)
+    ) : ?>
+
+        <?php
+        $badproduk_sorted = [];
+
+        foreach ($badproduk as $bp) {
+            $badTotal = 0;
+
+            foreach ($bad_produk_mesin as $row) {
+                $badTotal += (float) (
+                    $row->{$bp->nama_badpro} ?? 0
+                );
+            }
+
+            $badproduk_sorted[] = [
+                'bp' => $bp,
+                'total' => $badTotal
+            ];
+        }
+
+        // Urutkan TOTAL BAD terbesar ke terkecil
+        usort($badproduk_sorted, function ($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+        $badproduk_sorted = array_slice($badproduk_sorted, 0, 10);
+
+        ?>
+
+        <?php foreach ($badproduk_sorted as $item) : ?>
+
+            <?php
+            $bp = $item['bp'];
+            $badTotal = $item['total'];
+            ?>
+
+            <tr>
+                <td>
+                    <?= htmlspecialchars(
+                        $bp->nama_badpro,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </td>
+
+                <?php foreach ($bad_produk_mesin as $row) : ?>
+
+                    <?php
+                    $nilaiBad = (float) (
+                        $row->{$bp->nama_badpro} ?? 0
+                    );
+                    ?>
+
+                    <td>
+                        <?= number_format($nilaiBad, 2) ?>
+                    </td>
+
+                <?php endforeach; ?>
+
+                <td>
+                    <b>
+                        <?= number_format($badTotal, 2) ?>
+                    </b>
+                </td>
+
+                <td>
+                    <b>
+                        <?php
+                        if ($total_sortasi_kg > 0) {
+                            $persenBad =
+                                ($badTotal / $total_sortasi_kg) * 100;
+                        } else {
+                            $persenBad = 0;
+                        }
+                        ?>
+
+                        <?= number_format(
+                            $persenBad,
+                            2
+                        ) ?>%
+                    </b>
+                </td>
+            </tr>
+
+        <?php endforeach; ?>
+
+    <?php else : ?>
+
+        <tr>
+            <td
+                colspan="<?= max(
+                    2,
+                    count($bad_produk_mesin ?? []) + 2
+                ) ?>"
+                class="text-center text-muted"
+            >
+                Belum ada data Bad Produk Sortasi
+            </td>
+        </tr>
+
+    <?php endif; ?>
+</tbody>
                     <tfoot class="bg-light">
                         <tr>
                             <td>

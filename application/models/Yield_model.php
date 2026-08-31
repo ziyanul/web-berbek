@@ -905,10 +905,10 @@ class Yield_model extends CI_Model
         ========================= */
         SUM(s.jumlah_wip) AS sortasi_box,
         SUM(s.jml_release) AS release_box,
-        (
-            SUM(tb.filkar_box)
+        COALESCE(
+            SUM(tb.filkar_box), 0
             -
-            SUM(tb.sortasi_box)
+            SUM(tb.sortasi_box), 0
         ) AS blm_sortir,
         /* =========================
            BAD PRODUK SORTASI
@@ -1136,6 +1136,7 @@ $total_sortasi_kg = (float) $total_sortasi->total_sortasi_kg;
             'bp.uuid'
         ])
         ->order_by('urutan', 'ASC')
+
         ->get()
         ->result();
     /*
@@ -1344,7 +1345,7 @@ $total_sortasi_kg = (float) $total_sortasi->total_sortasi_kg;
      * AMBIL 8 MESIN TERBESAR
      * =====================================================
      */
-    $rows = array_slice($rows, 0, 8);
+    // $rows = array_slice($rows, 0, 8);
     /*
      * =====================================================
      * LAIN-LAIN
