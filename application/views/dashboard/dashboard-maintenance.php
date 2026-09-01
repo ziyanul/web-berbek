@@ -63,6 +63,92 @@
             font-size: .8rem;
             color: #858796;
         }
+
+        .sensor-dashboard {
+    background: #fff;
+    border-radius: 2px;
+    padding: 2px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.sensor-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 18px;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.sensor-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.sensor-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sensor-code {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+}
+
+.sensor-value {
+    margin-top: 12px;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.sensor-value small {
+    font-size: 15px;
+    vertical-align: super;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
+.sensor-time {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    font-size: 11px;
+    color: #999;
+}
+
+.sensor-value.normal {
+    color: #28a745;
+}
+
+.sensor-value.warning {
+    color: #dc3545;
+}
+
+
+/* Tablet */
+@media (max-width: 992px) {
+    .sensor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* Mobile */
+@media (max-width: 576px) {
+
+    .sensor-grid {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 
@@ -267,7 +353,7 @@
                     <div class="row">
 
                         <!-- TOP PM -->
-                        <div class="col-lg-6 mb-4">
+                        <div class="col-lg-3 mb-4">
 
                             <div class="card shadow">
                                 <div class="card-header py-3">
@@ -303,7 +389,7 @@
                         </div>
 
                         <!-- TOP PART -->
-                        <div class="col-lg-6 mb-4">
+                        <div class="col-lg-3 mb-4">
 
                             <div class="card shadow">
 
@@ -343,6 +429,120 @@
                                     </table>
 
                                 </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Suhu -->
+                        <div class="col-lg-6 mb-2">
+
+                            <div class="card shadow">
+
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-info">
+                                        Monitoring Suhu
+                                    </h6>
+                                </div>
+
+                                <div class="card-body">
+
+                                <div class="sensor-dashboard">
+
+
+    <div class="sensor-grid">
+
+        <!-- RT0201 -->
+        <div class="sensor-card">
+            <div class="sensor-card-header">
+                <span class="sensor-code">Ruang Filler</span>
+
+            </div>
+
+            <div class="sensor-value">
+                <span id="RT0201">-</span>
+                <small>°C</small>
+            </div>
+
+        </div>
+
+
+        <!-- RT0202 -->
+        <div class="sensor-card">
+            <div class="sensor-card-header">
+                <span class="sensor-code">Ruang MP</span>
+
+            </div>
+
+            <div class="sensor-value">
+                <span id="RT0202">-</span>
+                <small>°C</small>
+            </div>
+
+        </div>
+
+
+        <!-- RT0203 -->
+        <div class="sensor-card">
+            <div class="sensor-card-header">
+                <span class="sensor-code">Cold Storage</span>
+
+            </div>
+
+            <div class="sensor-value">
+                <span id="RT0203">-</span>
+                <small>°C</small>
+            </div>
+
+        </div>
+
+
+        <!-- RT0204 -->
+        <div class="sensor-card">
+            <div class="sensor-card-header">
+                <span class="sensor-code">Chill Room</span>
+
+            </div>
+
+            <div class="sensor-value">
+                <span id="RT0204">-</span>
+                <small>°C</small>
+            </div>
+        </div>
+
+
+        <!-- RT0205 -->
+        <div class="sensor-card">
+            <div class="sensor-card-header">
+                <span class="sensor-code">Ruang Packing</span>
+
+            </div>
+
+            <div class="sensor-value">
+                <span id="RT0205">-</span>
+                <small>°C</small>
+            </div>
+
+        </div>
+
+
+        <!-- RT0401 -->
+        <div class="sensor-card">
+            <div class="sensor-card-header">
+                <span class="sensor-code">Kelembaban (RH)</span>
+
+            </div>
+
+            <div class="sensor-value">
+                <span id="RT0401">-</span>
+                <small>%</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
                             </div>
 
@@ -422,6 +622,98 @@
         updateClock();
         setInterval(updateClock, 1000);
     </script>
+
+<script>
+
+const sensorRange = {
+    RT0201: { min: 16, max: 20 },
+    RT0202: { min: 9, max: 15 },
+    RT0203: { min: -22, max: -18 },
+    RT0204: { min: 0, max: 4 },
+    RT0205: { min: 25, max: 35 },
+    RT0401: { min: 50, max: 70 }
+};
+
+
+function loadSensor() {
+
+    fetch('http://10.68.1.220:1880/api/sensor_realtime/latest-07')
+        .then(response => response.json())
+        .then(data => {
+
+            if (data.status !== 'success') {
+                return;
+            }
+
+            data.sensors.forEach(sensor => {
+
+                const valueElement =
+                    document.getElementById(sensor.sensor_code);
+
+                if (!valueElement) {
+                    return;
+                }
+
+                // Tampilkan value
+                valueElement.innerText = sensor.value;
+
+
+                // Ambil container value
+                const sensorValue =
+                    valueElement.closest('.sensor-value');
+
+                if (!sensorValue) {
+                    return;
+                }
+
+
+                // Hapus warna sebelumnya
+                sensorValue.classList.remove(
+                    'normal',
+                    'warning'
+                );
+
+
+                // Ambil range sensor
+                const range = sensorRange[sensor.sensor_code];
+
+
+                // Jika range tersedia
+                if (range) {
+
+                    if (
+                        sensor.value >= range.min &&
+                        sensor.value <= range.max
+                    ) {
+                        sensorValue.classList.add('normal');
+                    } else {
+                        sensorValue.classList.add('warning');
+                    }
+
+                }
+
+            });
+
+
+
+
+        })
+        .catch(error => {
+
+            console.error('Gagal mengambil data sensor:', error);
+
+
+
+        });
+}
+
+
+loadSensor();
+
+setInterval(loadSensor, 60000);
+
+</script>
+
 </body>
 
 </html>

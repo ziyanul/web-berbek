@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SMART FACTORY PORTAL</title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/img/Prod-title.png'); ?>">
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide -->
@@ -281,7 +282,7 @@
                             </h2>
                         </div>
                         <!-- GRID -->
-                        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-stretch">
+                        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 items-stretch">
                             <!-- CARD -->
                             <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
                                 <i data-lucide="cpu" class="icon-bg w-20 h-20"></i>
@@ -330,7 +331,7 @@
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
                                         Monitoring Release Produksi & Warehouse.
                                     </p>
-                                    <a href="http://127.0.0.1:8000/" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-red-500 to-orange-500 shadow-lg">
+                                    <a href="http://prod.io:8000/" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-pink-500 to-orange-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
@@ -393,29 +394,31 @@
             </a>
                                 </div>
                             </div>
-                            <!-- CARD SANITASI -->
-                            <!-- <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="spray-can" class="icon-bg w-20 h-20"></i>
+                            <!-- CARD PACKING -->
+                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
+                                <i data-lucide="package" class="icon-bg w-20 h-20"></i>
                                 <div class="relative z-10 flex flex-col h-full">
                                     <div class="flex items-center justify-between mb-3">
                                         <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="spray-can" class="w-5 h-5 text-white"></i>
+                                            <i data-lucide="package" class="w-5 h-5 text-white"></i>
                                         </div>
                                         <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-green-700 pulse"></span>
-                                            <span class="text-[10px] font-bold text-green-700">ONLINE</span>
+                                        <span class="w-2 h-2 rounded-full bg-red-700"></span>
+                                            <span class="text-[10px] font-bold text-red-700">
+                                                COMMING SOON
+                                            </span>
                                         </div>
                                     </div>
-                                    <h3 class="text-base font-black mb-1">SANITASI</h3>
+                                    <h3 class="text-base font-black mb-1">Monitoring Packing</h3>
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
-                                        Monitoring dan pengelolaan sanitasi produksi.
+                                        Monitoring dan pengelolaan produktifitas packing.
                                     </p>
-                                    <a href="<?= base_url('portal/sanitasi'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg">
+                                    <a href="" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-sky-500 to-green-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>
                                 </div>
-                            </div> -->
+                            </div>
                         </div>
                     </div>
         </main>

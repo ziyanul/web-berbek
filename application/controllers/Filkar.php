@@ -108,14 +108,18 @@ class Filkar extends CI_Controller
                 redirect('filkar/');
             }
         }
-        $data = [
-            'data' => $this->Filkar_model->get_by_uuid($uuid),
+
+        $data = array(
+            'data' => $this->Filkar_model->get_by_uuid_join($uuid),
             'badpro_input' => $this->Filkar_model->get_badpro_by_ref($uuid),
             'badpro_master' => $this->Filkar_model->get_badpro('FILKAR'),
             'batch' => $this->Filkar_model->get_batch(),
             // 'badpro_list' => $this->Filkar_model->get_badpro(),
             'active_nav' => 'filkar'
-        ];
+        );
+        echo "<pre>";
+        print_r($data['data']);
+    echo "</pre>";
         $this->load->view('partials/head-yield', $data);
         $this->load->view('filkar/filkar_edit', $data);
         $this->load->view('partials/footer');

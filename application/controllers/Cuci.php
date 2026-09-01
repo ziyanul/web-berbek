@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Drystore extends CI_Controller {
+class Cuci extends CI_Controller {
 
     public function __construct()
     {

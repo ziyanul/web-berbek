@@ -391,7 +391,7 @@ class Filkar_model extends CI_Model
 		);
 		$jumlah_box = 0;
 		if ($tbatch && $tbatch->box_kg > 0) {
-			$jumlah_box = $this->input->post('berat') / $tbatch->box_kg;
+			$jumlah_box = floor($this->input->post('berat') / $tbatch->box_kg);
 		}
 		$uuid = Uuid::uuid4()->toString();
 		$data = [
@@ -740,6 +740,47 @@ class Filkar_model extends CI_Model
 		}
 		return $data;
 	}
+
+	public function get_batch_edit($tbatch_uuid)
+	{
+    $this->db->select("
+        b.uuid,
+        b.kode_batch,
+        b.adonan,
+        b.filkar_kg,
+        v.varian, v.keterangan, v.kontainer_kg, v.box_kg
+    ");
+    $this->db->from('tbatch b');
+    $this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid');
+    $this->db->join('varian v', 'v.uuid = p.varian', 'left');
+    $this->db->where('b.deleted_at', NULL);
+
+    // Membuat kondisi grup untuk filter
+    $this->db->group_start();
+        // Kondisi pertama: filkar_box != 0
+        $this->db->where('b.filkar_box !=', 0);
+        // Kondisi kedua: uuid sama dengan $tbatch_uuid
+        $this->db->or_where('b.uuid', $tbatch_uuid);
+    $this->db->group_end();
+
+    // Filter batch dengan filkar_kg NULL
+    $this->db->where('b.filkar_kg', NULL);
+
+    // Urutkan data
+    $this->db->order_by('b.created_at', 'DESC');
+    $this->db->order_by('b.kode_batch', 'DESC');
+
+    // Eksekusi query
+    $data = $this->db->get()->result();
+
+    // Hitung kelebihan dan tambahkan ke objek
+    foreach ($data as $val) {
+        $val->kelebihan = $val->adonan + ($val->adonan * 50 / 100);
+    }
+
+    return $data;
+}
+
 	public function update_total_bad_filkar($tbatch_uuid)
 	{
 		$proses_uuid = $this->Proses_model->get_uuid('FILKAR');
