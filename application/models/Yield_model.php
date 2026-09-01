@@ -1371,12 +1371,14 @@ function get_pvdc_wire()
         } else {
             $val->pvdc = 0;
         }
+
         // Wire
         if ((float) $val->berat > 0) {
             $val->wire = round(($val->filkar_kg / $val->berat * 0.000302), 3);
         } else {
             $val->wire = 0;
         }
+
         $val->reject_pvdc = 0;
         $val->reject_wire = 0;
     }
