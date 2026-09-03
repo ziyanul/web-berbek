@@ -25,25 +25,27 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Kode Batch</label>
-                            <select
-                            name="tbatch_uuid"
-                            class="form-control">
-                            <option value="">Pilih Batch</option>
-                            <?php foreach($batch as $b): ?>
-                                <option
-                                value="<?= $b->uuid ?>"
-                                <?= set_select(
-                                    'tbatch_uuid',
-                                    $b->uuid,
-                                    $data->tbatch_uuid==$b->uuid
-                                    ) ?>>
-                                    <?= $b->kode_batch ?>
-                                    -
-                                    <?= $b->varian ?>
-                                    (<?= $b->keterangan ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                            <select name="tbatch_uuid" class="form-control">
+    <option value="">Pilih Batch</option>
+
+    <?php foreach ($batch as $b): ?>
+        <option
+            value="<?= $b->uuid ?>"
+            <?= ($data->tbatch_uuid == $b->uuid) ? 'selected' : '' ?>>
+
+            <?= $b->kode_batch ?>
+            -
+            <?= $b->varian ?>
+            (<?= $b->keterangan ?>)
+
+        </option>
+    <?php endforeach; ?>
+</select>
+
+<small class="text-danger">
+    <?= form_error('tbatch_uuid') ?>
+</small>
+
                         <small class="text-danger">
                             <?= form_error('tbatch_uuid') ?>
                         </small>

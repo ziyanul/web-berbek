@@ -413,7 +413,7 @@
                                     <p class="text-[11px] text-gray-600 leading-snug mb-3">
                                         Monitoring dan pengelolaan produktifitas packing.
                                     </p>
-                                    <a href="" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-sky-500 to-green-500 shadow-lg">
+                                    <a href="<?= base_url('drystore/dashboard'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-sky-500 to-green-500 shadow-lg">
                                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                         OPEN
                                     </a>

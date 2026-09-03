@@ -6,15 +6,16 @@
             Edit Drystore
         </h1>
 
+        <a href="<?= base_url('drystore'); ?>"
+            class="btn btn-md btn-secondary shadow-sm">
 
+            <i class="fas fa-arrow-left fa-sm text-white mr-2"></i>
+            Kembali
+
+        </a>
 
     </div>
-<nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= base_url('drystore') ?>"><i class="fas fa-arrow-left"></i>  Drystore</a></li>
-        <li class="breadcrumb-item active" aria-current="page"> Edit</li>
-      </ol>
-    </nav>
+
 
     <?php if ($this->session->flashdata('error_msg')): ?>
 

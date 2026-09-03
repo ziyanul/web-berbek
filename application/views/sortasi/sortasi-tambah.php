@@ -28,12 +28,7 @@
                      DATA BATCH
                 ====================================================== -->
                 <div class="card border-left-primary mb-4">
-                    <div class="card-header bg-light">
-                        <b>
-                            <i class="fas fa-layer-group mr-2"></i>
-                            Data Batch
-                        </b>
-                    </div>
+
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
@@ -57,7 +52,26 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>
+                                        Jenis Sortasi
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select name="tbatch_uuid" id="tbatch_uuid" class="form-control" required>
+                                        <option value="" disabled>
+                                            Pilih Jenis Sortasi
+                                        </option>
+                                        <?php foreach ($jenis as $j) : ?>
+                                            <option value="<?= $j->uuid ?>">
+                                                <?= $j->jenis ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
                 <!-- =====================================================

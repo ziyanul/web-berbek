@@ -90,40 +90,66 @@ class Filkar extends CI_Controller
         $this->load->view('partials/footer');
     }
     public function edit($uuid)
-    {
-        // Pastikan $uuid valid
-        if (empty($uuid)) {
-            $this->session->set_flashdata('error_msg', 'UUID tidak valid.');
-            redirect('filkar');
-        }
-        $rules = $this->Filkar_model->rules2();
-        $this->form_validation->set_rules($rules);
-        if ($this->form_validation->run() === TRUE) {
-            $update = $this->Filkar_model->update($uuid);
-            if ($update) {
-                $this->session->set_flashdata('success_msg', 'Data Filling Karantina berhasil diubah.');
-                redirect('filkar/');
-            } else {
-                $this->session->set_flashdata('error_msg', 'Data Filling Karantina gagal diubah.');
-                redirect('filkar/');
-            }
+{
+    // Pastikan UUID valid
+    if (empty($uuid)) {
+        $this->session->set_flashdata('error_msg', 'UUID tidak valid.');
+        redirect('filkar');
+    }
+
+    $rules = $this->Filkar_model->rules2();
+    $this->form_validation->set_rules($rules);
+
+    if ($this->form_validation->run() === TRUE) {
+
+        $update = $this->Filkar_model->update($uuid);
+
+        if ($update) {
+            $this->session->set_flashdata(
+                'success_msg',
+                'Data Filling Karantina berhasil diubah.'
+            );
+        } else {
+            $this->session->set_flashdata(
+                'error_msg',
+                'Data Filling Karantina gagal diubah.'
+            );
         }
 
-        $data = array(
-            'data' => $this->Filkar_model->get_by_uuid_join($uuid),
-            'badpro_input' => $this->Filkar_model->get_badpro_by_ref($uuid),
-            'badpro_master' => $this->Filkar_model->get_badpro('FILKAR'),
-            'batch' => $this->Filkar_model->get_batch(),
-            // 'badpro_list' => $this->Filkar_model->get_badpro(),
-            'active_nav' => 'filkar'
-        );
-        echo "<pre>";
-        print_r($data['data']);
-    echo "</pre>";
-        $this->load->view('partials/head-yield', $data);
-        $this->load->view('filkar/filkar_edit', $data);
-        $this->load->view('partials/footer');
+        redirect('filkar/');
     }
+
+    // Ambil data filling yang sedang diedit
+    $data_edit = $this->Filkar_model->get_by_uuid_join($uuid);
+
+    if (!$data_edit) {
+        $this->session->set_flashdata(
+            'error_msg',
+            'Data Filling Karantina tidak ditemukan.'
+        );
+        redirect('filkar');
+    }
+
+    $data = array(
+        'data' => $data_edit,
+
+        'badpro_input' => $this->Filkar_model->get_badpro_by_ref($uuid),
+
+        'badpro_master' => $this->Filkar_model->get_badpro('FILKAR'),
+
+        // INI YANG DIPERBAIKI
+        'batch' => $this->Filkar_model->get_batch_edit(
+            $data_edit->tbatch_uuid
+        ),
+
+        'active_nav' => 'filkar'
+    );
+
+    $this->load->view('partials/head-yield', $data);
+    $this->load->view('filkar/filkar_edit', $data);
+    $this->load->view('partials/footer');
+}
+
     public function hapus($uuid)
     {
         if ($this->Filkar_model->delete($uuid)) {

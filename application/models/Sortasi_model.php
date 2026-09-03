@@ -46,6 +46,20 @@ class Sortasi_model extends CI_Model
 			]
 		];
 	}
+
+	public function rules_jenis()
+	{
+		return [
+			[
+				'field' => 'jenis',
+				'label' => 'Jenis Sortasi',
+				'rules' => 'required',
+				'errors' => [
+					'required' => '{label} wajib diisi !',
+				]
+			],
+		];
+	}
 	public function get_all()
 	{
 		$this->db->select('s.*, v.varian, v.keterangan, tb.kode_batch, v.box_kg, s.created_at');
@@ -717,4 +731,52 @@ class Sortasi_model extends CI_Model
     $this->db->order_by('b.kode_batch', 'DESC');
     return $this->db->get()->result();
 }
+
+/*
+*=======================================
+JENIS SORTASI
+*=======================================
+*/
+public function get_all_jenis()
+{
+	return $this->db->get('jenis_sortasi')->result();
+}
+
+public function get_jenis_by_uuid($uuid)
+{
+	return $this->db->get_where('jenis_sortasi', array('uuid' => $uuid))->row();
+
+}
+
+public function insert_jenis()
+	{
+		$uuid = Uuid::uuid4()->toString();
+		$jenis = $this->input->post('jenis');
+		$keterangan = $this->input->post('keterangan');
+		$data = array(
+			'uuid' => $uuid,
+			'jenis' => $jenis,
+			'keterangan' => $keterangan,
+			'user_uuid'     => $this->auth_model->current_user()->uuid
+		);
+
+		$this->db->insert('jenis_sortasi', $data);
+		return ($this->db->affected_rows() > 0) ? true : false;
+	}
+
+	public function update_jenis($uuid)
+	{
+		$jenis = $this->input->post('jenis');
+		$keterangan = $this->input->post('keterangan');
+
+		$data = array(
+			'user_uuid' => $this->auth_model->current_user()->uuid,
+			'jenis' => $jenis,
+			'keterangan' => $keterangan,
+			'modified_at' => date('Y-m-d h:i:s')
+		);
+
+		$this->db->update('jenis_sortasi', $data, array('uuid' => $uuid)); // query update
+		return ($this->db->affected_rows() > 0) ? true : false; // kondisi klu update sukses akan bernilai true dan sebaliknya
+	}
 }

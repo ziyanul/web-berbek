@@ -269,111 +269,7 @@ class Filkar_model extends CI_Model
 		}
 		return $data;
 	}
-	public function insert_lama()
-	{
-		$filkar_uuid = Uuid::uuid4()->toString();
-		$varian_uuid = $this->input->post('varian_uuid');
-		$varian_name = explode(' - ', $this->input->post('varian_name'))[0];
-		$kode_prod = $this->input->post('kode_produk');
-		$jam_mulai = $this->input->post('jam_mulai');
-		$jam_selesai = $this->input->post('jam_selesai');
-		$jml_mp = $this->input->post('jml_mp');
-		$jumlah_box = $this->input->post('jml_box');
-		$jumlah_kg = $this->input->post('jml_kg');
-		$keterangan = $this->input->post('keterangan');
-		$badpro_array = $this->input->post('badpro_uuid') ?? [];
-		$jumlah_array = $this->input->post('jumlah_badpro') ?? [];
-		$data_filkar = [
-			'uuid' 			=> $filkar_uuid,
-			'tbatch_uuid' => $this->input->post('tbatch_uuid'),
-			'jumlah_box' => $this->input->post('qty'),
-			'jumlah_kg' => $this->input->post('berat'),
-			'keterangan' => $this->input->post('keterangan'),
-			'user_uuid' => $this->auth_model->current_user()->uuid
-		];
-		$this->db->insert('filkar', $data_filkar);
-		if (!$this->db->affected_rows()) {
-			return false;
-		}
-		foreach ($badpro_array as $key => $badpro_uuid) {
-			if (!empty($badpro_uuid) && isset($jumlah_array[$key])) {
-				$sub_filkar_uuid = Uuid::uuid4()->toString();
-				$data_badpro = [
-					'uuid' 			=> $sub_filkar_uuid,
-					'user_uuid'     => $this->auth_model->current_user()->uuid,
-					'filkar_uuid' 	=> $filkar_uuid,
-					'badpro_uuid' 	=> $badpro_uuid,
-					'jumlah'	 	=> $jumlah_array[$key],
-				];
-				$this->db->insert('sub_filkar', $data_badpro);
-				if (!$this->db->affected_rows()) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	public function update_lama($uuid)
-	{
-		$kode_prod          = $this->input->post('kode_produk');
-		$jam_mulai          = $this->input->post('jam_mulai');
-		$jam_selesai        = $this->input->post('jam_selesai');
-		$jml_mp             = $this->input->post('jml_mp');
-		$jumlah_box         = $this->input->post('jml_box');
-		$jumlah_kg          = $this->input->post('jml_kg');
-		$keterangan         = $this->input->post('keterangan');
-		$badpro_array       = $this->input->post('badpro_uuid') ?? [];
-		$jumlah_array       = $this->input->post('jumlah_badpro') ?? [];
-		$badproadd_array    = $this->input->post('badproadd') ?? [];
-		$jumlahadd_array    = $this->input->post('jumlahadd') ?? [];
-		$sub_filkar_uuid_array = $this->input->post('sub_filkar_uuid') ?? [];
-		$data = [
-			'kode_batch'     => $kode_prod,
-			'jam_mulai'     => $jam_mulai,
-			'jam_selesai'   => $jam_selesai,
-			'jml_mp'        => $jml_mp,
-			'jumlah_box'    => $jumlah_box,
-			'jumlah_kg'     => $jumlah_kg,
-			'keterangan'    => $keterangan,
-			'modified_at'   => date('Y-m-d H:i:s')
-		];
-		$this->db->where('uuid', $uuid);
-		$this->db->update('filkar', $data);
-		if (!$this->db->affected_rows()) {
-			return false; // Gagal update data utama
-		}
-		foreach ($sub_filkar_uuid_array as $key => $sub_filkar_uuid) {
-			if (!empty($sub_filkar_uuid) && isset($badpro_array[$key], $jumlah_array[$key])) {
-				$data_badpro = [
-					'badpro_uuid' => $badpro_array[$key],
-					'jumlah' => $jumlah_array[$key],
-					'modified_at' => date('Y-m-d h:i:s')
-				];
-				$this->db->where('uuid', $sub_filkar_uuid); // Menggunakan UUID sub_filkar
-				$this->db->update('sub_filkar', $data_badpro);
-				if (!$this->db->affected_rows()) {
-					return false;
-				}
-			}
-		}
-		foreach ($badproadd_array as $key => $badproadd_uuid) {
-			if (!empty($badproadd_uuid) && isset($jumlahadd_array[$key])) {
-				$sub_filkar_uuid = Uuid::uuid4()->toString();
-				$data_badpro_new = [
-					'uuid' 			=> $sub_filkar_uuid,
-					'user_uuid'     => $this->auth_model->current_user()->uuid,
-					'filkar_uuid' 	=> $uuid,
-					'badpro_uuid' 	=> $badproadd_uuid,
-					'jumlah'	 	=> $jumlahadd_array[$key],
-				];
-				$this->db->insert('sub_filkar', $data_badpro_new);
-				if (!$this->db->affected_rows()) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+
 	function get_batch_uuid($uuid)
 	{
 		$this->db->select('tb.*, v.box_kg');
@@ -452,7 +348,7 @@ class Filkar_model extends CI_Model
 		);
 		$jumlah_box = 0;
 		if ($tbatch && $tbatch->box_kg > 0) {
-			$jumlah_box = $this->input->post('berat') / $tbatch->box_kg;
+			$jumlah_box = floor($this->input->post('berat') / $tbatch->box_kg);
 		}
 		$data = [
 			'tbatch_uuid' => $this->input->post('tbatch_uuid'),
@@ -742,44 +638,60 @@ class Filkar_model extends CI_Model
 	}
 
 	public function get_batch_edit($tbatch_uuid)
-	{
+{
     $this->db->select("
         b.uuid,
         b.kode_batch,
         b.adonan,
         b.filkar_kg,
-        v.varian, v.keterangan, v.kontainer_kg, v.box_kg
+        b.filkar_box,
+        v.varian,
+        v.keterangan,
+        v.kontainer_kg,
+        v.box_kg
     ");
+
     $this->db->from('tbatch b');
-    $this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid');
-    $this->db->join('varian v', 'v.uuid = p.varian', 'left');
+
+    $this->db->join(
+        't_planning p',
+        'p.uuid = b.t_planning_uuid'
+    );
+
+    $this->db->join(
+        'varian v',
+        'v.uuid = p.varian',
+        'left'
+    );
+
     $this->db->where('b.deleted_at', NULL);
 
-    // Membuat kondisi grup untuk filter
+    /*
+     * Untuk edit:
+     * - Batch yang belum dipakai FILKAR boleh dipilih
+     * - Batch yang sedang digunakan oleh data ini tetap harus muncul
+     */
     $this->db->group_start();
-        // Kondisi pertama: filkar_box != 0
+
+        $this->db->where('b.filkar_kg', NULL);
         $this->db->where('b.filkar_box !=', 0);
-        // Kondisi kedua: uuid sama dengan $tbatch_uuid
+
         $this->db->or_where('b.uuid', $tbatch_uuid);
+
     $this->db->group_end();
 
-    // Filter batch dengan filkar_kg NULL
-    $this->db->where('b.filkar_kg', NULL);
-
-    // Urutkan data
     $this->db->order_by('b.created_at', 'DESC');
     $this->db->order_by('b.kode_batch', 'DESC');
 
-    // Eksekusi query
     $data = $this->db->get()->result();
 
-    // Hitung kelebihan dan tambahkan ke objek
     foreach ($data as $val) {
         $val->kelebihan = $val->adonan + ($val->adonan * 50 / 100);
     }
 
     return $data;
 }
+
 
 	public function update_total_bad_filkar($tbatch_uuid)
 	{

@@ -41,6 +41,7 @@ class Sortasi extends CI_Controller
 		$data = array(
 			'batch'      => $this->Sortasi_model->get_batch(),
 			'badpro'     => $this->Sortasi_model->get_badpro('SORTASI'),
+			'jenis'      => $this->Sortasi_model->get_all_jenis(),
 			'active_nav' => 'sortasi'
 		);
 		$this->load->view('partials/head-yield', $data);
@@ -193,4 +194,56 @@ $this->Sortasi_model
 		$this->load->view('sortasi/detail', $data);
 		$this->load->view('partials/footer');
 	}
+
+	/*
+	*============================================
+	JENIS SORTASI
+	*============================================
+	*/
+	public function jenis()
+	{
+		$rules_jenis = $this->Sortasi_model->rules_jenis();
+		$this->form_validation->set_rules($rules_jenis);
+		if ($this->form_validation->run() === TRUE) {
+			$insert = $this->Sortasi_model->insert_jenis();
+			if ($insert) {
+				$this->session->set_flashdata('success_msg', 'Data Jenis Sortasi berhasil di tambah.');
+				redirect('sortasi/jenis');
+			} else {
+				$this->session->set_flashdata('error_msg', 'Data Jenis Sortasi gagal di tambah.');
+				redirect('sortasi/jenis');
+			}
+		}
+		$data = array(
+			'data' => $this->Sortasi_model->get_all_jenis(),
+			'active_nav' => 'sortasi-jenis'
+		);
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/jenis', $data);
+		$this->load->view('partials/footer');
+	}
+
+	public function edit_jenis($uuid)
+	{
+		$rules_jenis = $this->Sortasi_model->rules_jenis();
+		$this->form_validation->set_rules($rules_jenis);
+		if ($this->form_validation->run() === TRUE) {
+			$insert = $this->Sortasi_model->update_jenis($uuid);
+			if ($insert) {
+				$this->session->set_flashdata('success_msg', 'Data Jenis Sortasi berhasil di ubah.');
+				redirect('sortasi/jenis');
+			} else {
+				$this->session->set_flashdata('error_msg', 'Data Jenis Sortasi gagal di ubah.');
+				redirect('sortasi/jenis/'.$uuid);
+			}
+		}
+		$data = array(
+			'data' => $this->Sortasi_model->get_jenis_by_uuid($uuid),
+			'active_nav' => 'sortasi-jenis'
+		);
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/jenis-edit', $data);
+		$this->load->view('partials/footer');
+	}
+
 }

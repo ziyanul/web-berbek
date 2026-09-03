@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title><?= $title ?? ' Maintenance | CPI-Berbek' ?></title>
+    <title><?= $title ?? ' Packing | CPI-Berbek' ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/img/Prod-title.png'); ?>">
     <link href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" rel="stylesheet" type="text/css">
     <link href="<?= base_url('assets/vendor/fontawesome-free/webfonts/font-googleapis.css'); ?>" rel="stylesheet">
@@ -52,7 +52,7 @@
         font-size: 16px;
         font-weight: 800;
         letter-spacing: .5px;
-        color: #ca1b1b;
+        color: #00ff80;
         border-radius: 10px;
         padding: 8px 20px;
         margin-bottom: 0px;
@@ -86,7 +86,7 @@
         $type     = $this->session->userdata('type');
         $subrole  = $this->session->userdata('subrole');
         ?>
-        <ul class="navbar-nav bg-gradient-danger sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-success sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- LOGO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('') ?>">
                 <div class="sidebar-brand-icon mt-5">
@@ -102,101 +102,22 @@
                 </a>
             </li>
 
-            <!-- ================= MAINTENANCE ================= -->
-
-            <li class="nav-item <?= in_array($active_nav,['pm','pm-tpm','pm-history']) ? 'active' : '' ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#maintenanceMenu">
-                    <span>PREVENTIVE MAINTENANCE</span>
+            <!-- Drystore -->
+            <li class="nav-item mt-5 <?= $active_nav == 'Drystore' ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= base_url('drystore') ?>">
+                    <i class="fa fa-home"></i>
+                    <span>DRYSTORE</span>
                 </a>
-
-                <div id="maintenanceMenu"
-                    class="collapse <?= in_array($active_nav,['pm','pm-tpm','pm-history']) ? 'show' : '' ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-
-                        <a class="collapse-item <?= $active_nav=='pm-tpm'?'active':'' ?>"
-                            href="<?= base_url('pm/tpm') ?>">PENGAJUAN</a>
-
-                        <a class="collapse-item <?= $active_nav=='pm'?'active':'' ?>"
-                            href="<?= base_url('pm') ?>">MONITORING</a>
-
-                        <a class="collapse-item <?= $active_nav=='pm-history'?'active':'' ?>"
-                            href="<?= base_url('pm/history') ?>">HISTORY</a>
-
-                    </div>
-                </div>
             </li>
 
-            <!-- ================= AUTONOMOUS MAINTENANCE ================= -->
+            <!-- ================= MASTER DATA ================= -->
 
-            <li class="nav-item <?= in_array($active_nav,['am','am-tpm','am-history']) ? 'active' : '' ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#amMenu">
-                    <span>AUTONOMOUS MAINTENANCE</span>
-                </a>
-
-                <div id="amMenu"
-                    class="collapse <?= in_array($active_nav,['am','am-tpm','am-history']) ? 'show' : '' ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-
-                        <a class="collapse-item <?= $active_nav=='am-tpm'?'active':'' ?>"
-                            href="<?= base_url('am/tpm') ?>">PLANNING</a>
-
-                        <a class="collapse-item <?= $active_nav=='am'?'active':'' ?>"
-                            href="<?= base_url('am') ?>">TASK</a>
-
-                        <a class="collapse-item <?= $active_nav=='am-history'?'active':'' ?>"
-                            href="<?= base_url('am/history') ?>">HISTORY</a>
-                    </div>
-                </div>
-            </li>
-
-
-            <!-- ================= PART ================= -->
-            <?php if(is_admin() || is_produksi() || is_engineering() || is_warehouse()){ ?>
-            <li class="nav-item <?= in_array($active_nav,['tpm-part','monitor','histori-part']) ? 'active' : '' ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#partMenu">
-                    <span>PART</span>
-                </a>
-                <div id="partMenu"
-                    class="collapse <?= in_array($active_nav,['tpm-part','monitor','histori-part']) ? 'show' : '' ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav=='tpm-part'?'active':'' ?>"
-                            href="<?= base_url('monitor/tpm') ?>">PENGAJUAN</a>
-                        <a class="collapse-item <?= $active_nav=='monitor'?'active':'' ?>"
-                            href="<?= base_url('monitor') ?>">MONITORING</a>
-                        <a class="collapse-item <?= $active_nav=='histori-part'?'active':'' ?>"
-                            href="<?= base_url('monitor/history') ?>">HISTORY</a>
-                    </div>
-                </div>
-            </li>
-            <?php } ?>
-
-            <?php if($type==1 || $type==2){ ?>
-            <!-- ================= REPAIR PART ================= -->
-
-            <li
-                class="nav-item <?= $active_nav == 'pengajuan-part' || $active_nav == 'pengajuan-history' ? 'active' : '' ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#repairPart">
-                    <span>REPAIR & NEW PART</span>
-                </a>
-                <div id="repairPart"
-                    class="collapse <?= $active_nav == 'pengajuan-part' || $active_nav == 'pengajuan-history' ? 'show' : '' ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav=='pengajuan-part'?'active':'' ?>"
-                            href="<?= base_url('partrequest') ?>">PENGAJUAN</a>
-                        <a class="collapse-item <?= $active_nav=='pengajuan-history'?'active':'' ?>"
-                            href="<?= base_url('partrequest/history') ?>">HISTORY</a>
-                    </div>
-                </div>
-            </li>
-            <?php } ?>
-
-            <hr class="sidebar-divider">
-            <hr class="sidebar-divider">
+                        <hr class="sidebar-divider">
 
             <?php if ($type == 1 || $type == 2) { ?>
             <li class="nav-item <?= in_array($active_nav, [
-                                        'area',
-                                        'bahan',
+                                        'type-ds',
+                                        'waste-ds',
                                         'sparepart',
                                         'am-data',
                                         'kegiatan-am',
@@ -211,8 +132,8 @@
                     <span>MASTER DATA</span>
                 </a>
                 <div id="collapseMaster" class="collapse <?= in_array($active_nav, [
-                                            'area',
-                                            'bahan',
+                                            'type-ds',
+                                            'waste-ds',
                                             'sparepart',
                                             'am-data',
                                             'kegiatan-am',
@@ -224,18 +145,12 @@
                                             'm-badpro'
                                         ]) ? 'show' : ''; ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav=='area'?'active':'';?>"
-                            href="<?= base_url('area') ?>">AREA</a>
-                        <a class="collapse-item <?= $active_nav=='mesin'?'active':'';?>"
-                            href="<?= base_url('mesin') ?>">MESIN</a>
-                        <a class="collapse-item <?= $active_nav=='sparepart'?'active':'';?>"
-                            href="<?= base_url('part') ?>">SPAREPART</a>
-                        <a class="collapse-item <?= $active_nav=='am-data'?'active':'';?>"
-                            href="<?= base_url('am/data') ?>">KEGIATAN AM</a>
-                        <a class="collapse-item <?= $active_nav=='kegiatan-am'?'active':'';?>"
-                            href="<?= base_url('cekmesin/dataitem') ?>">ITEM PENGECEKAN</a>
-                        <a class="collapse-item <?= $active_nav=='masterspeed'?'active':'';?>"
-                            href="<?= base_url('speed') ?>">SPEED FILLER</a>
+                        <h6 class="collapse-header">DRYSTORE</h6>
+                        <a class="collapse-item <?= $active_nav=='type-ds'?'active':'';?>"
+                            href="<?= base_url('drystore/type') ?>">TYPE</a>
+                        <a class="collapse-item <?= $active_nav=='waste-ds'?'active':'';?>"
+                            href="<?= base_url('drystore/waste') ?>">JENIS REJECT</a>
+
                     </div>
                 </div>
             </li>
@@ -255,7 +170,7 @@
                     <div class="dashboard-title">
                         <?= $this->session->userdata('fullname'); ?> |
                             <?= $this->session->userdata('departemen'); ?>  |
-                            YIELD
+                            PACKING
                         </div>
                     <!-- Right Menu -->
                     <ul class="navbar-nav ml-auto">

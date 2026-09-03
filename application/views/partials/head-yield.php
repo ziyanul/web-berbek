@@ -48,6 +48,16 @@
             width: 200%;
         }
 
+        .dashboard-title {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        color: #3b8ce7;
+        border-radius: 10px;
+        padding: 8px 20px;
+        margin-bottom: 0px;
+    }
+
         @media (min-width: 768px) {
             .sidebar {
                 width: 20rem !important;
@@ -140,7 +150,7 @@
                 <li class="nav-item <?= in_array($active_nav, [
                                         'area',
                                         'bahan',
-                                        'sparepart',
+                                        'sortasi-jenis',
                                         'am-data',
                                         'kegiatan-am',
                                         'masterspeed',
@@ -156,7 +166,7 @@
                     <div id="collapseMaster" class="collapse <?= in_array($active_nav, [
                                                                     'area',
                                                                     'bahan',
-                                                                    'sparepart',
+                                                                    'sortasi-jenis',
                                                                     'am-data',
                                                                     'kegiatan-am',
                                                                     'masterspeed',
@@ -170,7 +180,7 @@
                             <a class="collapse-item <?= $active_nav == 'area' ? 'active' : ''; ?>" href="<?= base_url('area_proses') ?>">AREA PROSES</a>
                             <a class="collapse-item <?= $active_nav == 'varian' ? 'active' : ''; ?>" href="<?= base_url('varian') ?>">VARIAN SOSIS</a>
                             <a class="collapse-item <?= $active_nav == 'bahan' ? 'active' : ''; ?>" href="<?= base_url('bahan') ?>">BAHAN BAKU</a>
-
+                            <a class="collapse-item <?= $active_nav == 'sortasi-jenis' ? 'active' : ''; ?>" href="<?= base_url('sortasi/jenis') ?>">JENIS SORTASI</a>
                             <a class="collapse-item <?= $active_nav == 'm-badpro' ? 'active' : ''; ?>" href="<?= base_url('badpro') ?>">BAD PRODUK</a>
                         </div>
                     </div>
@@ -188,12 +198,14 @@
                         <i class="fa fa-bars"></i>
                     </button>
                     <!-- Info User -->
-                    <div class="d-none d-sm-flex flex-column">
-                        <span class="h6 text-primary">
-                            <?= $this->session->userdata('fullname'); ?> |
-                            <?= $this->session->userdata('departemen'); ?>
-                        </span>
-                    </div>
+
+
+
+                    <div class="dashboard-title">
+                        <?= $this->session->userdata('fullname'); ?> |
+                            <?= $this->session->userdata('departemen'); ?>  |
+                            YIELD
+                        </div>
                     <!-- Right Menu -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow">
