@@ -40,6 +40,15 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Jenis Sortasi</th>
+                            <td>
+                                <?= html_escape(
+                                    $data->jenis_sortasi_nama
+                                        ?? '-'
+                                ) ?>
+                            </td>
+                        </tr>
+                        <tr>
                             <th>
                                 Varian
                             </th>
@@ -68,7 +77,7 @@
                                 Jam Selesai
                             </th>
                             <td>
-                            <?= date('H:i', strtotime($data->jam_selesai)) ?>
+                                <?= date('H:i', strtotime($data->jam_selesai)) ?>
                             </td>
                         </tr>
                         <tr>
@@ -234,6 +243,86 @@
             </div>
         </div>
     </div>
+    <h5 class="font-weight-bold">
+        Output Sortasi
+    </h5>
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Output</th>
+                <th class="text-right">
+                    Jumlah
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <?php foreach ($output as $row): ?>
+
+            <tr>
+
+                <td>
+                    <?= $row->jenis_output ?>
+                </td>
+
+                <td class="text-right">
+                    <?= number_format(
+                            $row->jumlah,
+                            0
+                        ) ?>
+                    <?= $row->satuan ?>
+                </td>
+
+            </tr>
+
+            <?php endforeach; ?>
+
+        </tbody>
+
+    </table>
+    <h5 class="font-weight-bold mt-4">
+        WIP yang Digunakan
+    </h5>
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Jenis WIP</th>
+                <th class="text-right">
+                    Jumlah
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <?php foreach ($wip_detail as $row): ?>
+
+            <tr>
+
+                <td>
+                    <?= $row->jenis_wip ?>
+                </td>
+
+                <td class="text-right">
+                    <?= number_format(
+                            $row->jumlah,
+                            0
+                        ) ?>
+                    Box
+                </td>
+
+            </tr>
+
+            <?php endforeach; ?>
+
+        </tbody>
+
+    </table>
     <!-- =========================================================
          DATA BAD PRODUK
     ========================================================== -->
@@ -267,80 +356,80 @@
                     </thead>
                     <tbody>
                         <?php if (empty($badpro)) : ?>
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">
-                                    Tidak ada data bad produk.
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Tidak ada data bad produk.
+                            </td>
+                        </tr>
                         <?php else : ?>
-                            <?php $no = 1; ?>
-                            <?php foreach ($badpro as $bp) : ?>
-                                <?php
+                        <?php $no = 1; ?>
+                        <?php foreach ($badpro as $bp) : ?>
+                        <?php
                                 $kategori_nama =
                                     ($bp->kategori == 1)
                                     ? 'Rework'
                                     : 'Reject';
                                 ?>
-                                <tr>
-                                    <!-- NO -->
-                                    <td class="text-center">
-                                        <?= $no++ ?>
-                                    </td>
-                                    <!-- BAD PRODUK -->
-                                    <td>
-                                        <b>
-                                            <?= $bp->nama_badpro ?>
-                                        </b>
-                                    </td>
-                                    <!-- KATEGORI -->
-                                    <td>
-                                        <?php if ($bp->kategori == 1) : ?>
-                                            <span class="badge badge-warning">
-                                                Rework
-                                            </span>
-                                        <?php else : ?>
-                                            <span class="badge badge-danger">
-                                                Reject
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <!-- BERAT -->
-                                    <td class="text-right">
-                                        <b>
-                                            <?= number_format(
+                        <tr>
+                            <!-- NO -->
+                            <td class="text-center">
+                                <?= $no++ ?>
+                            </td>
+                            <!-- BAD PRODUK -->
+                            <td>
+                                <b>
+                                    <?= $bp->nama_badpro ?>
+                                </b>
+                            </td>
+                            <!-- KATEGORI -->
+                            <td>
+                                <?php if ($bp->kategori == 1) : ?>
+                                <span class="badge badge-warning">
+                                    Rework
+                                </span>
+                                <?php else : ?>
+                                <span class="badge badge-danger">
+                                    Reject
+                                </span>
+                                <?php endif; ?>
+                            </td>
+                            <!-- BERAT -->
+                            <td class="text-right">
+                                <b>
+                                    <?= number_format(
                                                 $bp->berat,
                                                 2
                                             ) ?>
-                                            Kg
-                                        </b>
-                                    </td>
-                                    <!-- MESIN DOMINAN -->
-                                    <td>
-                                        <?php if (!empty($bp->nama_mesin)) : ?>
-                                            <i class="fas fa-industry mr-1"></i>
-                                            <?= htmlspecialchars(
+                                    Kg
+                                </b>
+                            </td>
+                            <!-- MESIN DOMINAN -->
+                            <td>
+                                <?php if (!empty($bp->nama_mesin)) : ?>
+                                <i class="fas fa-industry mr-1"></i>
+                                <?= htmlspecialchars(
                                                 $bp->nama_mesin,
                                                 ENT_QUOTES,
                                                 'UTF-8'
                                             ) ?>
-                                        <?php else : ?>
-                                            <span class="text-muted">
-                                                -
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
+                                <?php else : ?>
+                                <span class="text-muted">
+                                    -
+                                </span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                     <?php if (!empty($badpro)) : ?>
-                        <tfoot>
-                            <tr class="font-weight-bold">
-                                <td colspan="3" class="text-right">
-                                    Total Bad Produk
-                                </td>
-                                <td class="text-right text-danger">
-                                    <?= number_format(
+                    <tfoot>
+                        <tr class="font-weight-bold">
+                            <td colspan="3" class="text-right">
+                                Total Bad Produk
+                            </td>
+                            <td class="text-right text-danger">
+                                <?= number_format(
                                         array_sum(
                                             array_map(
                                                 function ($row) {
@@ -351,11 +440,11 @@
                                         ),
                                         2
                                     ) ?>
-                                    Kg
-                                </td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
+                                Kg
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                     <?php endif; ?>
                 </table>
             </div>

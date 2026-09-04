@@ -1053,14 +1053,12 @@ class Yield_model extends CI_Model
             $total->sortasi_bad += $row->sortasi_bad;
             $total->sortasi_kg += $row->sortasi_kg;
         }
-        if ($total->sortasi_bad > 0) {
-            $total->bad_persen =
-                ($total->sortasi_bad /
-                    $total->sortasi_kg
-                ) * 100;
-        } else {
-            $total->bad_persen = 0;
-        }
+        if ($total->sortasi_bad > 0 && $total->sortasi_kg > 0) {
+    $total->bad_persen =
+        ($total->sortasi_bad / $total->sortasi_kg) * 100;
+} else {
+    $total->bad_persen = 0;
+}
         if ($total->sortasi_box > 0) {
             $total->yield_sortasi =
                 ($total->release_box /

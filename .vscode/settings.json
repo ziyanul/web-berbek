@@ -18,5 +18,7 @@
     // Tampilan PHP lebih nyaman
     "editor.wordWrap": "off",
     "remove-empty-lines.allowedNumberOfEmptyLines": 0,
-    "remove-empty-lines.runOnSave": true
+    "remove-empty-lines.runOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "notebook.defaultFormatter": "esbenp.prettier-vscode"
 }

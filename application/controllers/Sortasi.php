@@ -1,7 +1,9 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
+
 class Sortasi extends CI_Controller
 {
 	public function __construct()
@@ -41,7 +43,7 @@ class Sortasi extends CI_Controller
 		$data = array(
 			'batch'      => $this->Sortasi_model->get_batch(),
 			'badpro'     => $this->Sortasi_model->get_badpro('SORTASI'),
-			'jenis'      => $this->Sortasi_model->get_all_jenis(),
+			'jenis_sortasi' => $this->Sortasi_model->get_jenis_sortasi(),
 			'active_nav' => 'sortasi'
 		);
 		$this->load->view('partials/head-yield', $data);
@@ -107,43 +109,20 @@ class Sortasi extends CI_Controller
      * =====================================================
      */
 		$data = [
-			'data' =>
-			$sortasi,
-			'batch' =>
-$this->Sortasi_model
-    ->get_batch_edit(
-        $sortasi->tbatch_uuid
-    ),
-			'badpro' =>
-			$this->Sortasi_model
-				->get_badpro('SORTASI'),
-			'badpro_input' =>
-			$this->Sortasi_model
-				->get_badpro_by_ref($uuid),
-			'batch_info' =>
-			$this->Sortasi_model
-				->get_batch_info(
-					$sortasi->tbatch_uuid
-				),
-			'mesin' =>
-			$this->Sortasi_model
-				->get_mesin_batch(
-					$sortasi->tbatch_uuid
-				),
-			'active_nav' =>
-			'sortasi'
+			'data' => $sortasi,
+			'batch' => $this->Sortasi_model->get_batch_edit($sortasi->tbatch_uuid),
+			'jenis_sortasi' =>	$this->Sortasi_model->get_jenis_sortasi(),
+			'wip' => $this->Sortasi_model->get_wip_for_edit($sortasi->tbatch_uuid, $uuid),
+			'output' => $this->Sortasi_model->get_output_by_sortasi($uuid),
+			'badpro' => $this->Sortasi_model->get_badpro('SORTASI'),
+			'badpro_input' => $this->Sortasi_model->get_badpro_by_ref($uuid),
+			'batch_info' =>	$this->Sortasi_model->get_batch_info($sortasi->tbatch_uuid),
+			'mesin' => $this->Sortasi_model->get_mesin_batch($sortasi->tbatch_uuid),
+			'active_nav' => 'sortasi'
 		];
-		$this->load->view(
-			'partials/head-yield',
-			$data
-		);
-		$this->load->view(
-			'sortasi/edit',
-			$data
-		);
-		$this->load->view(
-			'partials/footer'
-		);
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/edit', $data);
+		$this->load->view('partials/footer');
 	}
 	public function hapus($uuid)
 	{
@@ -177,22 +156,73 @@ $this->Sortasi_model
 		if (empty($uuid)) {
 			redirect('sortasi');
 		}
-		$data = [
-			'data'          => $this->Sortasi_model->get_by_uuid($uuid),
-			'badpro'        => $this->Sortasi_model->get_badpro_by_ref($uuid),
-			'badpro_summary' => $this->Sortasi_model->get_badpro_summary_by_ref($uuid),
-			'active_nav'    => 'sortasi'
-		];
-		if (!$data['data']) {
+
+		$sortasi =
+			$this->Sortasi_model
+			->get_by_uuid($uuid);
+
+		if (!$sortasi) {
+
 			$this->session->set_flashdata(
 				'error_msg',
 				'Data tidak ditemukan.'
 			);
+
 			redirect('sortasi');
 		}
-		$this->load->view('partials/head-yield', $data);
-		$this->load->view('sortasi/detail', $data);
-		$this->load->view('partials/footer');
+
+		$data = [
+			'data' =>
+			$sortasi,
+
+			'output' =>
+			$this->Sortasi_model
+				->get_output_by_sortasi($uuid),
+
+			'wip_detail' =>
+			$this->db
+				->select("
+                    swd.jumlah,
+                    sw.jenis_wip
+                ")
+				->from('sortasi_wip_detail swd')
+				->join(
+					'sortasi_wip sw',
+					'sw.uuid = swd.sortasi_wip_uuid',
+					'left'
+				)
+				->where(
+					'swd.sortasi_uuid',
+					$uuid
+				)
+				->get()
+				->result(),
+
+			'badpro' =>
+			$this->Sortasi_model
+				->get_badpro_by_ref($uuid),
+
+			'badpro_summary' =>
+			$this->Sortasi_model
+				->get_badpro_summary_by_ref($uuid),
+
+			'active_nav' =>
+			'sortasi'
+		];
+
+		$this->load->view(
+			'partials/head-yield',
+			$data
+		);
+
+		$this->load->view(
+			'sortasi/detail',
+			$data
+		);
+
+		$this->load->view(
+			'partials/footer'
+		);
 	}
 
 	/*
@@ -234,7 +264,7 @@ $this->Sortasi_model
 				redirect('sortasi/jenis');
 			} else {
 				$this->session->set_flashdata('error_msg', 'Data Jenis Sortasi gagal di ubah.');
-				redirect('sortasi/jenis/'.$uuid);
+				redirect('sortasi/jenis/' . $uuid);
 			}
 		}
 		$data = array(
@@ -246,4 +276,14 @@ $this->Sortasi_model
 		$this->load->view('partials/footer');
 	}
 
+	public function get_wip_batch($uuid)
+	{
+		$data =
+			$this->Sortasi_model
+			->get_wip_batch($uuid);
+
+		header('Content-Type: application/json');
+
+		echo json_encode($data);
+	}
 }
