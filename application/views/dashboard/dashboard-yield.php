@@ -455,7 +455,7 @@ body {
 /* SHORTCUT */
 .shortcut-grid {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 10px;
 }
 
@@ -599,7 +599,7 @@ HEADER
                                                     Filling Karantina
                                                 </th>
                                                 <th rowspan="2">
-                                                    Bad Produk
+                                                    sisa wip + Bad produk (Kg)
                                                 </th>
                                                 <th rowspan="2">
                                                     Yield (%)
@@ -1238,6 +1238,8 @@ BAD PRODUK PER VARIAN
                                             class="fas fa-temperature-high"></i><span>FILKAR</span></a>
                                     <a href="<?= base_url('sortasi') ?>" class="shortcut-link"><i
                                             class="fas fa-box"></i><span>SORTASI</span></a>
+                                    <a href="<?= base_url('rework/kupas') ?>" class="shortcut-link"><i
+                                            class="fas fa-chart-bar"></i><span>REWORK</span></a>
                                 </div>
                             </div>
                         </div>
