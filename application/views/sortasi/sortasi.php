@@ -1,84 +1,88 @@
 <div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <!-- Page Heading -->
-        <h2 class="h2 mb-2 text-gray-800">SORTASI (RELEASE)</h2>
-        <a href="<?= base_url('sortasi/tambah'); ?>" class="btn btn-md btn-primary shadow-sm"><i class="fas fa-plus fa-sm text-white"></i> Tambah</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1 text-gray-800">Sortasi</h1>
+            <small class="text-muted">Ringkasan Sortasi per Batch</small>
+        </div>
+        <a href="<?= base_url('sortasi/tambah') ?>" class="btn btn-primary">
+            <i class="fas fa-plus mr-1"></i> Tambah Sortasi
+        </a>
     </div>
     <?php if ($this->session->flashdata('success_msg')) : ?>
-        <div class="alert alert-success text-center">
-            <i class="fas fa-check"></i>
-            <?php echo $this->session->flashdata('success_msg'); ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <?= html_escape($this->session->flashdata('success_msg')) ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
         </div>
-        <br>
     <?php endif; ?>
     <?php if ($this->session->flashdata('error_msg')) : ?>
-        <div class="alert alert-danger  text-center">
-            <i class="fas fa-times"></i>
-            <?php echo $this->session->flashdata('error_msg'); ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= html_escape($this->session->flashdata('error_msg')) ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
         </div>
-        <br>
-    <?php endif ?>
+    <?php endif; ?>
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered" id="datatables" width="100%" cellspacing="0">
                     <thead class="table bg-info text-light">
                         <tr>
-                            <th class='align-middle text-center'>No.</th>
-                            <th class='align-middle text-center'>Tanggal</th>
-                            <th class='align-middle text-center'>Kode Batch</th>
-                            <th class='align-middle text-center'>Varian</th>
-                            <th class='align-middle text-center'>Jumlah WIP</th>
-                            <th class='align-middle text-center'>Jumlah Release</th>
-                            <th class='align-middle text-center' width='20%'>Action</th>
+                            <th width="50">No</th>
+                            <th>Batch</th>
+                            <th>Varian</th>
+                            <th class="text-right">WIP</th>
+                            <th class="text-right">Release</th>
+                            <th class="text-right">Sisa WIP</th>
+                            <th width="110" class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $no = 1;
-                        foreach ($data as $row) {
-                        ?>
+                        <?php if (!empty($data)) : ?>
+                            <?php $no = 1; ?>
+                            <?php foreach ($data as $row) : ?>
+                                <tr>
+                                    <td><?= $no++ ?></td>
+                                    <td>
+                                        <a href="<?= base_url('sortasi/detail/' . $row->uuid) ?>" class="font-weight-bold">
+                                            <?= html_escape($row->kode_batch ?: '-') ?>
+                                        </a>
+                                    </td>
+                                    <td><?= html_escape($row->varian ?: '-') ?></td>
+                                    <td class="text-right">
+                                        <strong><?= number_format((float)$row->wip_awal_box, 0, ',', '.') ?></strong> Box<br>
+                                        <small class="text-muted"><?= number_format((float)$row->wip_awal_kg, 3, ',', '.') ?> Kg</small>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong><?= number_format((float)$row->release_box, 0, ',', '.') ?></strong> Box<br>
+                                        <small class="text-muted"><?= number_format((float)$row->release_kg, 3, ',', '.') ?> Kg</small>
+                                    </td>
+                                    <td class="text-right">
+                                        <?php if ((float)$row->sisa_wip_box > 0) : ?>
+                                            <strong class="text-warning"><?= number_format((float)$row->sisa_wip_box, 0, ',', '.') ?></strong> Box<br>
+                                            <small class="text-muted"><?= number_format((float)$row->sisa_wip_kg, 3, ',', '.') ?> Kg</small>
+                                        <?php else : ?>
+                                            <strong class="text-success">0</strong> Box<br>
+                                            <small class="text-muted">0,000 Kg</small>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="<?= base_url('sortasi/detail/' . $row->uuid) ?>"
+                                            class="btn btn-info btn-sm btn-block"
+                                            title="Detail Batch">
+                                            <i class="fas fa-eye"></i> Detail
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else : ?>
                             <tr>
-                                <td class='align-middle text-center' width="1"><?= $no; ?></td>
-                                <td class='align-middle text-center'><?= $row->tanggal; ?></td>
-                                <td class='align-middle text-center'><?= $row->kode_batch; ?></td>
-                                <td class='align-middle text-center'><?= $row->varian; ?></td>
-                                <td class='align-middle text-center'><?= $row->jumlah_wip; ?></td>
-                                <td class='align-middle text-center'><?= $row->jml_release; ?></td>
-                                <td>
-                                    <a href="<?= base_url('sortasi/detail/' . $row->uuid) ?>" class="btn btn-block btn-sm btn-info shadow-sm mb-2"><i class="fa fa-edit fa-sm text-white mr-2"></i> Detail</a>
-                                    <a href="<?= base_url('sortasi/edit/' . $row->uuid) ?>" class="btn btn-block btn-sm btn-warning shadow-sm mb-2"><i class="fa fa-edit fa-sm text-white mr-2"></i> Edit</a>
-                                    <button type="button" class="btn btn-danger btn-block btn-sm btn-delete mb-2" data-id="<?= $row->uuid ?>">
-                                        <i class="fa fa-trash mr-2"></i> Hapus
-                                    </button>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    Belum ada batch yang masuk ke proses Sortasi.
                                 </td>
                             </tr>
-                        <?php
-                            $no++;
-                        }
-                        ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-
-
-    <script>
-        $(document).on('click', '.btn-delete', function(e) {
-            e.preventDefault();
-            let uuid = $(this).data('id');
-            Swal.fire({
-                title: 'Hapus data?',
-                text: 'Data Sortasi akan dihapus.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "<?= base_url('sortasi/hapus/') ?>" + uuid;
-                }
-            });
-        });
-    </script>
+</div>

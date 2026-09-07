@@ -269,7 +269,6 @@ class Filkar_model extends CI_Model
 		}
 		return $data;
 	}
-
 	function get_batch_uuid($uuid)
 	{
 		$this->db->select('tb.*, v.box_kg');
@@ -614,29 +613,63 @@ class Filkar_model extends CI_Model
 			]);
 	}
 	public function get_batch()
-	{
-		$this->db->select("
-			b.uuid,
-			b.kode_batch,
-			b.adonan,
-			b.filkar_kg,
-			v.varian, v.keterangan, v.kontainer_kg, v.box_kg
-			");
-		$this->db->from('tbatch b');
-		$this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid');
-		$this->db->join('varian v', 'v.uuid = p.varian', 'left');
-		$this->db->where('b.deleted_at', NULL);
-		$this->db->where('b.filkar_kg', NULL);
-		$this->db->order_by('b.created_at', 'DESC');
-		$this->db->order_by('b.kode_batch', 'DESC');
-		$data = $this->db->get()->result();
-
-		foreach ($data as $val) {
-			$val->kelebihan = $val->adonan + ($val->adonan * 50 / 100);
-		}
-		return $data;
-	}
-
+{
+    $this->db->select("
+        b.uuid,
+        b.kode_batch,
+        b.adonan,
+        b.filkar_kg,
+        b.filkar_box,
+        v.varian,
+        v.keterangan,
+        v.kontainer_kg,
+        v.box_kg
+    ");
+    $this->db->from('tbatch b');
+    $this->db->join(
+        't_planning p',
+        'p.uuid = b.t_planning_uuid',
+        'left'
+    );
+    $this->db->join(
+        'varian v',
+        'v.uuid = p.varian',
+        'left'
+    );
+    $this->db->where(
+        'b.deleted_at',
+        NULL
+    );
+    /*
+     * Batch yang sudah mempunyai
+     * transaksi Filkar tidak ditampilkan.
+     */
+    $this->db->where(
+        "NOT EXISTS (
+            SELECT 1
+            FROM filkar f
+            WHERE f.tbatch_uuid = b.uuid
+            AND f.deleted_at IS NULL
+        )",
+        NULL,
+        FALSE
+    );
+    $this->db->order_by(
+        'b.created_at',
+        'DESC'
+    );
+    $this->db->order_by(
+        'b.kode_batch',
+        'DESC'
+    );
+    $data = $this->db->get()->result();
+    foreach ($data as $val) {
+        $val->kelebihan =
+            $val->adonan +
+            ($val->adonan * 50 / 100);
+    }
+    return $data;
+}
 	public function get_batch_edit($tbatch_uuid)
 {
     $this->db->select("
@@ -650,49 +683,59 @@ class Filkar_model extends CI_Model
         v.kontainer_kg,
         v.box_kg
     ");
-
     $this->db->from('tbatch b');
-
     $this->db->join(
         't_planning p',
-        'p.uuid = b.t_planning_uuid'
+        'p.uuid = b.t_planning_uuid',
+        'left'
     );
-
     $this->db->join(
         'varian v',
         'v.uuid = p.varian',
         'left'
     );
-
-    $this->db->where('b.deleted_at', NULL);
-
+    $this->db->where(
+        'b.deleted_at',
+        NULL
+    );
     /*
-     * Untuk edit:
-     * - Batch yang belum dipakai FILKAR boleh dipilih
-     * - Batch yang sedang digunakan oleh data ini tetap harus muncul
+     * Tampilkan:
+     *
+     * 1. Batch yang belum mempunyai Filkar
+     * 2. Batch yang sedang diedit
      */
     $this->db->group_start();
-
-        $this->db->where('b.filkar_kg', NULL);
-        $this->db->where('b.filkar_box !=', 0);
-
-        $this->db->or_where('b.uuid', $tbatch_uuid);
-
+        $this->db->where(
+            "NOT EXISTS (
+                SELECT 1
+                FROM filkar f
+                WHERE f.tbatch_uuid = b.uuid
+                AND f.deleted_at IS NULL
+            )",
+            NULL,
+            FALSE
+        );
+        $this->db->or_where(
+            'b.uuid',
+            $tbatch_uuid
+        );
     $this->db->group_end();
-
-    $this->db->order_by('b.created_at', 'DESC');
-    $this->db->order_by('b.kode_batch', 'DESC');
-
+    $this->db->order_by(
+        'b.created_at',
+        'DESC'
+    );
+    $this->db->order_by(
+        'b.kode_batch',
+        'DESC'
+    );
     $data = $this->db->get()->result();
-
     foreach ($data as $val) {
-        $val->kelebihan = $val->adonan + ($val->adonan * 50 / 100);
+        $val->kelebihan =
+            $val->adonan +
+            ($val->adonan * 50 / 100);
     }
-
     return $data;
 }
-
-
 	public function update_total_bad_filkar($tbatch_uuid)
 	{
 		$proses_uuid = $this->Proses_model->get_uuid('FILKAR');

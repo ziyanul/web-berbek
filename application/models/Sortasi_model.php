@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
-
 use Ramsey\Uuid\Uuid;
-
 class Sortasi_model extends CI_Model
 {
     public function __construct()
@@ -53,7 +51,6 @@ class Sortasi_model extends CI_Model
             ]
         ];
     }
-
     public function rules_jenis()
     {
         return [
@@ -69,18 +66,290 @@ class Sortasi_model extends CI_Model
     }
     public function get_all()
     {
-        $this->db->select('s.*, v.varian, v.keterangan, tb.kode_batch, v.box_kg, s.created_at');
-        $this->db->from('Sortasi s');
-        $this->db->join('tbatch tb', 'tb.uuid = s.tbatch_uuid', 'left');
-        $this->db->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left');
-        $this->db->join('varian v', 'v.uuid=tp.varian', 'left');
-        $this->db->where('s.deleted_at IS NULL', null, false);
-        $this->db->order_by('s.created_at', 'DESC');
-        $data = $this->db->get()->result();
-        foreach ($data as $val) {
-            $val->tanggal = tanggal_indo($val->created_at);
+        // Halaman index Sortasi ditampilkan per BATCH, bukan per transaksi.
+        // "WIP" = WIP awal dari Filkar. Sisa WIP diambil dari ledger sortasi_wip.
+        $this->ensure_initial_wip_all_batches();
+        $sql = "
+            SELECT
+                b.uuid,
+                b.kode_batch,
+                b.filkar_box AS wip_awal_box,
+                COALESCE(v.varian, '-') AS varian,
+                COALESCE(v.box_kg, 0) AS box_kg,
+                COALESCE((
+                    SELECT SUM(sw.jumlah_awal - sw.jumlah_terpakai)
+                    FROM sortasi_wip sw
+                    WHERE sw.tbatch_uuid = b.uuid
+                      AND sw.deleted_at IS NULL
+                      AND sw.jenis_wip IN ('BELUM_SORTIR','TAMPUNG','KASAR')
+                ), 0) AS sisa_wip_box,
+                COALESCE((
+                    SELECT SUM(s.jumlah_wip)
+                    FROM sortasi s
+                    WHERE s.tbatch_uuid = b.uuid
+                      AND s.deleted_at IS NULL
+                ), 0) AS total_sortasi_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    INNER JOIN sortasi s2 ON s2.uuid = so.sortasi_uuid
+                    WHERE s2.tbatch_uuid = b.uuid
+                      AND s2.deleted_at IS NULL
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'RELEASE'
+                ), 0) AS release_box
+            FROM tbatch b
+            LEFT JOIN t_planning tp ON tp.uuid = b.t_planning_uuid
+            LEFT JOIN varian v ON v.uuid = tp.varian
+            WHERE b.deleted_at IS NULL
+              AND COALESCE(b.filkar_box, 0) > 0
+            ORDER BY b.created_at DESC, b.kode_batch DESC
+        ";
+        $rows = $this->db->query($sql)->result();
+        foreach ($rows as $row) {
+            $row->wip_awal_kg = (float)$row->wip_awal_box * (float)$row->box_kg;
+            $row->total_sortasi_kg = (float)$row->total_sortasi_box * (float)$row->box_kg;
+            $row->release_kg = (float)$row->release_box * (float)$row->box_kg;
+            $row->sisa_wip_kg = (float)$row->sisa_wip_box * (float)$row->box_kg;
         }
-        return $data;
+        return $rows;
+    }
+    /**
+     * Ringkasan lengkap satu batch untuk halaman detail batch.
+     */
+    public function get_batch_detail($tbatch_uuid)
+    {
+        $this->ensure_initial_wip($tbatch_uuid);
+        $sql = "
+            SELECT
+                b.uuid,
+                b.kode_batch,
+                b.adonan,
+                b.filkar_kg,
+                b.filkar_box,
+                COALESCE(v.varian, '-') AS varian,
+                COALESCE(v.keterangan, '') AS varian_keterangan,
+                COALESCE(v.box_kg, 0) AS box_kg,
+                COALESCE((
+                    SELECT SUM(s.jumlah_wip)
+                    FROM sortasi s
+                    WHERE s.tbatch_uuid = b.uuid
+                      AND s.deleted_at IS NULL
+                ), 0) AS total_sortasi_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    INNER JOIN sortasi s ON s.uuid = so.sortasi_uuid
+                    WHERE s.tbatch_uuid = b.uuid
+                      AND s.deleted_at IS NULL
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'RELEASE'
+                ), 0) AS release_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    INNER JOIN sortasi s ON s.uuid = so.sortasi_uuid
+                    WHERE s.tbatch_uuid = b.uuid
+                      AND s.deleted_at IS NULL
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'TAMPUNG'
+                ), 0) AS tampung_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    INNER JOIN sortasi s ON s.uuid = so.sortasi_uuid
+                    WHERE s.tbatch_uuid = b.uuid
+                      AND s.deleted_at IS NULL
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'KASAR'
+                ), 0) AS kasar_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    INNER JOIN sortasi s ON s.uuid = so.sortasi_uuid
+                    WHERE s.tbatch_uuid = b.uuid
+                      AND s.deleted_at IS NULL
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'CUCI'
+                ), 0) AS cuci_box,
+                COALESCE((
+                    SELECT SUM(tb2.berat)
+                    FROM t_badpro tb2
+                    WHERE tb2.tbatch_uuid = b.uuid
+                      AND tb2.proses_uuid = (SELECT uuid FROM m_proses WHERE kode = 'SORTASI' LIMIT 1)
+                      AND tb2.deleted_at IS NULL
+                ), 0) AS bad_kg,
+                COALESCE((
+                    SELECT SUM(sw.jumlah_awal - sw.jumlah_terpakai)
+                    FROM sortasi_wip sw
+                    WHERE sw.tbatch_uuid = b.uuid
+                      AND sw.deleted_at IS NULL
+                      AND sw.jenis_wip IN ('BELUM_SORTIR','TAMPUNG','KASAR')
+                ), 0) AS sisa_wip_box
+            FROM tbatch b
+            LEFT JOIN t_planning tp ON tp.uuid = b.t_planning_uuid
+            LEFT JOIN varian v ON v.uuid = tp.varian
+            WHERE b.uuid = ?
+              AND b.deleted_at IS NULL
+            LIMIT 1
+        ";
+        $row = $this->db->query($sql, [$tbatch_uuid])->row();
+        if (!$row) {
+            return null;
+        }
+        $row->wip_awal_kg = (float)$row->filkar_box * (float)$row->box_kg;
+        $row->total_sortasi_kg = (float)$row->total_sortasi_box * (float)$row->box_kg;
+        $row->release_kg = (float)$row->release_box * (float)$row->box_kg;
+        $row->tampung_kg = (float)$row->tampung_box * (float)$row->box_kg;
+        $row->kasar_kg = (float)$row->kasar_box * (float)$row->box_kg;
+        $row->cuci_kg = (float)$row->cuci_box * (float)$row->box_kg;
+        $row->sisa_wip_kg = (float)$row->sisa_wip_box * (float)$row->box_kg;
+        // Neraca material batch.
+        $row->neraca_keluar_kg =
+            (float)$row->release_kg +
+            (float)$row->tampung_kg +
+            (float)$row->kasar_kg +
+            (float)$row->cuci_kg +
+            (float)$row->bad_kg +
+            (float)$row->sisa_wip_kg;
+        $row->selisih_neraca_kg = (float)$row->wip_awal_kg - (float)$row->neraca_keluar_kg;
+        return $row;
+    }
+    /**
+     * Riwayat semua transaksi Sortasi dalam satu batch.
+     * Satu baris = satu transaksi Sortasi.
+     */
+    public function get_sortasi_history_by_batch($tbatch_uuid)
+    {
+        $sql = "
+            SELECT
+                s.uuid,
+                s.created_at,
+                s.jam_mulai,
+                s.jam_selesai,
+                s.jumlah_wip,
+                s.jml_release,
+                s.jml_mp,
+                s.keterangan,
+                COALESCE(js.kode, '-') AS jenis_sortasi_kode,
+                COALESCE(js.nama, '-') AS jenis_sortasi_nama,
+                COALESCE(u.fullname, '-') AS fullname,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    WHERE so.sortasi_uuid = s.uuid
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'RELEASE'
+                ), 0) AS release_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    WHERE so.sortasi_uuid = s.uuid
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'TAMPUNG'
+                ), 0) AS tampung_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    WHERE so.sortasi_uuid = s.uuid
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'KASAR'
+                ), 0) AS kasar_box,
+                COALESCE((
+                    SELECT SUM(so.jumlah)
+                    FROM sortasi_output so
+                    WHERE so.sortasi_uuid = s.uuid
+                      AND so.deleted_at IS NULL
+                      AND so.jenis_output = 'CUCI'
+                ), 0) AS cuci_box,
+                COALESCE((
+                    SELECT SUM(bp.berat)
+                    FROM t_badpro bp
+                    WHERE bp.ref_uuid = s.uuid
+                      AND bp.deleted_at IS NULL
+                ), 0) AS bad_kg
+            FROM sortasi s
+            LEFT JOIN jenis_sortasi js ON js.uuid = s.jenis_sortasi_uuid
+            LEFT JOIN users u ON u.uuid = s.user_uuid
+            WHERE s.tbatch_uuid = ?
+              AND s.deleted_at IS NULL
+            ORDER BY s.created_at ASC
+        ";
+        $rows = $this->db->query($sql, [$tbatch_uuid])->result();
+        $batch = $this->get_batch_detail($tbatch_uuid);
+        $boxkg = $batch ? (float)$batch->box_kg : 0;
+        foreach ($rows as $row) {
+            $row->jumlah_wip_kg = (float)$row->jumlah_wip * $boxkg;
+            $row->release_kg = (float)$row->release_box * $boxkg;
+            $row->tampung_kg = (float)$row->tampung_box * $boxkg;
+            $row->kasar_kg = (float)$row->kasar_box * $boxkg;
+            $row->cuci_kg = (float)$row->cuci_box * $boxkg;
+            $row->total_output_kg =
+                (float)$row->release_kg +
+                (float)$row->tampung_kg +
+                (float)$row->kasar_kg +
+                (float)$row->cuci_kg +
+                (float)$row->bad_kg;
+        }
+        return $rows;
+    }
+    /**
+     * WIP ledger aktif dalam satu batch.
+     * Menunjukkan sumber WIP sehingga detail batch tetap bisa ditelusuri.
+     */
+    public function get_wip_ledger_by_batch($tbatch_uuid)
+    {
+        $this->ensure_initial_wip($tbatch_uuid);
+        $sql = "
+            SELECT
+                sw.uuid,
+                sw.jenis_wip,
+                sw.jumlah_awal,
+                sw.jumlah_terpakai,
+                (sw.jumlah_awal - sw.jumlah_terpakai) AS sisa_wip,
+                sw.satuan,
+                sw.created_at,
+                sw.source_sortasi_uuid,
+                so.jenis_output,
+                ss.created_at AS source_created_at
+            FROM sortasi_wip sw
+            LEFT JOIN sortasi_output so ON so.uuid = sw.sortasi_output_uuid
+            LEFT JOIN sortasi ss ON ss.uuid = sw.source_sortasi_uuid
+            WHERE sw.tbatch_uuid = ?
+              AND sw.deleted_at IS NULL
+              AND (sw.jumlah_awal - sw.jumlah_terpakai) > 0
+            ORDER BY sw.created_at ASC
+        ";
+        $rows = $this->db->query($sql, [$tbatch_uuid])->result();
+        $batch = $this->get_batch_detail($tbatch_uuid);
+        $boxkg = $batch ? (float)$batch->box_kg : 0;
+        foreach ($rows as $row) {
+            $row->jumlah_awal_kg = (float)$row->jumlah_awal * $boxkg;
+            $row->jumlah_terpakai_kg = (float)$row->jumlah_terpakai * $boxkg;
+            $row->sisa_wip_kg = (float)$row->sisa_wip * $boxkg;
+        }
+        return $rows;
+    }
+    /**
+     * Semua Bad Produk dalam satu batch.
+     */
+    public function get_badpro_by_batch($tbatch_uuid)
+    {
+        $proses_uuid = $this->Proses_model->get_uuid('SORTASI');
+        $rows = $this->db
+            ->select('t_badpro.*, badpro.nama_badpro')
+            ->from('t_badpro')
+            ->join('badpro', 'badpro.uuid = t_badpro.badpro_uuid', 'left')
+            ->where('t_badpro.tbatch_uuid', $tbatch_uuid)
+            ->where('t_badpro.proses_uuid', $proses_uuid)
+            ->where('t_badpro.deleted_at', NULL)
+            ->order_by('t_badpro.created_at', 'ASC')
+            ->get()
+            ->result();
+        foreach ($rows as $row) {
+            $row->kategori_nama = ((int)$row->kategori === 1) ? 'Rework' : (((int)$row->kategori === 2) ? 'Reject' : '-');
+        }
+        return $rows;
     }
     public function get_by_uuid($uuid)
     {
@@ -88,58 +357,59 @@ class Sortasi_model extends CI_Model
         s.*,
         js.kode AS jenis_sortasi_kode,
         js.nama AS jenis_sortasi_nama,
-
         tb.kode_batch,
         tb.filkar_box,
         tb.sortasi_box,
         tb.release_box,
         tb.bad_sortasi_rework_kg,
         tb.bad_sortasi_reject_kg,
-
         v.uuid AS varian_uuid,
         v.varian,
         v.keterangan AS varian_keterangan,
         v.box_kg,
-
         u.fullname
     ");
-
         $this->db->from('sortasi s');
-
         $this->db->join(
             'jenis_sortasi js',
             'js.uuid = s.jenis_sortasi_uuid',
             'left'
         );
-
         $this->db->join(
             'tbatch tb',
             'tb.uuid = s.tbatch_uuid',
             'left'
         );
-
         $this->db->join(
             't_planning tp',
             'tp.uuid = tb.t_planning_uuid',
             'left'
         );
-
         $this->db->join(
             'varian v',
             'v.uuid = tp.varian',
             'left'
         );
-
         $this->db->join(
             'users u',
             'u.uuid = s.user_uuid',
             'left'
         );
-
         $this->db->where('s.uuid', $uuid);
         $this->db->where('s.deleted_at IS NULL', NULL, FALSE);
-
         return $this->db->get()->row();
+    }
+    private function get_batch_uuid($uuid)
+    {
+        return $this->db
+            ->select('tb.*, v.box_kg')
+            ->from('tbatch tb')
+            ->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left')
+            ->join('varian v', 'v.uuid = tp.varian', 'left')
+            ->where('tb.uuid', $uuid)
+            ->where('tb.deleted_at', NULL)
+            ->get()
+            ->row();
     }
     public function get_mesin_batch($tbatch_uuid)
     {
@@ -164,1091 +434,192 @@ class Sortasi_model extends CI_Model
     public function insert()
     {
         $this->db->trans_begin();
-
         try {
-
-            /* =====================================================
-         * DATA DASAR
-         * ===================================================== */
-
-            $uuid = Uuid::uuid4()->toString();
-
-            $tbatch_uuid =
-                $this->input->post('tbatch_uuid');
-
-            $jenis_sortasi_uuid =
-                $this->input->post('jenis_sortasi_uuid');
-
-            $proses_uuid =
-                $this->Proses_model->get_uuid('SORTASI');
-
-            $user_uuid =
-                $this->Auth_model
-                ->current_user()
-                ->uuid;
-
-
-            if (empty($tbatch_uuid)) {
-                throw new Exception('Batch tidak ditemukan.');
+            $uuid=Uuid::uuid4()->toString();
+            $tbatch_uuid=$this->input->post('tbatch_uuid');
+            $jenis=$this->input->post('jenis_sortasi_uuid');
+            $proses=$this->Proses_model->get_uuid('SORTASI');
+            $user=$this->Auth_model->current_user()->uuid;
+            $batch=$this->get_batch_uuid($tbatch_uuid);
+            if(!$batch || (float)$batch->box_kg<=0) throw new Exception('Data batch atau berat per box tidak valid.');
+            if(!$tbatch_uuid || !$jenis) throw new Exception('Batch dan jenis sortasi wajib diisi.');
+            $boxkg=(float)$batch->box_kg;
+            $wu=$this->input->post('wip_uuid') ?: [];
+            $wj=$this->input->post('wip_jumlah') ?: [];
+            $input_box=0; $used=[];
+            foreach($wu as $i=>$w){
+                $q=isset($wj[$i])?(float)$wj[$i]:0; if($q<=0) continue;
+                $r=$this->db->where('uuid',$w)->where('tbatch_uuid',$tbatch_uuid)->where('deleted_at IS NULL',NULL,FALSE)->get('sortasi_wip')->row();
+                if(!$r) throw new Exception('Data WIP tidak valid.');
+                $avail=(float)$r->jumlah_awal-(float)$r->jumlah_terpakai;
+                if($q>$avail+0.000001) throw new Exception('Jumlah WIP melebihi WIP tersedia.');
+                $input_box+=$q; $used[]=['uuid'=>$w,'jumlah'=>$q];
             }
-
-            if (empty($jenis_sortasi_uuid)) {
-                throw new Exception('Jenis sortasi tidak ditemukan.');
+            if($input_box<=0) throw new Exception('Jumlah WIP yang digunakan harus lebih dari 0.');
+            $input_kg=$input_box*$boxkg;
+            $release=(float)($this->input->post('release_box')?:0);
+            $tampung=(float)($this->input->post('output_tampung')?:0);
+            $kasar=(float)($this->input->post('output_kasar')?:0);
+            $cuci=(float)($this->input->post('output_cuci')?:0);
+            $bp=$this->input->post('badpro_uuid') ?: [];
+            $bj=$this->input->post('badpro_berat') ?: [];
+            $badkg=0;
+            foreach($bp as $i=>$x){ $q=isset($bj[$i])?(float)$bj[$i]:0; if($x && $q>0)$badkg+=$q; }
+            $knownkg=($release+$tampung+$kasar+$cuci)*$boxkg+$badkg;
+            if($knownkg>$input_kg+0.000001) throw new Exception('Total output dan Bad melebihi WIP yang digunakan.');
+            $sisa_kg=max(0,$input_kg-$knownkg);
+            $sisa_box=$sisa_kg/$boxkg;
+            $this->db->insert('sortasi',[
+                'uuid'=>$uuid,'tbatch_uuid'=>$tbatch_uuid,'proses_uuid'=>$proses,
+                'jenis_sortasi_uuid'=>$jenis,'jml_release'=>$release,'jumlah_wip'=>$input_box,
+                'keterangan'=>$this->input->post('keterangan'),'jam_mulai'=>$this->input->post('mulai'),
+                'jam_selesai'=>$this->input->post('selesai'),'jml_mp'=>$this->input->post('jml_mp'),
+                'user_uuid'=>$user
+            ]);
+            if(!$this->db->trans_status()) throw new Exception('Gagal menyimpan data Sortasi.');
+            foreach($used as $x){
+                $this->db->insert('sortasi_wip_detail',[
+                    'uuid'=>Uuid::uuid4()->toString(),'sortasi_uuid'=>$uuid,'sortasi_wip_uuid'=>$x['uuid'],
+                    'jumlah'=>$x['jumlah'],'satuan'=>'BOX','created_at'=>date('Y-m-d H:i:s')
+                ]);
+                $this->db->set('jumlah_terpakai','jumlah_terpakai + '.$x['jumlah'],FALSE)->where('uuid',$x['uuid'])->update('sortasi_wip');
             }
-
-
-            /* =====================================================
-         * DATA WIP
-         * ===================================================== */
-
-            $wip_uuid =
-                $this->input->post('wip_uuid');
-
-            $wip_jumlah =
-                $this->input->post('wip_jumlah');
-
-
-            $total_input = 0;
-
-
-            if (
-                !empty($wip_uuid) &&
-                is_array($wip_uuid)
-            ) {
-
-                foreach (
-                    $wip_uuid as $index => $wip
-                ) {
-
-                    $jumlah =
-                        isset($wip_jumlah[$index])
-                        ? (float) $wip_jumlah[$index]
-                        : 0;
-
-
-                    if ($jumlah <= 0) {
-                        continue;
-                    }
-
-
-                    /*
-                 * WIP hanya sebagai referensi.
-                 *
-                 * Sesuai alur project:
-                 * input boleh lebih besar dari
-                 * estimasi WIP.
-                 */
-
-                    $total_input += $jumlah;
+            foreach(['RELEASE'=>$release,'TAMPUNG'=>$tampung,'KASAR'=>$kasar,'CUCI'=>$cuci] as $type=>$q){
+                if($q<=0) continue;
+                $ou=Uuid::uuid4()->toString();
+                $this->db->insert('sortasi_output',[
+                    'uuid'=>$ou,'sortasi_uuid'=>$uuid,'jenis_output'=>$type,'jumlah'=>$q,'satuan'=>'BOX',
+                    'keterangan'=>NULL,'created_at'=>date('Y-m-d H:i:s')
+                ]);
+                if(in_array($type,['TAMPUNG','KASAR'],TRUE)){
+                    $this->db->insert('sortasi_wip',[
+                        'uuid'=>Uuid::uuid4()->toString(),'tbatch_uuid'=>$tbatch_uuid,'sortasi_output_uuid'=>$ou,
+                        'source_sortasi_uuid'=>$uuid,'jenis_wip'=>$type,'jumlah_awal'=>$q,'jumlah_terpakai'=>0,
+                        'satuan'=>'BOX','created_at'=>date('Y-m-d H:i:s')
+                    ]);
                 }
             }
-
-
-            if ($total_input <= 0) {
-
-                throw new Exception(
-                    'Jumlah WIP yang digunakan harus lebih dari 0.'
-                );
+            if($sisa_box>0.000001){
+                $this->db->insert('sortasi_wip',[
+                    'uuid'=>Uuid::uuid4()->toString(),'tbatch_uuid'=>$tbatch_uuid,'sortasi_output_uuid'=>NULL,
+                    'source_sortasi_uuid'=>$uuid,'jenis_wip'=>'BELUM_SORTIR','jumlah_awal'=>$sisa_box,
+                    'jumlah_terpakai'=>0,'satuan'=>'BOX','created_at'=>date('Y-m-d H:i:s')
+                ]);
             }
-
-
-            /* =====================================================
-         * DATA OUTPUT
-         * ===================================================== */
-
-            $release =
-                (float) (
-                    $this->input->post('release_box')
-                    ?: 0
-                );
-
-            $tampung =
-                (float) (
-                    $this->input->post('output_tampung')
-                    ?: 0
-                );
-
-            $kasar =
-                (float) (
-                    $this->input->post('output_kasar')
-                    ?: 0
-                );
-
-            $cuci =
-                (float) (
-                    $this->input->post('output_cuci')
-                    ?: 0
-                );
-
-
-            $total_output =
-                $release +
-                $tampung +
-                $kasar +
-                $cuci;
-
-
-            /*
-         * Output tidak boleh melebihi input.
-         */
-
-            if ($total_output > $total_input) {
-
-                throw new Exception(
-                    'Total output melebihi WIP yang digunakan.'
-                );
-            }
-
-
-            /* =====================================================
-         * INSERT SORTASI
-         * ===================================================== */
-
-            $data_sortasi = [
-
-                'uuid' =>
-                $uuid,
-
-                'tbatch_uuid' =>
-                $tbatch_uuid,
-
-                'proses_uuid' =>
-                $proses_uuid,
-
-                'jenis_sortasi_uuid' =>
-                $jenis_sortasi_uuid,
-
-                /*
-             * Tetap diisi untuk kompatibilitas
-             * dengan struktur lama.
-             */
-
-                'jml_release' =>
-                $release,
-
-                'jumlah_wip' =>
-                $total_input,
-
-                'keterangan' =>
-                $this->input->post('keterangan'),
-
-                'jam_mulai' =>
-                $this->input->post('mulai'),
-
-                'jam_selesai' =>
-                $this->input->post('selesai'),
-
-                'jml_mp' =>
-                $this->input->post('jml_mp'),
-
-                'user_uuid' =>
-                $user_uuid
-            ];
-
-
-            $insert_sortasi =
-                $this->db->insert(
-                    'sortasi',
-                    $data_sortasi
-                );
-
-
-            if (!$insert_sortasi) {
-
-                throw new Exception(
-                    'Gagal menyimpan data Sortasi.'
-                );
-            }
-
-
-            /* =====================================================
-         * SIMPAN PEMAKAIAN WIP
-         * ===================================================== */
-
-            if (
-                !empty($wip_uuid) &&
-                is_array($wip_uuid)
-            ) {
-
-                foreach (
-                    $wip_uuid as $index => $wip
-                ) {
-
-                    $jumlah =
-                        isset($wip_jumlah[$index])
-                        ? (float) $wip_jumlah[$index]
-                        : 0;
-
-
-                    if ($jumlah <= 0) {
-                        continue;
-                    }
-
-
-                    /*
-                 * Pastikan WIP benar-benar milik batch
-                 */
-
-                    $row_wip =
-                        $this->db
-                        ->where(
-                            'uuid',
-                            $wip
-                        )
-                        ->where(
-                            'tbatch_uuid',
-                            $tbatch_uuid
-                        )
-                        ->where(
-                            'deleted_at IS NULL',
-                            NULL,
-                            FALSE
-                        )
-                        ->get('sortasi_wip')
-                        ->row();
-
-
-                    if (!$row_wip) {
-
-                        throw new Exception(
-                            'Data WIP tidak valid.'
-                        );
-                    }
-
-
-                    /* ---------------------------------------------
-                 * DETAIL PEMAKAIAN WIP
-                 * --------------------------------------------- */
-
-                    $this->db->insert(
-                        'sortasi_wip_detail',
-                        [
-
-                            'uuid' =>
-                            Uuid::uuid4()
-                                ->toString(),
-
-                            'sortasi_uuid' =>
-                            $uuid,
-
-                            'sortasi_wip_uuid' =>
-                            $wip,
-
-                            'jumlah' =>
-                            $jumlah,
-
-                            'satuan' =>
-                            'BOX',
-
-                            'created_at' =>
-                            date(
-                                'Y-m-d H:i:s'
-                            )
-                        ]
-                    );
-
-
-                    /*
-                 * Update jumlah terpakai.
-                 *
-                 * Tidak dibatasi oleh sisa WIP karena
-                 * WIP merupakan estimasi/referensi.
-                 */
-
-                    $this->db
-                        ->set(
-                            'jumlah_terpakai',
-                            'jumlah_terpakai + ' . $jumlah,
-                            FALSE
-                        )
-                        ->where(
-                            'uuid',
-                            $wip
-                        )
-                        ->update(
-                            'sortasi_wip'
-                        );
+            $mesins=$this->input->post('mesin_uuid') ?: [];
+            foreach($bp as $i=>$bpu){
+                if(!$bpu) continue;
+                $berat=isset($bj[$i])?(float)$bj[$i]:0; if($berat<=0) continue;
+                $master=$this->db->select('kategori')->where('uuid',$bpu)->where('deleted_at IS NULL',NULL,FALSE)->get('badpro')->row();
+                if(!$master) throw new Exception('Bad Produk tidak ditemukan.');
+                $bu=Uuid::uuid4()->toString();
+                $this->db->insert('t_badpro',[
+                    'uuid'=>$bu,'tbatch_uuid'=>$tbatch_uuid,'kode_batch'=>$batch->kode_batch,'proses_uuid'=>$proses,
+                    'ref_uuid'=>$uuid,'badpro_uuid'=>$bpu,'mesin_uuid'=>NULL,'berat'=>$berat,'kategori'=>$master->kategori,
+                    'keterangan'=>'','created_by'=>$user,'created_at'=>date('Y-m-d H:i:s')
+                ]);
+                foreach(($mesins[$i]??[]) as $m){
+                    if(!$m) continue;
+                    $this->db->insert('t_badpro_mesin',[
+                        'uuid'=>Uuid::uuid4()->toString(),'user_uuid'=>$user,'t_badpro_uuid'=>$bu,'mesin_uuid'=>$m,
+                        'created_at'=>date('Y-m-d H:i:s')
+                    ]);
                 }
             }
-
-
-            /* =====================================================
-         * INSERT OUTPUT
-         * ===================================================== */
-
-            $outputs = [
-
-                'RELEASE' => $release,
-
-                'TAMPUNG' => $tampung,
-
-                'KASAR' => $kasar,
-
-                'CUCI' => $cuci
-
-            ];
-
-
-            foreach (
-                $outputs as $jenis_output => $jumlah
-            ) {
-
-                if ($jumlah <= 0) {
-                    continue;
-                }
-
-
-                $output_uuid =
-                    Uuid::uuid4()
-                    ->toString();
-
-
-                /* ---------------------------------------------
-             * INSERT SORTASI OUTPUT
-             * --------------------------------------------- */
-
-                $this->db->insert(
-                    'sortasi_output',
-                    [
-
-                        'uuid' =>
-                        $output_uuid,
-
-                        'sortasi_uuid' =>
-                        $uuid,
-
-                        'jenis_output' =>
-                        $jenis_output,
-
-                        'jumlah' =>
-                        $jumlah,
-
-                        'satuan' =>
-                        'BOX',
-
-                        'keterangan' =>
-                        NULL,
-
-                        'created_at' =>
-                        date(
-                            'Y-m-d H:i:s'
-                        )
-
-                    ]
-                );
-
-
-                /*
-             * TAMPUNG dan KASAR menjadi WIP baru.
-             */
-
-                if (
-                    $jenis_output === 'TAMPUNG' ||
-                    $jenis_output === 'KASAR'
-                ) {
-
-                    $this->db->insert(
-                        'sortasi_wip',
-                        [
-
-                            'uuid' =>
-                            Uuid::uuid4()
-                                ->toString(),
-
-                            'tbatch_uuid' =>
-                            $tbatch_uuid,
-
-                            'sortasi_output_uuid' =>
-                            $output_uuid,
-
-                            'jenis_wip' =>
-                            $jenis_output,
-
-                            'jumlah_awal' =>
-                            $jumlah,
-
-                            'jumlah_terpakai' =>
-                            0,
-
-                            'satuan' =>
-                            'BOX',
-
-                            'created_at' =>
-                            date(
-                                'Y-m-d H:i:s'
-                            )
-
-                        ]
-                    );
-                }
-            }
-
-
-            /* =====================================================
-         * BAD PRODUK
-         * ===================================================== */
-
-            $badpro_uuid =
-                $this->input->post('badpro_uuid');
-
-            $badpro_berat =
-                $this->input->post('badpro_berat');
-
-            $mesin_uuid =
-                $this->input->post('mesin_uuid');
-
-
-            if (
-                !empty($badpro_uuid) &&
-                is_array($badpro_uuid)
-            ) {
-
-                foreach (
-                    $badpro_uuid as $index => $bp_uuid
-                ) {
-
-                    if (empty($bp_uuid)) {
-                        continue;
-                    }
-
-
-                    $berat =
-                        isset($badpro_berat[$index])
-                        ? (float) $badpro_berat[$index]
-                        : 0;
-
-
-                    if ($berat <= 0) {
-                        continue;
-                    }
-
-
-                    /* ---------------------------------------------
-                 * UUID BAD PRODUK
-                 * --------------------------------------------- */
-
-                    $t_badpro_uuid =
-                        Uuid::uuid4()
-                        ->toString();
-
-
-                    /* ---------------------------------------------
-                 * INSERT T_BADPRO
-                 * --------------------------------------------- */
-
-                    $insert_bad =
-                        $this->db->insert(
-                            't_badpro',
-                            [
-
-                                'uuid' =>
-                                $t_badpro_uuid,
-
-                                'tbatch_uuid' =>
-                                $tbatch_uuid,
-
-                                'proses_uuid' =>
-                                $proses_uuid,
-
-                                'ref_uuid' =>
-                                $uuid,
-
-                                'badpro_uuid' =>
-                                $bp_uuid,
-
-                                'berat' =>
-                                $berat,
-
-                                'keterangan' =>
-                                '',
-
-                                'created_by' =>
-                                $user_uuid,
-
-                                'created_at' =>
-                                date(
-                                    'Y-m-d H:i:s'
-                                )
-
-                            ]
-                        );
-
-
-                    if (!$insert_bad) {
-
-                        throw new Exception(
-                            'Gagal menyimpan Bad Produk.'
-                        );
-                    }
-
-
-                    /* ---------------------------------------------
-                 * MESIN DOMINAN
-                 * --------------------------------------------- */
-
-                    $mesin_list =
-                        isset($mesin_uuid[$index])
-                        ? $mesin_uuid[$index]
-                        : [];
-
-
-                    if (
-                        !empty($mesin_list) &&
-                        is_array($mesin_list)
-                    ) {
-
-                        foreach (
-                            $mesin_list as $mesin
-                        ) {
-
-                            if (empty($mesin)) {
-                                continue;
-                            }
-
-
-                            $this->db->insert(
-                                't_badpro_mesin',
-                                [
-
-                                    'uuid' =>
-                                    Uuid::uuid4()
-                                        ->toString(),
-
-                                    't_badpro_uuid' =>
-                                    $t_badpro_uuid,
-
-                                    'mesin_uuid' =>
-                                    $mesin
-
-                                ]
-                            );
-                        }
-                    }
-                }
-            }
-
-
-            /* =====================================================
-         * UPDATE TOTAL BAD SORTASI
-         * ===================================================== */
-
-            $this->update_total_bad_sortasi(
-                $tbatch_uuid
-            );
-
-
-            /* =====================================================
-         * UPDATE FIELD TBATCH
-         *
-         * HANYA RELEASE.
-         *
-         * sortasi_box TIDAK LAGI DIISI
-         * DENGAN SUM jumlah_wip LAMA.
-         * ===================================================== */
-
-            $this->update_total_release_batch(
-                $tbatch_uuid
-            );
-
-
-            /* =====================================================
-         * CEK TRANSAKSI
-         * ===================================================== */
-
-            if ($this->db->trans_status()) {
-
-                $this->db->trans_commit();
-
-                return TRUE;
-            }
-
-
-            $this->db->trans_rollback();
-
-            return FALSE;
-        } catch (Exception $e) {
-
-            $this->db->trans_rollback();
-
-
-            log_message(
-                'error',
-                'Insert Sortasi Error: ' .
-                    $e->getMessage()
-            );
-
-
-            return FALSE;
-        }
+            $this->update_total_bad_sortasi($tbatch_uuid);
+            $this->update_total_release_batch($tbatch_uuid);
+            if(!$this->db->trans_status()) throw new Exception('Gagal menyimpan transaksi Sortasi.');
+            $this->db->trans_commit(); return TRUE;
+        }catch(Exception $e){$this->db->trans_rollback();log_message('error','Insert Sortasi Error: '.$e->getMessage());return FALSE;}
     }
     public function update($uuid)
     {
         $this->db->trans_begin();
-
-        try {
-
-            $old = $this->get_by_uuid($uuid);
-
-            if (!$old) {
-                throw new Exception('Data Sortasi tidak ditemukan.');
+        try{
+            $old=$this->get_by_uuid($uuid); if(!$old) throw new Exception('Data Sortasi tidak ditemukan.');
+            $oldbatch=$old->tbatch_uuid;
+            $tbatch_uuid=$this->input->post('tbatch_uuid');
+            $jenis=$this->input->post('jenis_sortasi_uuid');
+            $proses=$this->Proses_model->get_uuid('SORTASI');
+            $user=$this->Auth_model->current_user()->uuid;
+            $batch=$this->get_batch_uuid($tbatch_uuid); if(!$batch || (float)$batch->box_kg<=0) throw new Exception('Data batch atau berat per box tidak valid.');
+            $boxkg=(float)$batch->box_kg;
+            $generated=$this->db->where('source_sortasi_uuid',$uuid)->where('deleted_at IS NULL',NULL,FALSE)->get('sortasi_wip')->result();
+            foreach($generated as $g) if((float)$g->jumlah_terpakai>0) throw new Exception('Sortasi tidak dapat diedit karena WIP hasil transaksi ini sudah digunakan.');
+            $details=$this->db->where('sortasi_uuid',$uuid)->get('sortasi_wip_detail')->result();
+            foreach($details as $d) $this->db->set('jumlah_terpakai','jumlah_terpakai - '.(float)$d->jumlah,FALSE)->where('uuid',$d->sortasi_wip_uuid)->update('sortasi_wip');
+            $this->db->where('sortasi_uuid',$uuid)->delete('sortasi_wip_detail');
+            $this->db->where('source_sortasi_uuid',$uuid)->update('sortasi_wip',['deleted_at'=>date('Y-m-d H:i:s')]);
+            $this->db->where('sortasi_uuid',$uuid)->update('sortasi_output',['deleted_at'=>date('Y-m-d H:i:s')]);
+            $wu=$this->input->post('wip_uuid')?:[];$wj=$this->input->post('wip_jumlah')?:[];$input_box=0;$used=[];
+            foreach($wu as $i=>$w){
+                $q=isset($wj[$i])?(float)$wj[$i]:0;if($q<=0)continue;
+                $r=$this->db->where('uuid',$w)->where('tbatch_uuid',$tbatch_uuid)->where('deleted_at IS NULL',NULL,FALSE)->get('sortasi_wip')->row();
+                if(!$r)throw new Exception('Data WIP tidak valid.');
+                $avail=(float)$r->jumlah_awal-(float)$r->jumlah_terpakai;
+                if($q>$avail+0.000001)throw new Exception('Jumlah WIP melebihi WIP tersedia.');
+                $input_box+=$q;$used[]=['uuid'=>$w,'jumlah'=>$q];
             }
-
-            $tbatch_uuid =
-                $this->input->post('tbatch_uuid');
-
-            $jenis_sortasi_uuid =
-                $this->input->post('jenis_sortasi_uuid');
-
-            $proses_uuid =
-                $this->Proses_model->get_uuid('SORTASI');
-
-            /*
-        |--------------------------------------------------------------------------
-        | 1. KEMBALIKAN WIP YANG DIPAKAI TRANSAKSI LAMA
-        |--------------------------------------------------------------------------
-        */
-
-            $old_details = $this->db
-                ->where('sortasi_uuid', $uuid)
-                ->get('sortasi_wip_detail')
-                ->result();
-
-            foreach ($old_details as $detail) {
-
-                $this->db
-                    ->set(
-                        'jumlah_terpakai',
-                        'jumlah_terpakai - ' . (float) $detail->jumlah,
-                        FALSE
-                    )
-                    ->where(
-                        'uuid',
-                        $detail->sortasi_wip_uuid
-                    )
-                    ->update('sortasi_wip');
+            if($input_box<=0)throw new Exception('Jumlah WIP yang digunakan harus lebih dari 0.');
+            $input_kg=$input_box*$boxkg;
+            $release=(float)($this->input->post('release_box')?:0);$tampung=(float)($this->input->post('output_tampung')?:0);
+            $kasar=(float)($this->input->post('output_kasar')?:0);$cuci=(float)($this->input->post('output_cuci')?:0);
+            $bp=$this->input->post('badpro_uuid')?:[];$bj=$this->input->post('badpro_berat')?:[];$badkg=0;
+            foreach($bp as $i=>$x){$q=isset($bj[$i])?(float)$bj[$i]:0;if($x&&$q>0)$badkg+=$q;}
+            $knownkg=($release+$tampung+$kasar+$cuci)*$boxkg+$badkg;
+            if($knownkg>$input_kg+0.000001)throw new Exception('Total output dan Bad melebihi WIP yang digunakan.');
+            $sisa_box=max(0,($input_kg-$knownkg)/$boxkg);
+            $this->db->where('uuid',$uuid)->update('sortasi',[
+                'tbatch_uuid'=>$tbatch_uuid,'jenis_sortasi_uuid'=>$jenis,'jml_release'=>$release,'jumlah_wip'=>$input_box,
+                'keterangan'=>$this->input->post('keterangan'),'jam_mulai'=>$this->input->post('mulai'),'jam_selesai'=>$this->input->post('selesai'),
+                'jml_mp'=>$this->input->post('jml_mp'),'modified_at'=>date('Y-m-d H:i:s')
+            ]);
+            foreach($used as $x){
+                $this->db->insert('sortasi_wip_detail',['uuid'=>Uuid::uuid4()->toString(),'sortasi_uuid'=>$uuid,'sortasi_wip_uuid'=>$x['uuid'],'jumlah'=>$x['jumlah'],'satuan'=>'BOX','created_at'=>date('Y-m-d H:i:s')]);
+                $this->db->set('jumlah_terpakai','jumlah_terpakai + '.$x['jumlah'],FALSE)->where('uuid',$x['uuid'])->update('sortasi_wip');
             }
-
-            /*
-        |--------------------------------------------------------------------------
-        | 2. HAPUS DETAIL WIP LAMA
-        |--------------------------------------------------------------------------
-        */
-
-            $this->db
-                ->where('sortasi_uuid', $uuid)
-                ->delete('sortasi_wip_detail');
-
-            /*
-        |--------------------------------------------------------------------------
-        | 3. HAPUS OUTPUT LAMA
-        |--------------------------------------------------------------------------
-        */
-
-            $this->db
-                ->where('sortasi_uuid', $uuid)
-                ->update('sortasi_output', [
-                    'deleted_at' => date('Y-m-d H:i:s')
-                ]);
-
-            /*
-        |--------------------------------------------------------------------------
-        | 4. UPDATE HEADER SORTASI
-        |--------------------------------------------------------------------------
-        */
-
-            $wip_uuid =
-                $this->input->post('wip_uuid') ?? [];
-
-            $wip_jumlah =
-                $this->input->post('wip_jumlah') ?? [];
-
-            $total_input = 0;
-
-            foreach ($wip_uuid as $i => $wip) {
-
-                $jumlah =
-                    isset($wip_jumlah[$i])
-                    ? (float) $wip_jumlah[$i]
-                    : 0;
-
-                if ($jumlah > 0) {
-                    $total_input += $jumlah;
-                }
+            foreach(['RELEASE'=>$release,'TAMPUNG'=>$tampung,'KASAR'=>$kasar,'CUCI'=>$cuci] as $type=>$q){
+                if($q<=0)continue;$ou=Uuid::uuid4()->toString();
+                $this->db->insert('sortasi_output',['uuid'=>$ou,'sortasi_uuid'=>$uuid,'jenis_output'=>$type,'jumlah'=>$q,'satuan'=>'BOX','keterangan'=>NULL,'created_at'=>date('Y-m-d H:i:s')]);
+                if(in_array($type,['TAMPUNG','KASAR'],TRUE))$this->db->insert('sortasi_wip',['uuid'=>Uuid::uuid4()->toString(),'tbatch_uuid'=>$tbatch_uuid,'sortasi_output_uuid'=>$ou,'source_sortasi_uuid'=>$uuid,'jenis_wip'=>$type,'jumlah_awal'=>$q,'jumlah_terpakai'=>0,'satuan'=>'BOX','created_at'=>date('Y-m-d H:i:s')]);
             }
-
-            $release =
-                (float) $this->input->post('release_box');
-
-            $data = [
-                'tbatch_uuid'        => $tbatch_uuid,
-                'jenis_sortasi_uuid' => $jenis_sortasi_uuid,
-                'jml_release'        => $release,
-                'jumlah_wip'         => $total_input,
-                'keterangan'         => $this->input->post('keterangan'),
-                'jam_mulai'          => $this->input->post('mulai'),
-                'jam_selesai'        => $this->input->post('selesai'),
-                'jml_mp'             => $this->input->post('jml_mp')
-            ];
-
-            $this->db
-                ->where('uuid', $uuid)
-                ->where('deleted_at IS NULL', NULL, FALSE)
-                ->update('sortasi', $data);
-
-            /*
-        |--------------------------------------------------------------------------
-        | 5. SIMPAN PEMAKAIAN WIP BARU
-        |--------------------------------------------------------------------------
-        */
-
-            foreach ($wip_uuid as $i => $wip) {
-
-                $jumlah =
-                    isset($wip_jumlah[$i])
-                    ? (float) $wip_jumlah[$i]
-                    : 0;
-
-                if ($jumlah <= 0) {
-                    continue;
-                }
-
-                $row = $this->db
-                    ->select('jumlah_awal, jumlah_terpakai')
-                    ->where('uuid', $wip)
-                    ->where('deleted_at IS NULL', NULL, FALSE)
-                    ->get('sortasi_wip')
-                    ->row();
-
-                if (!$row) {
-                    throw new Exception('WIP tidak ditemukan.');
-                }
-
-                $sisa =
-                    (float) $row->jumlah_awal
-                    -
-                    (float) $row->jumlah_terpakai;
-
-                if ($jumlah > $sisa) {
-                    throw new Exception(
-                        'Jumlah WIP melebihi WIP tersedia.'
-                    );
-                }
-
-                $this->db->insert(
-                    'sortasi_wip_detail',
-                    [
-                        'uuid'             =>
-                        Uuid::uuid4()->toString(),
-
-                        'sortasi_uuid'     =>
-                        $uuid,
-
-                        'sortasi_wip_uuid' =>
-                        $wip,
-
-                        'jumlah'           =>
-                        $jumlah,
-
-                        'satuan'           =>
-                        'BOX'
-                    ]
-                );
-
-                $this->db
-                    ->set(
-                        'jumlah_terpakai',
-                        'jumlah_terpakai + ' . $jumlah,
-                        FALSE
-                    )
-                    ->where('uuid', $wip)
-                    ->update('sortasi_wip');
-            }
-
-            /*
-        |--------------------------------------------------------------------------
-        | 6. SIMPAN OUTPUT
-        |--------------------------------------------------------------------------
-        */
-
-            $outputs = [
-                'RELEASE' => $release,
-
-                'TAMPUNG' =>
-                (float) $this->input->post('output_tampung'),
-
-                'KASAR' =>
-                (float) $this->input->post('output_kasar'),
-
-                'CUCI' =>
-                (float) $this->input->post('output_cuci')
-            ];
-
-            foreach ($outputs as $jenis => $jumlah) {
-
-                if ($jumlah <= 0) {
-                    continue;
-                }
-
-                $output_uuid =
-                    Uuid::uuid4()->toString();
-
-                $this->db->insert(
-                    'sortasi_output',
-                    [
-                        'uuid' =>
-                        $output_uuid,
-
-                        'sortasi_uuid' =>
-                        $uuid,
-
-                        'jenis_output' =>
-                        $jenis,
-
-                        'jumlah' =>
-                        $jumlah,
-
-                        'satuan' =>
-                        'BOX'
-                    ]
-                );
-
-                /*
-            |--------------------------------------------------------------------------
-            | TAMPUNG / KASAR MENJADI WIP
-            |--------------------------------------------------------------------------
-            */
-
-                if (
-                    in_array(
-                        $jenis,
-                        ['TAMPUNG', 'KASAR']
-                    )
-                ) {
-
-                    $this->db->insert(
-                        'sortasi_wip',
-                        [
-                            'uuid' =>
-                            Uuid::uuid4()->toString(),
-
-                            'tbatch_uuid' =>
-                            $tbatch_uuid,
-
-                            'sortasi_output_uuid' =>
-                            $output_uuid,
-
-                            'jenis_wip' =>
-                            $jenis,
-
-                            'jumlah_awal' =>
-                            $jumlah,
-
-                            'jumlah_terpakai' =>
-                            0,
-
-                            'satuan' =>
-                            'BOX'
-                        ]
-                    );
-                }
-            }
-
-            /*
-        |--------------------------------------------------------------------------
-        | 7. BAD PRODUK
-        |--------------------------------------------------------------------------
-        */
-
-            $this->db
+            if($sisa_box>0.000001)$this->db->insert('sortasi_wip',['uuid'=>Uuid::uuid4()->toString(),'tbatch_uuid'=>$tbatch_uuid,'sortasi_output_uuid'=>NULL,'source_sortasi_uuid'=>$uuid,'jenis_wip'=>'BELUM_SORTIR','jumlah_awal'=>$sisa_box,'jumlah_terpakai'=>0,'satuan'=>'BOX','created_at'=>date('Y-m-d H:i:s')]);
+            $old_bad_rows = $this->db
+                ->select('uuid')
                 ->where('ref_uuid', $uuid)
-                ->where('proses_uuid', $proses_uuid)
-                ->update('t_badpro', [
-                    'deleted_at' =>
-                    date('Y-m-d H:i:s')
-                ]);
-
-            $badpro_uuid =
-                $this->input->post('badpro_uuid');
-
-            $badpro_berat =
-                $this->input->post('badpro_berat');
-
-            $mesin_uuid =
-                $this->input->post('mesin_uuid');
-
-            if (
-                is_array($badpro_uuid)
-                &&
-                !empty($badpro_uuid)
-            ) {
-
-                foreach (
-                    $badpro_uuid as $index => $bp_uuid
-                ) {
-
-                    if (empty($bp_uuid)) {
-                        continue;
-                    }
-
-                    $berat =
-                        isset($badpro_berat[$index])
-                        ? (float) $badpro_berat[$index]
-                        : 0;
-
-                    if ($berat <= 0) {
-                        continue;
-                    }
-
-                    $bad_uuid =
-                        Uuid::uuid4()->toString();
-
-                    $this->db->insert(
-                        't_badpro',
-                        [
-                            'uuid' =>
-                            $bad_uuid,
-
-                            'tbatch_uuid' =>
-                            $tbatch_uuid,
-
-                            'proses_uuid' =>
-                            $proses_uuid,
-
-                            'ref_uuid' =>
-                            $uuid,
-
-                            'badpro_uuid' =>
-                            $bp_uuid,
-
-                            'berat' =>
-                            $berat,
-
-                            'keterangan' =>
-                            '',
-
-                            'created_by' =>
-                            $this->Auth_model
-                                ->current_user()
-                                ->uuid,
-
-                            'created_at' =>
-                            date('Y-m-d H:i:s')
-                        ]
-                    );
-
-                    $mesin_list =
-                        $mesin_uuid[$index] ?? [];
-
-                    if (is_array($mesin_list)) {
-
-                        foreach (
-                            $mesin_list as $mesin
-                        ) {
-
-                            if (empty($mesin)) {
-                                continue;
-                            }
-
-                            $this->db->insert(
-                                't_badpro_mesin',
-                                [
-                                    'uuid' =>
-                                    Uuid::uuid4()
-                                        ->toString(),
-
-                                    't_badpro_uuid' =>
-                                    $bad_uuid,
-
-                                    'mesin_uuid' =>
-                                    $mesin
-                                ]
-                            );
-                        }
-                    }
-                }
+                ->where('proses_uuid', $proses)
+                ->where('deleted_at', NULL)
+                ->get('t_badpro')
+                ->result();
+            foreach ($old_bad_rows as $old_bad) {
+                $this->db->where('t_badpro_uuid', $old_bad->uuid)
+                    ->update('t_badpro_mesin', [
+                        'deleted_at' => date('Y-m-d H:i:s')
+                    ]);
             }
-
-            /*
-        |--------------------------------------------------------------------------
-        | 8. UPDATE TOTAL BAD
-        |--------------------------------------------------------------------------
-        */
-
-            $this->update_total_bad_sortasi(
-                $tbatch_uuid
-            );
-
-            if ($this->db->trans_status()) {
-
-                $this->db->trans_commit();
-
-                return TRUE;
+            $this->db->where('ref_uuid',$uuid)
+                ->where('proses_uuid',$proses)
+                ->update('t_badpro',['deleted_at'=>date('Y-m-d H:i:s')]);
+            $mesins=$this->input->post('mesin_uuid')?:[];
+            foreach($bp as $i=>$bpu){
+                if(!$bpu)continue;$berat=isset($bj[$i])?(float)$bj[$i]:0;if($berat<=0)continue;
+                $master=$this->db->select('kategori')->where('uuid',$bpu)->where('deleted_at IS NULL',NULL,FALSE)->get('badpro')->row();
+                if(!$master)throw new Exception('Bad Produk tidak ditemukan.');
+                $bu=Uuid::uuid4()->toString();
+                $this->db->insert('t_badpro',['uuid'=>$bu,'tbatch_uuid'=>$tbatch_uuid,'kode_batch'=>$batch->kode_batch,'proses_uuid'=>$proses,'ref_uuid'=>$uuid,'badpro_uuid'=>$bpu,'mesin_uuid'=>NULL,'berat'=>$berat,'kategori'=>$master->kategori,'keterangan'=>'','created_by'=>$user,'created_at'=>date('Y-m-d H:i:s')]);
+                foreach(($mesins[$i]??[]) as $m)if($m)$this->db->insert('t_badpro_mesin',['uuid'=>Uuid::uuid4()->toString(),'user_uuid'=>$user,'t_badpro_uuid'=>$bu,'mesin_uuid'=>$m,'created_at'=>date('Y-m-d H:i:s')]);
             }
-
-            $this->db->trans_rollback();
-
-            return FALSE;
-        } catch (Exception $e) {
-
-            $this->db->trans_rollback();
-
-            log_message(
-                'error',
-                'Update Sortasi Error: ' .
-                    $e->getMessage()
-            );
-
-            return FALSE;
-        }
+            $this->update_total_bad_sortasi($oldbatch);$this->update_total_release_batch($oldbatch);
+            if($oldbatch!==$tbatch_uuid){$this->update_total_bad_sortasi($tbatch_uuid);$this->update_total_release_batch($tbatch_uuid);}
+            if(!$this->db->trans_status())throw new Exception('Gagal mengubah transaksi Sortasi.');
+            $this->db->trans_commit();return TRUE;
+        }catch(Exception $e){$this->db->trans_rollback();log_message('error','Update Sortasi Error: '.$e->getMessage());return FALSE;}
     }
-
     private function update_total_release_batch($tbatch_uuid)
     {
-        $proses_uuid =
-            $this->Proses_model->get_uuid('SORTASI');
-
-
-        $this->db->select_sum('jml_release');
-
-        $this->db->where(
-            'tbatch_uuid',
-            $tbatch_uuid
-        );
-
-        $this->db->where(
-            'proses_uuid',
-            $proses_uuid
-        );
-
-        $this->db->where(
-            'deleted_at',
-            NULL
-        );
-
-
-        $row =
-            $this->db
-            ->get('sortasi')
-            ->row();
-
-
-        $release =
-            (float) (
-                $row->jml_release ?? 0
-            );
-
-
-        $this->db
-            ->where(
-                'uuid',
-                $tbatch_uuid
-            )
-            ->update(
-                'tbatch',
-                [
-                    'release_box' => $release
-                ]
-            );
+        $proses_uuid=$this->Proses_model->get_uuid('SORTASI');
+        $row=$this->db->select_sum('jml_release')->where('tbatch_uuid',$tbatch_uuid)->where('proses_uuid',$proses_uuid)->where('deleted_at',NULL)->get('sortasi')->row();
+        $this->db->where('uuid',$tbatch_uuid)->update('tbatch',['release_box'=>(float)($row->jml_release??0)]);
     }
     private function update_total_sortasi($tbatch_uuid)
     {
@@ -1288,26 +659,25 @@ class Sortasi_model extends CI_Model
             'bad_sortasi_reject_kg' => $total->reject ?? 0,
         ]);
     }
+    private function ensure_initial_wip_all_batches()
+    {
+        $rows=$this->db->select('uuid')->where('deleted_at',NULL)->where('filkar_box >',0)->get('tbatch')->result();
+        foreach($rows as $r)$this->ensure_initial_wip($r->uuid);
+    }
     public function get_batch()
     {
+        $this->ensure_initial_wip_all_batches();
         $this->db->select("
-        b.uuid,
-        b.kode_batch,
-        b.adonan,
-        b.filkar_box,
-        (b.filkar_box - COALESCE(b.sortasi_box, 0)) AS sisa_wip,
-        v.varian,
-        v.keterangan,
-        v.kontainer_kg,
-        v.box_kg
-		");
-        $this->db->from('tbatch b');
-        $this->db->join('t_planning p', 'p.uuid = b.t_planning_uuid', 'left');
-        $this->db->join('varian v', 'v.uuid = p.varian', 'left');
-        $this->db->where('b.deleted_at', NULL);
-        $this->db->where('(b.filkar_box - COALESCE(b.sortasi_box, 0)) !=', 0);
-        $this->db->order_by('b.created_at', 'DESC');
-        $this->db->order_by('b.kode_batch', 'DESC');
+            b.uuid,b.kode_batch,b.adonan,b.filkar_box,
+            COALESCE((SELECT SUM(sw.jumlah_awal-sw.jumlah_terpakai) FROM sortasi_wip sw
+              WHERE sw.tbatch_uuid=b.uuid AND sw.deleted_at IS NULL
+              AND sw.jenis_wip IN ('BELUM_SORTIR','TAMPUNG','KASAR')),0) AS sisa_wip,
+            v.varian,v.keterangan,v.kontainer_kg,v.box_kg
+        ",FALSE)->from('tbatch b')
+        ->join('t_planning p','p.uuid=b.t_planning_uuid','left')
+        ->join('varian v','v.uuid=p.varian','left')
+        ->where('b.deleted_at',NULL)->having('sisa_wip >',0)
+        ->order_by('b.created_at','DESC')->order_by('b.kode_batch','DESC');
         return $this->db->get()->result();
     }
     public function get_badpro($proses = null)
@@ -1423,56 +793,53 @@ class Sortasi_model extends CI_Model
     }
     public function get_batch_info($uuid)
     {
-        $this->db->select("
-			tb.uuid,
-			tb.filkar_box,
-			tb.sortasi_box,
-			v.box_kg
-			");
-        $this->db->from('tbatch tb');
-        $this->db->join(
-            't_planning tp',
-            'tp.uuid=tb.t_planning_uuid'
-        );
-        $this->db->join(
-            'varian v',
-            'v.uuid=tp.varian'
-        );
-        $this->db->where('tb.uuid', $uuid);
-        $row = $this->db->get()->row();
-        if (!$row) {
-            return null;
-        }
-        $row->sisa_sortasi = $row->filkar_box - $row->sortasi_box;
-        return $row;
+        $this->ensure_initial_wip($uuid);
+        $this->db->select("tb.uuid,tb.kode_batch,tb.filkar_box,v.box_kg,
+          COALESCE((SELECT SUM(sw.jumlah_awal-sw.jumlah_terpakai) FROM sortasi_wip sw
+            WHERE sw.tbatch_uuid=tb.uuid AND sw.deleted_at IS NULL
+            AND sw.jenis_wip IN ('BELUM_SORTIR','TAMPUNG','KASAR')),0) AS sisa_wip",FALSE)
+        ->from('tbatch tb')->join('t_planning tp','tp.uuid=tb.t_planning_uuid')
+        ->join('varian v','v.uuid=tp.varian')->where('tb.uuid',$uuid);
+        $r=$this->db->get()->row();
+        if(!$r)return NULL;
+        $r->sisa_wip_kg=(float)$r->sisa_wip*(float)$r->box_kg;
+        return $r;
     }
     public function delete($uuid)
     {
         $data = $this->get_by_uuid($uuid);
-
         if (!$data) {
             return false;
         }
-
         $this->db->trans_begin();
-
         try {
-
             $now = date('Y-m-d H:i:s');
-
+            /*
+             * WIP hasil Sortasi ini tidak boleh dihapus jika
+             * sudah dipakai oleh Sortasi berikutnya.
+             */
+            $generated_wip = $this->db
+                ->where('source_sortasi_uuid', $uuid)
+                ->where('deleted_at IS NULL', NULL, FALSE)
+                ->get('sortasi_wip')
+                ->result();
+            foreach ($generated_wip as $wip) {
+                if ((float)$wip->jumlah_terpakai > 0) {
+                    throw new Exception(
+                        'Sortasi tidak dapat dihapus karena WIP hasil transaksi ini sudah digunakan.'
+                    );
+                }
+            }
             /*
         |--------------------------------------------------------------------------
         | 1. KEMBALIKAN WIP YANG DIPAKAI
         |--------------------------------------------------------------------------
         */
-
             $details = $this->db
                 ->where('sortasi_uuid', $uuid)
                 ->get('sortasi_wip_detail')
                 ->result();
-
             foreach ($details as $detail) {
-
                 $this->db
                     ->set(
                         'jumlah_terpakai',
@@ -1486,44 +853,41 @@ class Sortasi_model extends CI_Model
                     )
                     ->update('sortasi_wip');
             }
-
             /*
         |--------------------------------------------------------------------------
         | 2. SOFT DELETE DETAIL WIP
         |--------------------------------------------------------------------------
         */
-
             $this->db
                 ->where('sortasi_uuid', $uuid)
                 ->delete('sortasi_wip_detail');
-
             /*
         |--------------------------------------------------------------------------
         | 3. SOFT DELETE OUTPUT
         |--------------------------------------------------------------------------
         */
-
             $this->db
                 ->where('sortasi_uuid', $uuid)
                 ->update('sortasi_output', [
                     'deleted_at' => $now
                 ]);
-
             /*
         |--------------------------------------------------------------------------
         | 4. WIP HASIL TAMPUNG/KASAR DARI SORTASI INI
         |    JUGA DINONAKTIFKAN
         |--------------------------------------------------------------------------
         */
-
+            $this->db
+                ->where('source_sortasi_uuid', $uuid)
+                ->update('sortasi_wip', [
+                    'deleted_at' => $now
+                ]);
             $outputs = $this->db
                 ->select('uuid')
                 ->where('sortasi_uuid', $uuid)
                 ->get('sortasi_output')
                 ->result();
-
             foreach ($outputs as $output) {
-
                 $this->db
                     ->where(
                         'sortasi_output_uuid',
@@ -1533,66 +897,51 @@ class Sortasi_model extends CI_Model
                         'deleted_at' => $now
                     ]);
             }
-
             /*
         |--------------------------------------------------------------------------
         | 5. SOFT DELETE SORTASI
         |--------------------------------------------------------------------------
         */
-
             $this->db
                 ->where('uuid', $uuid)
                 ->update('sortasi', [
                     'deleted_at' => $now
                 ]);
-
             /*
         |--------------------------------------------------------------------------
         | 6. SOFT DELETE BAD PRODUK
         |--------------------------------------------------------------------------
         */
-
             $proses_uuid =
                 $this->Proses_model
                 ->get_uuid('SORTASI');
-
             $this->db
                 ->where('ref_uuid', $uuid)
                 ->where('proses_uuid', $proses_uuid)
                 ->update('t_badpro', [
                     'deleted_at' => $now
                 ]);
-
             /*
         |--------------------------------------------------------------------------
         | 7. UPDATE TOTAL BAD
         |--------------------------------------------------------------------------
         */
-
             $this->update_total_bad_sortasi(
                 $data->tbatch_uuid
             );
-
             if ($this->db->trans_status()) {
-
                 $this->db->trans_commit();
-
                 return true;
             }
-
             $this->db->trans_rollback();
-
             return false;
         } catch (Exception $e) {
-
             $this->db->trans_rollback();
-
             log_message(
                 'error',
                 'Delete Sortasi Error: ' .
                     $e->getMessage()
             );
-
             return false;
         }
     }
@@ -1647,43 +996,21 @@ class Sortasi_model extends CI_Model
     }
     public function get_batch_edit($tbatch_uuid)
     {
+        $this->ensure_initial_wip($tbatch_uuid);
         $this->db->select("
-        b.uuid,
-        b.kode_batch,
-        b.adonan,
-        b.filkar_box,
-        (b.filkar_box - COALESCE(b.sortasi_box, 0)) AS sisa_wip,
-        v.varian,
-        v.keterangan,
-        v.kontainer_kg,
-        v.box_kg
-    ");
-        $this->db->from('tbatch b');
-        $this->db->join(
-            't_planning p',
-            'p.uuid = b.t_planning_uuid',
-            'left'
-        );
-        $this->db->join(
-            'varian v',
-            'v.uuid = p.varian',
-            'left'
-        );
-        $this->db->where('b.deleted_at', NULL);
-        // Tetap tampilkan batch yang sedang diedit
-        $this->db->group_start();
-        $this->db->where(
-            '(b.filkar_box - COALESCE(b.sortasi_box, 0)) != 0',
-            NULL,
-            FALSE
-        );
-        $this->db->or_where('b.uuid', $tbatch_uuid);
-        $this->db->group_end();
-        $this->db->order_by('b.created_at', 'DESC');
-        $this->db->order_by('b.kode_batch', 'DESC');
+            b.uuid,b.kode_batch,b.adonan,b.filkar_box,
+            COALESCE((SELECT SUM(sw.jumlah_awal-sw.jumlah_terpakai) FROM sortasi_wip sw
+              WHERE sw.tbatch_uuid=b.uuid AND sw.deleted_at IS NULL
+              AND sw.jenis_wip IN ('BELUM_SORTIR','TAMPUNG','KASAR')),0) AS sisa_wip,
+            v.varian,v.keterangan,v.kontainer_kg,v.box_kg
+        ",FALSE)->from('tbatch b')
+        ->join('t_planning p','p.uuid=b.t_planning_uuid','left')
+        ->join('varian v','v.uuid=p.varian','left')
+        ->where('b.deleted_at',NULL);
+        $this->db->group_start()->having('sisa_wip >',0)->or_where('b.uuid',$tbatch_uuid)->group_end();
+        $this->db->order_by('b.created_at','DESC')->order_by('b.kode_batch','DESC');
         return $this->db->get()->result();
     }
-
     /*
 *=======================================
 JENIS SORTASI
@@ -1693,12 +1020,10 @@ JENIS SORTASI
     {
         return $this->db->get('jenis_sortasi')->result();
     }
-
     public function get_jenis_by_uuid($uuid)
     {
         return $this->db->get_where('jenis_sortasi', array('uuid' => $uuid))->row();
     }
-
     public function insert_jenis()
     {
         $uuid = Uuid::uuid4()->toString();
@@ -1710,27 +1035,22 @@ JENIS SORTASI
             'keterangan' => $keterangan,
             'user_uuid'     => $this->auth_model->current_user()->uuid
         );
-
         $this->db->insert('jenis_sortasi', $data);
         return ($this->db->affected_rows() > 0) ? true : false;
     }
-
     public function update_jenis($uuid)
     {
         $jenis = $this->input->post('jenis');
         $keterangan = $this->input->post('keterangan');
-
         $data = array(
             'user_uuid' => $this->auth_model->current_user()->uuid,
             'jenis' => $jenis,
             'keterangan' => $keterangan,
             'modified_at' => date('Y-m-d h:i:s')
         );
-
         $this->db->update('jenis_sortasi', $data, array('uuid' => $uuid)); // query update
         return ($this->db->affected_rows() > 0) ? true : false; // kondisi klu update sukses akan bernilai true dan sebaliknya
     }
-
     public function get_jenis_sortasi()
     {
         return $this->db
@@ -1739,7 +1059,6 @@ JENIS SORTASI
             ->get('jenis_sortasi')
             ->result();
     }
-
     public function get_wip_batch($tbatch_uuid)
     {
         $this->ensure_initial_wip($tbatch_uuid);
@@ -1754,27 +1073,20 @@ JENIS SORTASI
         ) AS sisa_wip,
         sw.satuan
     ");
-
         $this->db->from('sortasi_wip sw');
-
         $this->db->where(
             'sw.tbatch_uuid',
             $tbatch_uuid
         );
-
         $this->db->where(
             'sw.deleted_at IS NULL',
             NULL,
             FALSE
         );
-
         $this->db->having('sisa_wip >', 0);
-
         $this->db->order_by('sw.created_at', 'ASC');
-
         return $this->db->get()->result();
     }
-
     public function get_output_by_sortasi($sortasi_uuid)
     {
         return $this->db
@@ -1784,7 +1096,6 @@ JENIS SORTASI
             ->get('sortasi_output')
             ->result();
     }
-
     private function ensure_initial_wip($tbatch_uuid)
     {
         $exists = $this->db
@@ -1793,21 +1104,17 @@ JENIS SORTASI
             ->where('sortasi_output_uuid IS NULL', NULL, FALSE)
             ->where('deleted_at IS NULL', NULL, FALSE)
             ->count_all_results('sortasi_wip');
-
         if ($exists > 0) {
             return;
         }
-
         $batch = $this->db
             ->select('filkar_box')
             ->where('uuid', $tbatch_uuid)
             ->get('tbatch')
             ->row();
-
         if (!$batch || $batch->filkar_box <= 0) {
             return;
         }
-
         $this->db->insert('sortasi_wip', [
             'uuid'          => Uuid::uuid4()->toString(),
             'tbatch_uuid'   => $tbatch_uuid,
@@ -1817,17 +1124,14 @@ JENIS SORTASI
             'satuan'        => 'BOX'
         ]);
     }
-
     public function get_wip_for_edit($tbatch_uuid, $sortasi_uuid)
     {
         $this->ensure_initial_wip($tbatch_uuid);
-
         $this->db->select("
         sw.uuid,
         sw.jenis_wip,
         sw.jumlah_awal,
         sw.jumlah_terpakai,
-
         COALESCE(
             (
                 SELECT SUM(swd.jumlah)
@@ -1837,29 +1141,26 @@ JENIS SORTASI
             ), 0
         ) AS dipakai_edit
     ", FALSE);
-
         $this->db->from('sortasi_wip sw');
-
         $this->db->where(
             'sw.tbatch_uuid',
             $tbatch_uuid
         );
-
+        $this->db->group_start();
+            $this->db->where('sw.source_sortasi_uuid IS NULL', NULL, FALSE);
+            $this->db->or_where('sw.source_sortasi_uuid !=', $sortasi_uuid);
+        $this->db->group_end();
         $this->db->where(
             'sw.deleted_at IS NULL',
             NULL,
             FALSE
         );
-
         $this->db->order_by(
             'sw.created_at',
             'ASC'
         );
-
         $rows = $this->db->get()->result();
-
         foreach ($rows as $row) {
-
             $row->sisa_wip =
                 ((float) $row->jumlah_awal
                     -
@@ -1867,7 +1168,6 @@ JENIS SORTASI
                 +
                 (float) $row->dipakai_edit;
         }
-
         return $rows;
     }
 }

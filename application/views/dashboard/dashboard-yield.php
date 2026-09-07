@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -27,20 +26,16 @@ body {
         sans-serif;
     color: #343a40;
 }
-
 .container-fluid {
     padding-left: 12px;
     padding-right: 12px;
 }
-
 #wrapper {
     min-height: 100vh;
 }
-
 #content-wrapper {
     background: #f4f6fb;
 }
-
 /* =====================================================
    LIVE INDICATOR
 ===================================================== */
@@ -58,7 +53,6 @@ body {
     line-height: 1;
     box-shadow: 0 3px 8px rgba(237, 28, 36, .25);
 }
-
 .live-icon {
     position: relative;
     width: 25px;
@@ -67,7 +61,6 @@ body {
     align-items: center;
     justify-content: center;
 }
-
 .live-icon .dot {
     width: 7px;
     height: 7px;
@@ -75,7 +68,6 @@ body {
     border-radius: 50%;
     animation: live-blink 1s infinite;
 }
-
 .live-icon .wave {
     position: absolute;
     width: 9px;
@@ -86,28 +78,22 @@ body {
     border-radius: 50%;
     animation: live-blink 1s infinite;
 }
-
 .live-icon .wave-left {
     left: 0;
 }
-
 .live-icon .wave-right {
     right: 0;
 }
-
 @keyframes live-blink {
-
     0%,
     50% {
         opacity: 1;
     }
-
     51%,
     100% {
         opacity: .2;
     }
 }
-
 /* =====================================================
    HEADER LEFT
 ===================================================== */
@@ -117,11 +103,9 @@ body {
     overflow: hidden;
     box-shadow: 0 5px 20px rgba(0, 0, 0, .06);
 }
-
 .card-modern .card-body {
     padding: 18px;
 }
-
 .shortcut-card {
     display: block;
     text-align: center;
@@ -134,23 +118,19 @@ body {
     text-decoration: none !important;
     height: 100%;
 }
-
 .shortcut-card:hover {
     transform: translateY(-5px);
     color: #4e73df;
 }
-
 .shortcut-title {
     font-size: 13px;
     font-weight: 600;
 }
-
 .header-left {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
 /* =====================================================
    LIVE STATUS
 ===================================================== */
@@ -166,7 +146,6 @@ body {
     color: #16803c;
     box-shadow: 0 2px 6px rgba(22, 128, 60, .08);
 }
-
 /* DOT */
 .live-pulse {
     position: relative;
@@ -176,7 +155,6 @@ body {
     align-items: center;
     justify-content: center;
 }
-
 .live-dot {
     width: 7px;
     height: 7px;
@@ -186,7 +164,6 @@ body {
     z-index: 2;
     animation: live-blink 1s infinite;
 }
-
 /* Lingkaran pulse */
 .live-pulse::before {
     content: "";
@@ -197,14 +174,12 @@ body {
     background: rgba(34, 197, 94, .35);
     animation: live-pulse 1.5s infinite;
 }
-
 /* TEXT */
 .live-label {
     font-size: 10px;
     font-weight: 800;
     letter-spacing: .8px;
 }
-
 /* SIGNAL */
 .live-signal {
     height: 16px;
@@ -213,52 +188,43 @@ body {
     gap: 2px;
     margin-left: 1px;
 }
-
 .live-signal i {
     display: block;
     width: 3px;
     background: #22c55e;
     border-radius: 2px;
 }
-
 .live-signal i:nth-child(1) {
     height: 5px;
     opacity: .45;
 }
-
 .live-signal i:nth-child(2) {
     height: 8px;
     opacity: .65;
 }
-
 .live-signal i:nth-child(3) {
     height: 11px;
     opacity: .8;
 }
-
 .live-signal i:nth-child(4) {
     height: 14px;
     opacity: 1;
 }
-
 /* ANIMATION */
 @keyframes live-pulse {
     0% {
         transform: scale(.8);
         opacity: .8;
     }
-
     70% {
         transform: scale(1.8);
         opacity: 0;
     }
-
     100% {
         transform: scale(1.8);
         opacity: 0;
     }
 }
-
 /* =====================================================
    HEADER
 ===================================================== */
@@ -270,14 +236,12 @@ body {
     box-shadow:
         0 3px 12px rgba(0, 0, 0, .08);
 }
-
 .dashboard-title {
     font-size: 24px;
     font-weight: 800;
     letter-spacing: .5px;
     color: #163d6b;
 }
-
 .portal-btn {
     font-size: 12px;
     font-weight: 700;
@@ -285,7 +249,6 @@ body {
         7px 15px;
     border-radius: 20px;
 }
-
 .clock-box {
     font-size: 12px;
     font-weight: 600;
@@ -293,7 +256,6 @@ body {
         7px 15px;
     border-radius: 20px;
 }
-
 /* =====================================================
    CARD
 ===================================================== */
@@ -307,7 +269,6 @@ body {
     margin-bottom: 5px;
     overflow: hidden;
 }
-
 .dashboard-card-header {
     background: #163d6b;
     color: white;
@@ -315,7 +276,6 @@ body {
     border-bottom:
         2px solid #1cc0ef;
 }
-
 .dashboard-card-header h6 {
     margin: 0;
     font-size: 12px;
@@ -323,18 +283,15 @@ body {
     text-transform: uppercase;
     letter-spacing: .4px;
 }
-
 .dashboard-card-body {
     padding: 0;
 }
-
 /* =====================================================
    TABLE GENERAL
 ===================================================== */
 .table-dashboard {
     margin-bottom: 0;
 }
-
 .table-dashboard th {
     background: #263746;
     vertical-align: middle !important;
@@ -348,7 +305,6 @@ body {
     border:
         1px solid #d5dce2;
 }
-
 .table-dashboard td {
     font-size: 11px;
     padding:
@@ -359,13 +315,11 @@ body {
     text-align: center;
     white-space: nowrap;
 }
-
 .table-dashboard tbody td {
     font-family:
         Consolas,
         monospace;
 }
-
 .table-dashboard tbody td:first-child {
     text-align: left;
     font-family:
@@ -373,15 +327,12 @@ body {
         sans-serif;
     font-weight: 600;
 }
-
 .table-dashboard tbody tr:nth-child(even) {
     background: #fafafa;
 }
-
 .table-dashboard tbody tr:hover {
     background: #eef8ff;
 }
-
 .table-dashboard tfoot td {
     background: #dcecff;
     color: #003b63;
@@ -390,7 +341,6 @@ body {
         "Segoe UI",
         sans-serif;
 }
-
 /* =====================================================
    TWO COLUMN MONITORING
 ===================================================== */
@@ -399,18 +349,15 @@ body {
     gap: 10px;
     margin-bottom: 3px;
 }
-
 .monitoring-row .dashboard-card {
     flex: 1;
     margin-bottom: 0;
 }
-
 @media(max-width:992px) {
     .monitoring-row {
         flex-direction: column;
     }
 }
-
 /* =====================================================
    BAD PRODUK VARIAN
 ===================================================== */
@@ -418,13 +365,11 @@ body {
 .bad-varian-table td:first-child {
     width: 170px;
 }
-
 .bad-varian-table td:not(:first-child),
 .bad-varian-table th:not(:first-child) {
     text-align: center;
     min-width: 65px;
 }
-
 /* =====================================================
    BAD PRODUK MESIN
 ===================================================== */
@@ -434,31 +379,26 @@ body {
     padding:
         4px 5px;
 }
-
 .bad-mesin-table th:first-child,
 .bad-mesin-table td:first-child {
     min-width: 90px;
     text-align: left;
 }
-
 .bad-mesin-table td {
     font-family:
         Consolas,
         monospace;
 }
-
 .bad-mesin-table tfoot td {
     background: #dcecff;
     font-weight: bold;
 }
-
 /* SHORTCUT */
 .shortcut-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 10px;
 }
-
 .shortcut-link {
     display: flex;
     align-items: center;
@@ -475,25 +415,21 @@ body {
     text-decoration: none !important;
     transition: .2s;
 }
-
 .shortcut-link:hover {
     transform: translateY(-2px);
     background: #4e73df;
     color: #163d6b;
     border-color: #b9d8eb;
 }
-
 .shortcut-link i {
     width: 16px;
     text-align: center;
 }
-
 @media(max-width:768px) {
     .shortcut-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
-
 /* =====================================================
    BADGE
 ===================================================== */
@@ -503,28 +439,23 @@ body {
         6px 12px;
     border-radius: 20px;
 }
-
 /* =====================================================
    RESPONSIVE
 ===================================================== */
 .table-responsive {
     overflow-x: auto;
 }
-
 ::-webkit-scrollbar {
     height: 6px;
     width: 6px;
 }
-
 ::-webkit-scrollbar-thumb {
     background: #b5b5b5;
     border-radius: 10px;
 }
-
 ::-webkit-scrollbar-track {
     background: #eee;
 }
-
 /* =====================================================
    FOOTER
 ===================================================== */
@@ -536,7 +467,6 @@ footer.sticky-footer {
     color: #888;
 }
 </style>
-
 <body id="page-top">
     <div id="wrapper">
         <div id="content-wrapper" class="d-flex flex-column">
@@ -612,7 +542,6 @@ HEADER
                                                 <th>
                                                     Kg
                                                 </th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -661,7 +590,6 @@ HEADER
                                                 </td>
                                                 <td>
                                                     <?= number_format((float)$total_filkar->adonan - $total_filkar->filkar_kg, 2) ?>
-
                                                 </td>
                                                 <td>
                                                     <?= number_format((float)$total_filkar->yield_formula, 2) ?> %
@@ -918,40 +846,31 @@ BAD PRODUK PER VARIAN
                                                     &&
                                                     !empty($badproduk)
                                                 ) : ?>
-
                                                 <?php
                                                     $badproduk_sorted = [];
-
                                                     foreach ($badproduk as $bp) {
                                                         $badTotal = 0;
-
                                                         foreach ($bad_produk_mesin as $row) {
                                                             $badTotal += (float) (
                                                                 $row->{$bp->nama_badpro} ?? 0
                                                             );
                                                         }
-
                                                         $badproduk_sorted[] = [
                                                             'bp' => $bp,
                                                             'total' => $badTotal
                                                         ];
                                                     }
-
                                                     // Urutkan TOTAL BAD terbesar ke terkecil
                                                     usort($badproduk_sorted, function ($a, $b) {
                                                         return $b['total'] <=> $a['total'];
                                                     });
                                                     $badproduk_sorted = array_slice($badproduk_sorted, 0, 10);
-
                                                     ?>
-
                                                 <?php foreach ($badproduk_sorted as $item) : ?>
-
                                                 <?php
                                                         $bp = $item['bp'];
                                                         $badTotal = $item['total'];
                                                         ?>
-
                                                 <tr>
                                                     <td>
                                                         <?= htmlspecialchars(
@@ -960,27 +879,21 @@ BAD PRODUK PER VARIAN
                                                                     'UTF-8'
                                                                 ) ?>
                                                     </td>
-
                                                     <?php foreach ($bad_produk_mesin as $row) : ?>
-
                                                     <?php
                                                                 $nilaiBad = (float) (
                                                                     $row->{$bp->nama_badpro} ?? 0
                                                                 );
                                                                 ?>
-
                                                     <td>
                                                         <?= number_format($nilaiBad, 2) ?>
                                                     </td>
-
                                                     <?php endforeach; ?>
-
                                                     <td>
                                                         <b>
                                                             <?= number_format($badTotal, 2) ?>
                                                         </b>
                                                     </td>
-
                                                     <td>
                                                         <b>
                                                             <?php
@@ -991,7 +904,6 @@ BAD PRODUK PER VARIAN
                                                                         $persenBad = 0;
                                                                     }
                                                                     ?>
-
                                                             <?= number_format(
                                                                         $persenBad,
                                                                         2
@@ -999,11 +911,8 @@ BAD PRODUK PER VARIAN
                                                         </b>
                                                     </td>
                                                 </tr>
-
                                                 <?php endforeach; ?>
-
                                                 <?php else : ?>
-
                                                 <tr>
                                                     <td colspan="<?= max(
                                                                             2,
@@ -1012,7 +921,6 @@ BAD PRODUK PER VARIAN
                                                         Belum ada data Bad Produk Sortasi
                                                     </td>
                                                 </tr>
-
                                                 <?php endif; ?>
                                             </tbody>
                                             <tfoot class="bg-light">
@@ -1316,5 +1224,4 @@ Dashboard refresh setiap 1 jam
     );
     </script>
 </body>
-
 </html>
