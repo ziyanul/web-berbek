@@ -1,866 +1,258 @@
 <div class="container-fluid">
-    <h1 class="h3 mb-3 text-gray-800">
-        Tambah Sortasi
-    </h1>
+    <h1 class="h3 mb-3 text-gray-800">Tambah Sortasi</h1>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="<?= base_url('sortasi') ?>">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Sortasi
-                </a>
-            </li>
-            <li class="breadcrumb-item active">
-                Tambah Data
-            </li>
+            <li class="breadcrumb-item"><a href="<?= base_url('sortasi') ?>"><i class="fas fa-arrow-left mr-2"></i>Sortasi</a></li>
+            <li class="breadcrumb-item active">Tambah Data</li>
         </ol>
     </nav>
     <div class="card shadow">
-        <div class="card-header">
-            <b>
-                <i class="fas fa-sort-amount-down mr-2"></i>
-                Input Data Sortasi
-            </b>
-        </div>
+        <div class="card-header"><b><i class="fas fa-sort-amount-down mr-2"></i>Input Data Sortasi</b></div>
         <div class="card-body">
-            <form action="<?= base_url('sortasi/tambah') ?>" method="post">
-                <!-- =====================================================
-                     DATA BATCH
-                ====================================================== -->
-                <div class="card border-left-primary mb-4">
-                    <div class="card-header bg-light">
-                        <b>
-                            <i class="fas fa-layer-group mr-2"></i>
-                            Data Batch
-                        </b>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>
-                                        Kode Batch
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select name="tbatch_uuid" id="tbatch_uuid" class="form-control" required>
-                                        <option value="">
-                                            Pilih Batch
-                                        </option>
-                                        <?php foreach ($batch as $b) : ?>
-                                            <option value="<?= $b->uuid ?>">
-                                                <?= $b->kode_batch ?>
-                                                -
-                                                <?= $b->varian ?>
-                                                (Belum Sortir : <?= $b->sisa_wip ?> Box)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- =====================================================
-                     INFORMASI BATCH
-                ====================================================== -->
-                <div class="card border-left-info mb-4">
-                    <div class="card-header bg-light">
-                        <b>
-                            <i class="fas fa-info-circle mr-2"></i>
-                            Informasi Batch
-                        </b>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <h6>
-                                    Filkar
-                                </h6>
-                                <h4>
-                                    <span id="filkarBox">
-                                        0
-                                    </span>
-                                    Box
-                                </h4>
-                            </div>
-                            <div class="col-md-3">
-                                <h6>
-                                    Sudah Sortasi
-                                </h6>
-                                <h4>
-                                    <span id="sortasiBox">
-                                        0
-                                    </span>
-                                    Box
-                                </h4>
-                            </div>
-                            <div class="col-md-3">
-                                <h6>
-                                    Sisa Sortasi
-                                </h6>
-                                <h4 class="text-danger">
-                                    <span id="sisaBox">
-                                        0
-                                    </span>
-                                    Box
-                                </h4>
-                            </div>
-                            <div class="col-md-3">
-                                <h6>
-                                    Berat / Box
-                                </h6>
-                                <h4>
-                                    <span id="boxKg">
-                                        0
-                                    </span>
-                                    Kg
-                                </h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- =====================================================
-                     DATA SORTASI
-                ====================================================== -->
-                <div class="card border-left-success mb-4">
-                    <div class="card-header bg-light">
-                        <b>
-                            <i class="fas fa-box mr-2"></i>
-                            Data Sortasi
-                        </b>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>
-                                        Jumlah Sortir (Box)
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="jumlah_sortir" id="jumlah_sortir" class="form-control" min="1" step="1" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>
-                                        Release Box
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="release_box" id="release_box" class="form-control" min="0" step="1" value="0" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Jam Mulai</label>
-                            <input type="time" name="mulai" class="form-control" value="<?= set_value('mulai') ?>">
-                            <small class="text-danger">
-                                <?= form_error('mulai') ?>
-                            </small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>jam Selesai</label>
-                            <input type="time" name="selesai" class="form-control" value="<?= set_value('selesai') ?>">
-                            <small class="text-danger">
-                                <?= form_error('selesai') ?>
-                            </small>
-                        </div>
-                    </div>
-                </div>
+            <form id="formSortasi" action="<?= base_url('sortasi/tambah') ?>" method="post">
                 <div class="row">
-                    <div class="col-6">
-                <div class="form-group">
-                    <label>Jumlah Man Power</label>
-                    <input type=number step="1" name="jml_mp" class="form-control" value="<?= set_value('jml_mp') ?>">
-                </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Kode Batch <span class="text-danger">*</span></label>
+                            <select name="tbatch_uuid" id="tbatch_uuid" class="form-control" required>
+                                <option value="">Pilih Batch</option>
+                                <?php foreach ($batch as $b): ?>
+                                    <?php $sisaKg=(float)$b->sisa_wip*(float)$b->box_kg; ?>
+                                    <option value="<?= html_escape($b->uuid) ?>"
+                                        data-box-kg="<?= (float)$b->box_kg ?>"
+                                        data-sisa-box="<?= (float)$b->sisa_wip ?>"
+                                        data-sisa-kg="<?= $sisaKg ?>"
+                                        <?= set_select('tbatch_uuid',$b->uuid) ?>>
+                                        <?= html_escape($b->kode_batch) ?> - <?= html_escape($b->varian) ?> |
+                                        Sisa WIP: <?= number_format($b->sisa_wip,3,',','.') ?> Box |
+                                        <?= number_format($sisaKg,3,',','.') ?> Kg
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="text-danger"><?= form_error('tbatch_uuid') ?></small>
+                        </div>
                     </div>
-                    <div class="col-6">
-                <div class="form-group">
-                    <label>Keterangan</label>
-                    <textarea name="keterangan" class="form-control" rows="1"><?= set_value('keterangan') ?></textarea>
-                </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Jenis Sortasi <span class="text-danger">*</span></label>
+                            <select name="jenis_sortasi_uuid" class="form-control" required>
+                                <option value="">Pilih Jenis Sortasi</option>
+                                <?php foreach ($jenis_sortasi as $j): ?>
+                                    <option value="<?= html_escape($j->uuid) ?>" <?= set_select('jenis_sortasi_uuid',$j->uuid) ?>>
+                                        <?= html_escape($j->nama) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="text-danger"><?= form_error('jenis_sortasi_uuid') ?></small>
+                        </div>
                     </div>
                 </div>
+                <div id="wipInfo" class="alert alert-info d-none">
+                    <div class="row">
+                        <div class="col-md-6"><b>Sisa WIP</b><br><span id="sisaWipBox">0</span> Box</div>
+                        <div class="col-md-6"><b>Sisa WIP</b><br><span id="sisaWipKg">0.000</span> Kg</div>
                     </div>
                 </div>
-                <!-- =====================================================
-                     BAD PRODUK
-                ====================================================== -->
+                <div class="card border-left-warning mb-4">
+                    <div class="card-header bg-light"><b>WIP yang Digunakan</b></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>WIP (Kg)</label>
+                                <div class="input-group">
+                                    <input type="number" id="wip_kg" class="form-control" min="0" step="0.001" placeholder="Masukkan Kg">
+                                    <div class="input-group-append"><span class="input-group-text">Kg</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>WIP (Box)</label>
+                                <div class="input-group">
+                                    <input type="number" id="wip_box" class="form-control" min="0" step="0.001" placeholder="Masukkan Box">
+                                    <div class="input-group-append"><span class="input-group-text">Box</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-muted">Isi salah satu. Nilai yang lain dihitung otomatis.</div>
+                        <input type="hidden" name="jumlah_sortir" id="jumlah_sortir" value="0">
+                        <div id="wipHidden"></div>
+                    </div>
+                </div>
+                <div class="card border-left-success mb-4">
+                    <div class="card-header bg-light"><b>Hasil Sortasi</b></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <?php foreach ([
+                                'release_box'=>'Release',
+                                'output_tampung'=>'Tampung',
+                                'output_kasar'=>'Kasar',
+                                'output_cuci'=>'Cuci'
+                            ] as $name=>$label): ?>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><?= $label ?> (Box)</label>
+                                    <input type="number" name="<?= $name ?>" id="<?= $name ?>" class="form-control outputBox" min="0" step="0.001" value="<?= set_value($name,0) ?>">
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="alert alert-secondary mb-0">
+                            <div class="row">
+                                <div class="col-md-6">Belum teridentifikasi</div>
+                                <div class="col-md-6 text-right">
+                                    <b><span id="sisaKg">0.000</span> Kg / <span id="sisaBox">0.000</span> Box</b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card border-left-danger mb-4">
                     <div class="card-header bg-light">
                         <div class="d-flex justify-content-between align-items-center">
-                            <b>
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                Bad Produk
-                            </b>
-                            <button type="button" id="btnTambahBadProduk" class="btn btn-primary btn-sm">
-                                <i class="fa fa-plus"></i>
-                                Tambah Bad Produk
-                            </button>
+                            <b>Bad Produk</b>
+                            <button type="button" id="btnTambahBad" class="btn btn-primary btn-sm"><i class="fa fa-plus mr-1"></i>Tambah</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div id="badProdukContainer">
-                            <div class="text-center text-muted">
-                                Belum ada bad produk dipilih
-                            </div>
+                        <div id="badContainer">
+                            <div class="text-center text-muted">Tidak ada Bad Produk.</div>
+                        </div>
+                        <div class="text-right mt-2"><b>Total Bad: <span id="totalBad">0.000</span> Kg</b></div>
+                    </div>
+                </div>
+                <div class="card border-left-secondary mb-4">
+                    <div class="card-header bg-light"><b>Waktu & Tenaga Kerja</b></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6"><label>Jam Mulai <span class="text-danger">*</span></label><input type="time" name="mulai" class="form-control" value="<?= set_value('mulai') ?>" required></div>
+                            <div class="col-md-6"><label>Jam Selesai <span class="text-danger">*</span></label><input type="time" name="selesai" class="form-control" value="<?= set_value('selesai') ?>" required></div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6"><label>Jumlah Man Power <span class="text-danger">*</span></label><input type="number" name="jml_mp" class="form-control" min="1" step="1" value="<?= set_value('jml_mp') ?>" required></div>
+                            <div class="col-md-6"><label>Keterangan</label><textarea name="keterangan" class="form-control" rows="1"><?= set_value('keterangan') ?></textarea></div>
                         </div>
                     </div>
                 </div>
-                <!-- =====================================================
-                     SUMMARY
-                ====================================================== -->
-                <div class="alert alert-danger">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <h6>
-                                Total Baris Bad Produk
-                            </h6>
-                            <h4 id="totalBarisBad">
-                                0
-                            </h4>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>
-                                Total Mesin Dominan
-                            </h6>
-                            <h4 id="totalMesin">
-                                0
-                            </h4>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>
-                                Total Bad Produk
-                            </h6>
-                            <h4>
-                                <span id="totalBadKg">
-                                    0.00
-                                </span>
-                                Kg
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-                <!-- =====================================================
-                     BUTTON
-                ====================================================== -->
-                <button type="submit" class="btn btn-success">
-                    <i class="fa fa-save"></i>
-                    Simpan
-                </button>
-                <a href="<?= base_url('sortasi') ?>" class="btn btn-danger">
-                    <i class="fa fa-times"></i>
-                    Batal
-                </a>
+                <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Simpan</button>
+                <a href="<?= base_url('sortasi') ?>" class="btn btn-danger"><i class="fa fa-times"></i> Batal</a>
             </form>
         </div>
     </div>
 </div>
-
-<!-- MODAL KONFIRMASI RELEASE -->
-<div class="modal fade" id="modalKonfirmasiRelease" tabindex="-1" role="dialog"
-    aria-labelledby="modalKonfirmasiReleaseLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="modalKonfirmasiReleaseLabel">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    Konfirmasi Data
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body text-center">
-                <p class="mb-3">
-                    Release Box lebih besar daripada Jumlah Sortasi.
-                </p>
-
-                <div class="row">
-                    <div class="col-6">
-                        <small class="text-muted">Jumlah Sortasi</small>
-                        <h4>
-                            <span id="modalJumlahSortasi">0</span>
-                            Box
-                        </h4>
-                    </div>
-
-                    <div class="col-6">
-                        <small class="text-muted">Release Box</small>
-                        <h4>
-                            <span id="modalReleaseBox">0</span>
-                            Box
-                        </h4>
-                    </div>
-                </div>
-
-                <p class="mt-3 mb-0">
-                    Apakah data yang Anda masukkan sudah sesuai?
-                </p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Tidak
-                </button>
-
-                <button type="button" class="btn btn-success" id="btnKonfirmasiRelease">
-                    Ya, Lanjutkan
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
-    let daftarMesin = [];
-    let indexBadProduk = 0;
-    /* ============================================================
-       DOCUMENT READY
-    ============================================================ */
-    $(document).ready(function() {
-        /* ========================================================
-           PILIH BATCH
-        ======================================================== */
-        $('#tbatch_uuid').on('change', function() {
-            let uuid = $(this).val();
-            resetBadProduk();
-            resetInfoBatch();
-            resetMesin();
-            if (uuid === '') {
-                return;
-            }
-            loadBatchInfo(uuid);
-            loadMesin(uuid);
+$(function(){
+    let boxKg=0, wipRows=[], badIndex=0;
+    function n(v){ return parseFloat(v)||0; }
+    function fmt(v){ return n(v).toLocaleString('id-ID',{minimumFractionDigits:3,maximumFractionDigits:3}); }
+    function loadWip(uuid){
+        $.getJSON("<?= base_url('sortasi/get_wip_batch/') ?>"+uuid,function(rows){
+            wipRows=rows||[];
+            let total=0;
+            wipRows.forEach(r=>total+=n(r.sisa_wip));
+            $('#sisaWipBox').text(fmt(total));
+            $('#sisaWipKg').text(fmt(total*boxKg));
+            $('#wipInfo').removeClass('d-none');
+            updateWip();
         });
-        /* ========================================================
-           LOAD INFORMASI BATCH
-        ======================================================== */
-        function loadBatchInfo(uuid) {
-            $.ajax({
-                url: "<?= base_url('sortasi/get_batch_info/') ?>" +
-                    uuid,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    if (!data) {
-                        return;
-                    }
-                    $('#filkarBox')
-                        .text(data.filkar_box || 0);
-                    $('#sortasiBox')
-                        .text(data.sortasi_box || 0);
-                    $('#sisaBox')
-                        .text(data.sisa_sortasi || 0);
-                    $('#boxKg')
-                        .text(data.box_kg || 0);
-                },
-                error: function() {
-                    resetInfoBatch();
-                    alert(
-                        'Gagal mengambil informasi batch.'
-                    );
-                }
-            });
-        }
-        /* ========================================================
-           LOAD MESIN DOMINAN BERDASARKAN BATCH
-        ======================================================== */
-        function loadMesin(uuid) {
-            $.ajax({
-                url: "<?= base_url('sortasi/get_mesin_batch/') ?>" +
-                    uuid,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    daftarMesin = data || [];
-                    /*
-                     * Jika sebelumnya sudah ada bad produk,
-                     * refresh pilihan mesin dominan.
-                     */
-                    refreshSemuaMesinDominan();
-                },
-                error: function() {
-                    daftarMesin = [];
-                    refreshSemuaMesinDominan();
-                    alert(
-                        'Gagal mengambil daftar mesin batch.'
-                    );
-                }
-            });
-        }
-        /* ========================================================
-           TAMBAH BAD PRODUK
-        ======================================================== */
-        $('#btnTambahBadProduk').on('click', function() {
-    if ($('#tbatch_uuid').val() === '') {
-        alert('Silakan pilih batch terlebih dahulu.');
-        return;
     }
-    $('#badProdukContainer .text-muted').remove();
-    $('#badProdukContainer').append(
-        createBadProdukCard(indexBadProduk)
-    );
-    indexBadProduk++;
-    initSelect2Mesin();
-    hitungTotalBad();
-    hitungTotalMesin();
-});
-        /* ========================================================
-           BUAT CARD BAD PRODUK
-        ======================================================== */
-        function createBadProdukCard(index) {
-            return `
-        <div
-            class="card border-left-secondary mb-3 bad-card"
-            data-index="${index}">
-            <div class="card-header bg-light">
-                <div class="d-flex justify-content-between align-items-center">
-                    <b>
-                        <i class="fas fa-box-open mr-2"></i>
-                        Bad Produk
-                    </b>
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm btnHapusBad">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <!-- BAD PRODUK -->
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>
-                                Bad Produk
-                                <span class="text-danger">*</span>
-                            </label>
-                            <select
-                                name="badpro_uuid[]"
-                                class="form-control badproSelect"
-                                required>
-                                <option value="">
-                                    Pilih Bad Produk
-                                </option>
-                                <?php foreach ($badpro as $bp) : ?>
-                                    <option
-                                        value="<?= $bp->uuid_badpro ?>"
-                                        data-kategori="<?= htmlspecialchars($bp->kategori_nama ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                        <?= htmlspecialchars($bp->nama_badpro, ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <!-- KATEGORI -->
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>
-                                Kategori
-                            </label>
-                            <input
-                                type="text"
-                                class="form-control kategoriBad"
-                                readonly>
-                        </div>
-                    </div>
-                    <!-- BERAT -->
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>
-                                Berat Bad Produk (Kg)
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                name="badpro_berat[]"
-                                class="form-control jumlahBad"
-                                required>
-                        </div>
-                    </div>
-                    <!-- MESIN DOMINAN -->
-<div class="col-md-12">
-    <div class="form-group">
-        <label>
-            Mesin Dominan
-            <span class="text-danger">*</span>
-        </label>
-        <select
-            name="mesin_uuid[${index}][]"
-            class="form-control mesinDominan select2Mesin"
-            multiple>
-            ${generateOptionMesinDominan()}
-        </select>
-        <small class="text-muted">
-            Pilih satu atau lebih mesin dominan.
-        </small>
-    </div>
-</div>
-                </div>
-            </div>
-        </div>
-        `;
-        }
-        /* ========================================================
-           OPTION MESIN DOMINAN
-        ======================================================== */
-        function generateOptionMesinDominan() {
-            let html = '';
-            if (daftarMesin.length === 0) {
-                return `
-            <option value="">
-                Mesin tidak tersedia
-            </option>
-        `;
-            }
-            daftarMesin.forEach(function(m) {
-                html += `
-            <option value="${m.uuid}">
-                ${escapeHtml(m.nama_mesin)}
-            </option>
-        `;
-            });
-            return html;
-        }
-        /* ========================================================
-                   Inisialisasi Select2
-        ======================================================== */
-        function initSelect2Mesin() {
-            $('.select2Mesin').each(function() {
-                if ($(this).hasClass('select2-hidden-accessible')) {
-                    return;
-                }
-                $(this).select2({
-                    placeholder: 'Pilih Mesin Dominan',
-                    width: '100%',
-                    allowClear: true,
-                    closeOnSelect: false
-                });
-            });
-        }
-        /* ========================================================
-           REFRESH SEMUA DROPDOWN MESIN DOMINAN
-        ======================================================== */
-        function refreshSemuaMesinDominan() {
-            $('.mesinDominan').each(function() {
-                let select = $(this);
-                let nilaiLama = select.val() || [];
-                let html = generateOptionMesinDominan();
-                select.html(html);
-                /*
-                 * Kembalikan pilihan sebelumnya jika
-                 * mesin tersebut masih tersedia.
-                 */
-                let nilaiValid = [];
-                nilaiLama.forEach(function(uuid) {
-                    let ditemukan = false;
-                    daftarMesin.forEach(function(m) {
-                        if (m.uuid == uuid) {
-                            ditemukan = true;
-                        }
-                    });
-                    if (ditemukan) {
-                        nilaiValid.push(uuid);
-                    }
-                });
-                select.val(nilaiValid);
-            });
-            hitungTotalMesin();
-        }
-        /* ========================================================
-           HAPUS BAD PRODUK
-        ======================================================== */
-        $(document).on(
-            'click',
-            '.btnHapusBad',
-            function() {
-                $(this)
-                    .closest('.bad-card')
-                    .remove();
-                if ($('.bad-card').length === 0) {
-                    $('#badProdukContainer')
-                        .html(`
-                        <div class="text-center text-muted">
-                            Belum ada bad produk dipilih
-                        </div>
-                    `);
-                }
-                hitungTotalBad();
-                hitungTotalMesin();
-            }
-        );
-        /* ========================================================
-           PILIH BAD PRODUK
-           SET KATEGORI
-        ======================================================== */
-        $(document).on(
-            'change',
-            '.badproSelect',
-            function() {
-                let select = $(this);
-                let kategori =
-                    select
-                    .find(':selected')
-                    .data('kategori');
-                select
-                    .closest('.bad-card')
-                    .find('.kategoriBad')
-                    .val(kategori || '');
-                /*
-                 * Cegah bad produk yang sama dipilih
-                 * lebih dari satu kali dalam satu form.
-                 */
-                let selectedValues = [];
-                let duplicate = false;
-                $('.badproSelect').each(function() {
-                    let value = $(this).val();
-                    if (value === '') {
-                        return;
-                    }
-                    if (selectedValues.includes(value)) {
-                        duplicate = true;
-                        return false;
-                    }
-                    selectedValues.push(value);
-                });
-                if (duplicate) {
-                    alert(
-                        'Bad Produk yang sama tidak boleh dipilih lebih dari satu kali.'
-                    );
-                    select.val('');
-                    select
-                        .closest('.bad-card')
-                        .find('.kategoriBad')
-                        .val('');
-                }
-            }
-        );
-        /* ========================================================
-           INPUT BERAT BAD PRODUK
-        ======================================================== */
-        $(document).on(
-            'input',
-            '.jumlahBad',
-            function() {
-                hitungTotalBad();
-            }
-        );
-        /* ========================================================
-           MESIN DOMINAN BERUBAH
-        ======================================================== */
-        $(document).on(
-            'change',
-            '.mesinDominan',
-            function() {
-                hitungTotalMesin();
-            }
-        );
-        /* ========================================================
-           HITUNG TOTAL BAD PRODUK
-        ======================================================== */
-        function hitungTotalBad() {
-            let total = 0;
-            let baris = 0;
-            $('.jumlahBad').each(function() {
-                let value =
-                    parseFloat($(this).val()) || 0;
-                total += value;
-                if ($(this).val() !== '') {
-                    baris++;
-                }
-            });
-            $('#totalBarisBad')
-                .text(baris);
-            $('#totalBadKg')
-                .text(total.toFixed(2));
-        }
-        /* ========================================================
-           HITUNG TOTAL MESIN DOMINAN
-        ======================================================== */
-        function hitungTotalMesin() {
-            let total = 0;
-            $('.mesinDominan').each(function() {
-                let selected =
-                    $(this).val() || [];
-                total += selected.length;
-            });
-            $('#totalMesin')
-                .text(total);
-        }
-        /* ========================================================
-           JUMLAH SORTIR
-        ======================================================== */
-        $('#jumlah_sortir').on(
-            'input',
-            function() {
-                let jumlah =
-                    parseFloat($(this).val()) || 0;
-                let sisa =
-                    parseFloat($('#sisaBox').text()) || 0;
-
-                hitungTotalBad();
-            }
-        );
-        /* ========================================================
-           RELEASE BOX
-        ======================================================== */
-        $('#release_box').on(
-            'input',
-            function() {
-                let sortir =
-                    parseFloat($('#jumlah_sortir').val()) || 0;
-                let release =
-                    parseFloat($(this).val()) || 0;
-
-                hitungTotalBad();
-            }
-        );
-        /* ========================================================
-           RESET BAD PRODUK
-        ======================================================== */
-        function resetBadProduk() {
-            $('#badProdukContainer')
-                .html(`
-                <div class="text-center text-muted">
-                    Belum ada bad produk dipilih
-                </div>
-            `);
-            indexBadProduk = 0;
-            hitungTotalBad();
-            hitungTotalMesin();
-        }
-        /* ========================================================
-           RESET MESIN
-        ======================================================== */
-        function resetMesin() {
-            daftarMesin = [];
-            $('.mesinDominan').each(function() {
-                $(this).html('');
-            });
-            hitungTotalMesin();
-        }
-        /* ========================================================
-           RESET INFO BATCH
-        ======================================================== */
-        function resetInfoBatch() {
-            $('#filkarBox')
-                .text(0);
-            $('#sortasiBox')
-                .text(0);
-            $('#sisaBox')
-                .text(0);
-            $('#boxKg')
-                .text(0);
-            $('#maksimalBadProduk')
-                .text('0.00');
-        }
-        /* ========================================================
-           ESCAPE HTML
-        ======================================================== */
-        function escapeHtml(text) {
-            if (text === null || text === undefined) {
-                return '';
-            }
-            return $('<div>')
-                .text(text)
-                .html();
-        }
-        /* ========================================================
-           VALIDASI SUBMIT
-        ======================================================== */
-        let konfirmasiRelease = false;
-
-$('form').on('submit', function(e) {
-
-    let valid = true;
-
-    /* ------------------------------------------------
-       BATCH
-    ------------------------------------------------ */
-    if ($('#tbatch_uuid').val() === '') {
-        alert('Batch belum dipilih.');
-        e.preventDefault();
-        return false;
-    }
-
-    /* ------------------------------------------------
-       JUMLAH SORTIR
-    ------------------------------------------------ */
-    let jumlahSortir =
-        parseFloat($('#jumlah_sortir').val()) || 0;
-
-    if (jumlahSortir <= 0) {
-        alert('Jumlah sortir harus lebih dari 0.');
-        e.preventDefault();
-        return false;
-    }
-
-    /* ------------------------------------------------
-       RELEASE
-    ------------------------------------------------ */
-    let releaseBox =
-        parseFloat($('#release_box').val()) || 0;
-
-    if (releaseBox > jumlahSortir && !konfirmasiRelease) {
-
-        e.preventDefault();
-
-        $('#modalJumlahSortasi').text(jumlahSortir);
-        $('#modalReleaseBox').text(releaseBox);
-
-        $('#modalKonfirmasiRelease').modal('show');
-
-        return false;
-    }
-
-    /* ------------------------------------------------
-       BAD PRODUK
-    ------------------------------------------------ */
-    $('.bad-card').each(function() {
-
-        let card = $(this);
-
-        let badpro =
-            card.find('.badproSelect').val();
-
-        let berat =
-            parseFloat(
-                card.find('.jumlahBad').val()
-            ) || 0;
-
-        if (!badpro) {
-            alert('Bad Produk belum dipilih.');
-            valid = false;
-            return false;
-        }
-
-        if (berat <= 0) {
-            alert('Berat Bad Produk harus lebih dari 0.');
-            valid = false;
-            return false;
-        }
+    $('#tbatch_uuid').change(function(){
+        let o=$(this).find(':selected');
+        boxKg=n(o.data('box-kg'));
+        $('#wip_kg,#wip_box').val('');
+        $('#wipHidden').empty();
+        if(!$(this).val()){ $('#wipInfo').addClass('d-none'); return; }
+        $('#sisaWipBox').text(fmt(o.data('sisa-box')));
+        $('#sisaWipKg').text(fmt(o.data('sisa-kg')));
+        $('#wipInfo').removeClass('d-none');
+        loadWip($(this).val());
     });
-
-    if (!valid) {
-        e.preventDefault();
-        return false;
-    }
-
-    return true;
-});
-$('#btnKonfirmasiRelease').on('click', function() {
-
-    konfirmasiRelease = true;
-
-    $('#modalKonfirmasiRelease').modal('hide');
-
-    $('form').submit();
-});
+    $('#wip_kg').on('input',function(){
+        if(boxKg>0) $('#wip_box').val(n($(this).val())/boxKg || '');
+        updateWip();
     });
+    $('#wip_box').on('input',function(){
+        if(boxKg>0) $('#wip_kg').val((n($(this).val())*boxKg).toFixed(3));
+        updateWip();
+    });
+    function updateWip(){
+        let box=n($('#wip_box').val()), kg=box*boxKg;
+        $('#jumlah_sortir').val(box);
+        allocate(box);
+        calculate();
+    }
+    function allocate(total){
+        let remain=total, html='';
+        $('#wipHidden').empty();
+        for(let i=0;i<wipRows.length && remain>0;i++){
+            let available=n(wipRows[i].sisa_wip);
+            let take=Math.min(remain,available);
+            if(take>0){
+                html+='<input type="hidden" name="wip_uuid[]" value="'+wipRows[i].uuid+'">';
+                html+='<input type="hidden" name="wip_jumlah[]" value="'+take+'">';
+                remain-=take;
+            }
+        }
+        $('#wipHidden').html(html);
+    }
+    $('.outputBox').on('input',calculate);
+    function calculate(){
+        let inputKg=n($('#wip_kg').val());
+        let outputKg=(
+            n($('#release_box').val())+
+            n($('#output_tampung').val())+
+            n($('#output_kasar').val())+
+            n($('#output_cuci').val())
+        )*boxKg;
+        let bad=n($('#totalBad').text());
+        let sisa=inputKg-outputKg-bad;
+        $('#sisaKg').text(fmt(sisa));
+        $('#sisaBox').text(boxKg>0?fmt(sisa/boxKg):'0.000');
+    }
+    $('#btnTambahBad').click(function(){
+        $('#badContainer .text-muted').remove();
+        let i=badIndex++;
+        $('#badContainer').append(badRow(i));
+        loadMachines(i);
+    });
+    function badRow(i){
+        let options='<option value="">Pilih Bad Produk</option>';
+        <?php foreach($badpro as $b): ?>
+        options+='<option value="<?= html_escape($b->uuid_badpro) ?>" data-kategori="<?= html_escape($b->kategori_nama) ?>"><?= html_escape($b->nama_badpro) ?></option>';
+        <?php endforeach; ?>
+        return '<div class="card border mb-2 bad-card" data-i="'+i+'"><div class="card-body"><div class="row">'+
+            '<div class="col-md-5"><label>Bad Produk</label><select name="badpro_uuid[]" class="form-control badSelect" required>'+options+'</select></div>'+
+            '<div class="col-md-2"><label>Kategori</label><input class="form-control kategori" readonly></div>'+
+            '<div class="col-md-3"><label>Berat (Kg)</label><input type="number" name="badpro_berat[]" class="form-control badWeight" min="0" step="0.001" required></div>'+
+            '<div class="col-md-2"><label>Mesin Dominan <small>(opsional)</small></label><select name="mesin_uuid['+i+'][]" class="form-control mesin" multiple></select></div>'+
+            '</div><div class="text-right mt-2"><button type="button" class="btn btn-danger btn-sm removeBad"><i class="fa fa-trash"></i></button></div></div></div>';
+    }
+    function loadMachines(i){
+        $.getJSON("<?= base_url('sortasi/get_mesin_batch/') ?>"+$('#tbatch_uuid').val(),function(rows){
+            let sel=$('.bad-card[data-i="'+i+'"] .mesin');
+            (rows||[]).forEach(function(m){
+                sel.append('<option value="'+m.uuid+'">'+m.nama_mesin+'</option>');
+            });
+        });
+    }
+    $(document).on('change','.badSelect',function(){
+        $(this).closest('.bad-card').find('.kategori').val($(this).find(':selected').data('kategori')||'');
+    });
+    $(document).on('input','.badWeight',function(){ totalBad(); calculate(); });
+    $(document).on('click','.removeBad',function(){$(this).closest('.bad-card').remove();totalBad();calculate();});
+    function totalBad(){
+        let t=0;
+        $('.badWeight').each(function(){t+=n($(this).val());});
+        $('#totalBad').text(t.toFixed(3));
+    }
+    $('#formSortasi').submit(function(e){
+        let input=n($('#wip_kg').val()), totalOutput=(
+            n($('#release_box').val())+n($('#output_tampung').val())+n($('#output_kasar').val())+n($('#output_cuci').val())
+        )*boxKg+n($('#totalBad').text());
+        if(input<=0){alert('WIP yang digunakan harus diisi.');e.preventDefault();return false;}
+        let available=0;wipRows.forEach(r=>available+=n(r.sisa_wip));
+        if(n($('#wip_box').val())>available+0.000001){alert('WIP yang digunakan melebihi WIP tersedia.');e.preventDefault();return false;}
+        if(totalOutput>input+0.000001){alert('Total Release + Tampung + Kasar + Cuci + Bad melebihi WIP yang digunakan.');e.preventDefault();return false;}
+        if(n($('#sisaKg').text())< -0.000001){e.preventDefault();return false;}
+        return true;
+    });
+});
 </script>

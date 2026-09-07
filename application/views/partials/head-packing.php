@@ -7,23 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title><?= $title ?? ' Yield | CPI-Berbek' ?></title>
+    <title><?= $title ?? ' Packing | CPI-Berbek' ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/img/Prod-title.png'); ?>">
     <link href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" rel="stylesheet" type="text/css">
     <link href="<?= base_url('assets/vendor/fontawesome-free/webfonts/font-googleapis.css'); ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/datatables/datatables.min.css'); ?>">
-    <link href="<?= base_url('assets/css/select2.min.css'); ?>" rel="stylesheet" />
+    <link href="<?= base_url('assets/vendor/css/select2.min.css'); ?>" rel="stylesheet" />
 
 
-    <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>"
-        integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/daterangepicker/daterangepicker.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/vendor/lightbox/lightbox.min.css'); ?>">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css'); ?>">
     <script src="<?= base_url('assets/vendor/jquery/jquery.min.js'); ?>"></script>
-    <script src="<?= base_url('assets/js/select2.min.js'); ?>">
+    <script src="<?= base_url('assets/vendor/js/select2.min.js'); ?>">
     </script>
     <style>
     .dropdown-user-header {
@@ -54,7 +52,7 @@
         font-size: 16px;
         font-weight: 800;
         letter-spacing: .5px;
-        color: #3b8ce7;
+        color: #00ff80;
         border-radius: 10px;
         padding: 8px 20px;
         margin-bottom: 0px;
@@ -88,7 +86,7 @@
         $type     = $this->session->userdata('type');
         $subrole  = $this->session->userdata('subrole');
         ?>
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-success sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- LOGO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('') ?>">
                 <div class="sidebar-brand-icon mt-5">
@@ -98,77 +96,29 @@
             </a>
             <!-- DASHBOARD -->
             <li class="nav-item mt-5 <?= $active_nav == 'home' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('yieldportal/dashboard') ?>">
+                <a class="nav-link" href="<?= base_url('portal/maintenance') ?>">
                     <i class="fa fa-home"></i>
                     <span>DASHBOARD</span>
                 </a>
             </li>
-            <li class="nav-item <?= $active_nav == 'yield' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('yieldportal/analisa') ?>">
-                    <i class="fa fa-list"></i>
-                    <span>ANALISA</span>
+
+            <!-- Drystore -->
+            <li class="nav-item mt-5 <?= $active_nav == 'Drystore' ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= base_url('drystore') ?>">
+                    <i class="fa fa-home"></i>
+                    <span>DRYSTORE</span>
                 </a>
             </li>
-            <hr class="sidebar-divider">
-            <?php if (is_admin()) { ?>
-            <?php } ?>
-            <?php if (is_admin() || is_produksi()) { ?>
-            <!-- PLAN PRODUKSI -->
-            <li class="nav-item <?= $active_nav == 'filler' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('filler/planning') ?>">
-                    <i class="fa fa-list"></i>
-                    <span>PLAN PRODUKSI</span>
-                </a>
-            </li>
-            <li class="nav-item <?= $active_nav == 'mpusage' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('mpusage') ?>">
-                    <i class="fa fa-blender"></i> <span>FORMULA & REWORK</span></a>
-            </li>
-            <!-- ================= FILLER ================= -->
 
-            <li class="nav-item <?= in_array($active_nav, ['counter', 'pvdc']) ? 'active' : '' ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#manualBook">
-                    <span>FILLER</span>
-                </a>
-                <div id="manualBook" class="collapse <?= in_array($active_nav, ['counter', 'pvdc']) ? 'show' : '' ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav == 'counter' ? 'active' : '' ?>"
-                            href="<?= base_url('counter') ?>">
-                            <i class="fa fa-calculator mr-2"></i> <span>COUNTER FILLER</span></a>
-                        <a class="collapse-item <?= $active_nav == 'pvdc' ? 'active' : '' ?>"
-                            href="<?= base_url('pvdc') ?>">
-                            <i class="fa fa-tape mr-2"></i>PEMAKAIAN PVDC & WIRE</a>
-                    </div>
-                </div>
-            </li>
+            <!-- ================= MASTER DATA ================= -->
 
+                        <hr class="sidebar-divider">
 
-            <li class="nav-item <?= $active_nav == 'filkar' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('filkar') ?>">
-                    <i class="fa fa-box"></i> <span>FILLING KARANTINA</span></a>
-            </li>
-            <li class="nav-item <?= $active_nav == 'sortasi' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('sortasi') ?>">
-                    <i class="fa fa-check"></i> <span>SORTASI</span></a>
-            </li>
-
-            <li class="nav-item <?= $active_nav == 'rework' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('rework/kupas') ?>">
-                    <i class="fa fa-recycle"></i> <span>REWORK</span></a>
-            </li>
-
-            <?php } ?>
-            <hr class="sidebar-divider">
-            <hr class="sidebar-divider">
-            <li class="nav-item <?= $active_nav == 'formula' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('formula') ?>">
-                    <i class="fa fa-calculator"></i> <span>FORMULA</span></a>
-            </li>
             <?php if ($type == 1 || $type == 2) { ?>
             <li class="nav-item <?= in_array($active_nav, [
-                                        'area',
-                                        'bahan',
-                                        'sortasi-jenis',
+                                        'type-ds',
+                                        'waste-ds',
+                                        'sparepart',
                                         'am-data',
                                         'kegiatan-am',
                                         'masterspeed',
@@ -179,32 +129,28 @@
                                         'm-badpro'
                                     ]) ? 'active' : ''; ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseMaster">
-                    <span><i class="fa fa-table"></i> MASTER DATA</span>
+                    <span>MASTER DATA</span>
                 </a>
                 <div id="collapseMaster" class="collapse <?= in_array($active_nav, [
-                                                                    'area',
-                                                                    'bahan',
-                                                                    'sortasi-jenis',
-                                                                    'am-data',
-                                                                    'kegiatan-am',
-                                                                    'masterspeed',
-                                                                    'gmp-area',
-                                                                    'gmp-data',
-                                                                    'm_kondisi',
-                                                                    'varian',
-                                                                    'm-badpro'
-                                                                ]) ? 'show' : ''; ?>">
+                                            'type-ds',
+                                            'waste-ds',
+                                            'sparepart',
+                                            'am-data',
+                                            'kegiatan-am',
+                                            'masterspeed',
+                                            'gmp-area',
+                                            'gmp-data',
+                                            'm_kondisi',
+                                            'varian',
+                                            'm-badpro'
+                                        ]) ? 'show' : ''; ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav == 'area' ? 'active' : ''; ?>"
-                            href="<?= base_url('area_proses') ?>">AREA PROSES</a>
-                        <a class="collapse-item <?= $active_nav == 'varian' ? 'active' : ''; ?>"
-                            href="<?= base_url('varian') ?>">VARIAN SOSIS</a>
-                        <a class="collapse-item <?= $active_nav == 'bahan' ? 'active' : ''; ?>"
-                            href="<?= base_url('bahan') ?>">BAHAN BAKU</a>
-                        <a class="collapse-item <?= $active_nav == 'sortasi-jenis' ? 'active' : ''; ?>"
-                            href="<?= base_url('sortasi/jenis') ?>">JENIS SORTASI</a>
-                        <a class="collapse-item <?= $active_nav == 'm-badpro' ? 'active' : ''; ?>"
-                            href="<?= base_url('badpro') ?>">BAD PRODUK</a>
+                        <h6 class="collapse-header">DRYSTORE</h6>
+                        <a class="collapse-item <?= $active_nav=='type-ds'?'active':'';?>"
+                            href="<?= base_url('drystore/type') ?>">TYPE</a>
+                        <a class="collapse-item <?= $active_nav=='waste-ds'?'active':'';?>"
+                            href="<?= base_url('drystore/waste') ?>">JENIS REJECT</a>
+
                     </div>
                 </div>
             </li>
@@ -221,14 +167,11 @@
                         <i class="fa fa-bars"></i>
                     </button>
                     <!-- Info User -->
-
-
-
                     <div class="dashboard-title">
                         <?= $this->session->userdata('fullname'); ?> |
-                        <?= $this->session->userdata('departemen'); ?> |
-                        YIELD
-                    </div>
+                            <?= $this->session->userdata('departemen'); ?>  |
+                            PACKING
+                        </div>
                     <!-- Right Menu -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow">

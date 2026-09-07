@@ -40,6 +40,15 @@
         .sidebar-brand-icon img {
             width: 200%;
         }
+        .dashboard-title {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        color: #64645a;
+        border-radius: 10px;
+        padding: 8px 20px;
+        margin-bottom: 0px;
+    }
         @media (min-width: 768px) {
             .sidebar {
                 width: 20rem !important;
@@ -64,7 +73,7 @@
         $type     = $this->session->userdata('type');
         $subrole  = $this->session->userdata('subrole');
         ?>
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-secondary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- LOGO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('') ?>">
                 <div class="sidebar-brand-icon mt-5">
@@ -222,12 +231,11 @@
                         <i class="fa fa-bars"></i>
                     </button>
                     <!-- Info User -->
-                    <div class="d-none d-sm-flex flex-column">
-                        <span class="h6 text-primary">
-                            <?= $this->session->userdata('fullname'); ?> |
-                            <?= $this->session->userdata('departemen'); ?>
-                        </span>
-                    </div>
+                    <div class="dashboard-title">
+                        <?= $this->session->userdata('fullname'); ?> |
+                            <?= $this->session->userdata('departemen'); ?>  |
+                            PAPERLESS
+                        </div>
                     <!-- Right Menu -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow">

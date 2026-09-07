@@ -41,6 +41,7 @@ class Sortasi extends CI_Controller
 		$data = array(
 			'batch'      => $this->Sortasi_model->get_batch(),
 			'badpro'     => $this->Sortasi_model->get_badpro('SORTASI'),
+			'jenis_sortasi' => $this->Sortasi_model->get_jenis_sortasi(),
 			'active_nav' => 'sortasi'
 		);
 		$this->load->view('partials/head-yield', $data);
@@ -106,43 +107,20 @@ class Sortasi extends CI_Controller
      * =====================================================
      */
 		$data = [
-			'data' =>
-			$sortasi,
-			'batch' =>
-$this->Sortasi_model
-    ->get_batch_edit(
-        $sortasi->tbatch_uuid
-    ),
-			'badpro' =>
-			$this->Sortasi_model
-				->get_badpro('SORTASI'),
-			'badpro_input' =>
-			$this->Sortasi_model
-				->get_badpro_by_ref($uuid),
-			'batch_info' =>
-			$this->Sortasi_model
-				->get_batch_info(
-					$sortasi->tbatch_uuid
-				),
-			'mesin' =>
-			$this->Sortasi_model
-				->get_mesin_batch(
-					$sortasi->tbatch_uuid
-				),
-			'active_nav' =>
-			'sortasi'
+			'data' => $sortasi,
+			'batch' => $this->Sortasi_model->get_batch_edit($sortasi->tbatch_uuid),
+			'jenis_sortasi' =>	$this->Sortasi_model->get_jenis_sortasi(),
+			'wip' => $this->Sortasi_model->get_wip_for_edit($sortasi->tbatch_uuid, $uuid),
+			'output' => $this->Sortasi_model->get_output_by_sortasi($uuid),
+			'badpro' => $this->Sortasi_model->get_badpro('SORTASI'),
+			'badpro_input' => $this->Sortasi_model->get_badpro_by_ref($uuid),
+			'batch_info' =>	$this->Sortasi_model->get_batch_info($sortasi->tbatch_uuid),
+			'mesin' => $this->Sortasi_model->get_mesin_batch($sortasi->tbatch_uuid),
+			'active_nav' => 'sortasi'
 		];
-		$this->load->view(
-			'partials/head-yield',
-			$data
-		);
-		$this->load->view(
-			'sortasi/edit',
-			$data
-		);
-		$this->load->view(
-			'partials/footer'
-		);
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/edit', $data);
+		$this->load->view('partials/footer');
 	}
 	public function hapus($uuid)
 	{
@@ -171,26 +149,85 @@ $this->Sortasi_model
 			$this->Sortasi_model->get_mesin_batch($uuid)
 		);
 	}
-	public function detail($uuid)
+	public function detail($tbatch_uuid)
 	{
-		if (empty($uuid)) {
+		if (empty($tbatch_uuid)) {
 			redirect('sortasi');
 		}
-		$data = [
-			'data'          => $this->Sortasi_model->get_by_uuid($uuid),
-			'badpro'        => $this->Sortasi_model->get_badpro_by_ref($uuid),
-			'badpro_summary' => $this->Sortasi_model->get_badpro_summary_by_ref($uuid),
-			'active_nav'    => 'sortasi'
-		];
-		if (!$data['data']) {
+		$batch = $this->Sortasi_model->get_batch_detail($tbatch_uuid);
+		if (!$batch) {
 			$this->session->set_flashdata(
 				'error_msg',
-				'Data tidak ditemukan.'
+				'Data batch tidak ditemukan.'
 			);
 			redirect('sortasi');
 		}
+		$data = [
+			'batch' => $batch,
+			'history' => $this->Sortasi_model->get_sortasi_history_by_batch($tbatch_uuid),
+			'wip_ledger' => $this->Sortasi_model->get_wip_ledger_by_batch($tbatch_uuid),
+			'badpro' => $this->Sortasi_model->get_badpro_by_batch($tbatch_uuid),
+			'active_nav' => 'sortasi'
+		];
 		$this->load->view('partials/head-yield', $data);
 		$this->load->view('sortasi/detail', $data);
 		$this->load->view('partials/footer');
+	}
+	/*
+	*============================================
+	JENIS SORTASI
+	*============================================
+	*/
+	public function jenis()
+	{
+		$rules_jenis = $this->Sortasi_model->rules_jenis();
+		$this->form_validation->set_rules($rules_jenis);
+		if ($this->form_validation->run() === TRUE) {
+			$insert = $this->Sortasi_model->insert_jenis();
+			if ($insert) {
+				$this->session->set_flashdata('success_msg', 'Data Jenis Sortasi berhasil di tambah.');
+				redirect('sortasi/jenis');
+			} else {
+				$this->session->set_flashdata('error_msg', 'Data Jenis Sortasi gagal di tambah.');
+				redirect('sortasi/jenis');
+			}
+		}
+		$data = array(
+			'data' => $this->Sortasi_model->get_all_jenis(),
+			'active_nav' => 'sortasi-jenis'
+		);
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/jenis', $data);
+		$this->load->view('partials/footer');
+	}
+	public function edit_jenis($uuid)
+	{
+		$rules_jenis = $this->Sortasi_model->rules_jenis();
+		$this->form_validation->set_rules($rules_jenis);
+		if ($this->form_validation->run() === TRUE) {
+			$insert = $this->Sortasi_model->update_jenis($uuid);
+			if ($insert) {
+				$this->session->set_flashdata('success_msg', 'Data Jenis Sortasi berhasil di ubah.');
+				redirect('sortasi/jenis');
+			} else {
+				$this->session->set_flashdata('error_msg', 'Data Jenis Sortasi gagal di ubah.');
+				redirect('sortasi/jenis/' . $uuid);
+			}
+		}
+		$data = array(
+			'data' => $this->Sortasi_model->get_jenis_by_uuid($uuid),
+			'active_nav' => 'sortasi-jenis'
+		);
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/jenis-edit', $data);
+		$this->load->view('partials/footer');
+	}
+	public function get_wip_batch($uuid)
+	{
+		$data =
+			$this->Sortasi_model
+			->get_wip_batch($uuid);
+		header('Content-Type: application/json');
+		echo json_encode($data);
 	}
 }

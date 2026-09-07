@@ -106,9 +106,7 @@ class Rework extends CI_Controller
             'data' => $this->Rework_model->get_pakai_data_by_tanggal_kode($tanggal_kode),
             'active_nav' => 'rework'
         );
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
+
         $this->load->view('partials/head-yield', $data);
         $this->load->view('rework/detail', $data);
         $this->load->view('partials/footer');
@@ -467,6 +465,35 @@ class Rework extends CI_Controller
         $this->load->view('partials/footer');
     }
 
+    public function kupas_group()
+    {
+        $rules = $this->Rework_model->rules();
+        $this->form_validation->set_rules($rules);
+
+        if ($this->form_validation->run() === TRUE) {
+            $items = $this->input->post('items');
+            $insert = $this->Rework_model->insert_massal($items);
+
+            if ($insert) {
+                $this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
+            } else {
+                $this->session->set_flashdata('error_msg', 'Gagal menyimpan data.');
+            }
+
+            redirect('rework/kupas');
+        }
+        $data['title'] = 'Kupas Rework';
+
+        $data = array(
+            'varian' => $this->Varian_model->get_all(),
+            'active_nav' => 'rework'
+        );
+
+        $this->load->view('partials/head-yield', $data);
+        $this->load->view('rework/tambah-group', $data);
+        $this->load->view('partials/footer');
+    }
+
     public function simpan_kupas()
     {
         $tbatch_uuid = $this->input->post('tbatch_uuid', true);
@@ -552,5 +579,11 @@ class Rework extends CI_Controller
         return $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
+    }
+
+    public function get_sisa_kupas_by_varian($varian_uuid)
+    {
+        $data = $this->Rework_model->get_stock_group($varian_uuid);
+        echo json_encode($data);
     }
 }
