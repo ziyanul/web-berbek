@@ -2,7 +2,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <!-- Page Heading -->
         <h1 class="h3 mb-2 text-gray-800">Pemakaian PVDC & WIRE</h1>
-        <a href="<?= base_url('area/tambah'); ?>" class="btn btn-md btn-primary shadow-sm"><i
+        <a href="<?= base_url('pvdc/tambah'); ?>" class="btn btn-md btn-primary shadow-sm"><i
                 class="fas fa-plus fa-sm text-white"></i> Tambah</a>
     </div>
     <div class="card shadow mb-4">
@@ -20,7 +20,6 @@
                         <tr>
                             <th>Pemakaian PVDC</th>
                             <th>Pemakaian Wire</th>
-
                         </tr>
                     </thead>
                     <tbody>

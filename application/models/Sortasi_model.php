@@ -1170,4 +1170,1325 @@ JENIS SORTASI
         }
         return $rows;
     }
+    /**
+ * =========================================================
+ * LIST OUTPUT CUCI YANG MASIH MEMILIKI SISA
+ * =========================================================
+ */
+public function get_cuci()
+{
+    $this->db->select("
+        so.uuid AS sortasi_output_uuid,
+        so.sortasi_uuid,
+        so.jumlah AS jumlah_output,
+        COALESCE((
+            SELECT SUM(cd.jumlah_box)
+            FROM t_cuci_detail cd
+            WHERE cd.sortasi_uuid = so.sortasi_uuid
+              AND cd.deleted_at IS NULL
+        ), 0) AS sudah_dicuci,
+        (
+            so.jumlah -
+            COALESCE((
+                SELECT SUM(cd.jumlah_box)
+                FROM t_cuci_detail cd
+                WHERE cd.sortasi_uuid = so.sortasi_uuid
+                  AND cd.deleted_at IS NULL
+            ), 0)
+        ) AS sisa_belum_dicuci,
+        tb.uuid AS tbatch_uuid,
+        tb.kode_batch,
+        v.uuid AS varian_uuid,
+        v.varian,
+        v.box_kg,
+        s.created_at AS sortasi_created_at
+    ", FALSE);
+    $this->db->from('sortasi_output so');
+    $this->db->join(
+        'sortasi s',
+        's.uuid = so.sortasi_uuid',
+        'left'
+    );
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    );
+    $this->db->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    );
+    $this->db->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    );
+    $this->db->where('so.jenis_output', 'CUCI');
+    $this->db->where('so.deleted_at IS NULL', NULL, FALSE);
+    $this->db->where('s.deleted_at IS NULL', NULL, FALSE);
+    $this->db->where('tb.deleted_at IS NULL', NULL, FALSE);
+    /*
+     * Hanya tampilkan yang masih ada sisa untuk dicuci
+     */
+    $this->db->having('sisa_belum_dicuci >', 0);
+    $this->db->order_by('so.created_at', 'DESC');
+    return $this->db->get()->result();
+}
+/**
+ * =========================================================
+ * DETAIL SUMBER CUCI
+ * =========================================================
+ */
+public function get_cuci_detail($sortasi_uuid)
+{
+    $this->db->select("
+        so.uuid AS sortasi_output_uuid,
+        so.sortasi_uuid,
+        so.jumlah AS jumlah_output,
+        COALESCE((
+            SELECT SUM(cd.jumlah_box)
+            FROM t_cuci_detail cd
+            WHERE cd.sortasi_uuid = so.sortasi_uuid
+              AND cd.deleted_at IS NULL
+        ), 0) AS sudah_dicuci,
+        (
+            so.jumlah -
+            COALESCE((
+                SELECT SUM(cd.jumlah_box)
+                FROM t_cuci_detail cd
+                WHERE cd.sortasi_uuid = so.sortasi_uuid
+                  AND cd.deleted_at IS NULL
+            ), 0)
+        ) AS sisa_belum_dicuci,
+        tb.uuid AS tbatch_uuid,
+        tb.kode_batch,
+        v.uuid AS varian_uuid,
+        v.varian,
+        v.keterangan,
+        v.box_kg,
+        tp.uuid AS t_planning_uuid
+    ", FALSE);
+    $this->db->from('sortasi_output so');
+    $this->db->join(
+        'sortasi s',
+        's.uuid = so.sortasi_uuid',
+        'left'
+    );
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    );
+    $this->db->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    );
+    $this->db->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    );
+    $this->db->where(
+        'so.sortasi_uuid',
+        $sortasi_uuid
+    );
+    $this->db->where(
+        'so.jenis_output',
+        'CUCI'
+    );
+    $this->db->where(
+        'so.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    return $this->db
+        ->get()
+        ->row();
+}
+/**
+ * =========================================================
+ * INSERT CUCI
+ * =========================================================
+ */
+public function insert_cuci()
+{
+    $this->db->trans_begin();
+    try {
+        $user =
+            $this->Auth_model
+                ->current_user();
+        $items =
+            $this->input
+                ->post('items', TRUE);
+        $varian_uuid =
+            $this->input
+                ->post('varian_uuid', TRUE);
+        $total_box =
+            (int) $this->input
+                ->post('total_box', TRUE);
+        $kode_batch_hasil =
+            trim(
+                $this->input
+                    ->post(
+                        'kode_batch_hasil',
+                        TRUE
+                    )
+            );
+        $keterangan =
+            trim(
+                $this->input
+                    ->post(
+                        'keterangan',
+                        TRUE
+                    )
+            );
+        /*
+         * -----------------------------------------------------
+         * VALIDASI DASAR
+         * -----------------------------------------------------
+         */
+        if (!$varian_uuid) {
+            throw new Exception(
+                'Varian wajib dipilih.'
+            );
+        }
+        if ($total_box <= 0) {
+            throw new Exception(
+                'Jumlah Cuci harus lebih dari 0.'
+            );
+        }
+        if (!$kode_batch_hasil) {
+            throw new Exception(
+                'Kode batch hasil Cuci wajib diisi.'
+            );
+        }
+        if (
+            empty($items) ||
+            !is_array($items)
+        ) {
+            throw new Exception(
+                'Sumber Cuci belum dipilih.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * CEK KODE BATCH
+         * -----------------------------------------------------
+         */
+        $cek_batch =
+            $this->db
+                ->where(
+                    'kode_batch',
+                    $kode_batch_hasil
+                )
+                ->where(
+                    'deleted_at IS NULL',
+                    NULL,
+                    FALSE
+                )
+                ->get('tbatch')
+                ->row();
+        if ($cek_batch) {
+            throw new Exception(
+                'Kode batch ' .
+                $kode_batch_hasil .
+                ' sudah digunakan.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * VALIDASI ITEM
+         * -----------------------------------------------------
+         */
+        $detail = [];
+        $total_detail = 0;
+        foreach ($items as $item) {
+            if (
+                empty($item['check'])
+            ) {
+                continue;
+            }
+            $sortasi_uuid =
+                isset($item['sortasi_uuid'])
+                    ? trim($item['sortasi_uuid'])
+                    : '';
+            $tbatch_uuid =
+                isset($item['tbatch_uuid'])
+                    ? trim($item['tbatch_uuid'])
+                    : '';
+            $jumlah =
+                isset($item['jumlah'])
+                    ? (int) $item['jumlah']
+                    : 0;
+            if (
+                !$sortasi_uuid ||
+                !$tbatch_uuid ||
+                $jumlah <= 0
+            ) {
+                continue;
+            }
+            /*
+             * Ambil output CUCI
+             */
+            $source =
+                $this->get_cuci_detail(
+                    $sortasi_uuid
+                );
+            if (!$source) {
+                throw new Exception(
+                    'Sumber output Cuci tidak ditemukan.'
+                );
+            }
+            /*
+             * Pastikan varian sesuai
+             */
+            if (
+                $source->varian_uuid
+                != $varian_uuid
+            ) {
+                throw new Exception(
+                    'Varian sumber Cuci tidak sesuai.'
+                );
+            }
+            /*
+             * Pastikan batch sesuai
+             */
+            if (
+                $source->tbatch_uuid
+                != $tbatch_uuid
+            ) {
+                throw new Exception(
+                    'Batch sumber Cuci tidak valid.'
+                );
+            }
+            /*
+             * Pastikan jumlah tidak melebihi sisa
+             */
+            $sisa =
+                (float)
+                $source->sisa_belum_dicuci;
+            if (
+                $jumlah >
+                $sisa
+            ) {
+                throw new Exception(
+                    'Jumlah Cuci batch ' .
+                    $source->kode_batch .
+                    ' melebihi sisa.'
+                );
+            }
+            $detail[] = [
+                'sortasi_uuid' =>
+                    $source->sortasi_uuid,
+                'tbatch_uuid' =>
+                    $source->tbatch_uuid,
+                'jumlah_box' =>
+                    $jumlah,
+                'varian_uuid' =>
+                    $source->varian_uuid
+            ];
+            $total_detail += $jumlah;
+        }
+        if (
+            $total_detail !=
+            $total_box
+        ) {
+            throw new Exception(
+                'Total Cuci tidak sama dengan total detail.'
+            );
+        }
+        if (empty($detail)) {
+            throw new Exception(
+                'Tidak ada sumber Cuci yang dipilih.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * AMBIL PLANNING DARI SUMBER PERTAMA
+         * -----------------------------------------------------
+         */
+        $source_first =
+            $this->get_cuci_detail(
+                $detail[0]['sortasi_uuid']
+            );
+        if (!$source_first) {
+            throw new Exception(
+                'Data planning sumber tidak ditemukan.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * BUAT BATCH HASIL
+         * -----------------------------------------------------
+         */
+        $batch_uuid_hasil =
+            Uuid::uuid4()
+                ->toString();
+        $this->db->insert(
+            'tbatch',
+            [
+                'uuid' =>
+                    $batch_uuid_hasil,
+                'user_uuid' =>
+                    $user->uuid,
+                'username' =>
+                    isset($user->username)
+                        ? $user->username
+                        : $user->fullname,
+                't_planning_uuid' =>
+                    $source_first
+                        ->t_planning_uuid,
+                'batch_ke' =>
+                    0,
+                'kode_batch' =>
+                    $kode_batch_hasil,
+                'tanggal_produksi' =>
+                    date('Y-m-d'),
+                'total' =>
+                    $total_box,
+                'adonan' =>
+                    NULL,
+                'rework_used' =>
+                    NULL,
+                'filkar_kg' =>
+                    NULL,
+                'filkar_box' =>
+                    NULL,
+                'sortasi_box' =>
+                    NULL,
+                'release_box' =>
+                    NULL,
+                'bad_filkar_rework_kg' =>
+                    0,
+                'bad_filkar_reject_kg' =>
+                    0,
+                'bad_sortasi_rework_kg' =>
+                    NULL,
+                'bad_sortasi_reject_kg' =>
+                    NULL,
+                'created_at' =>
+                    date('Y-m-d H:i:s'),
+                'modified_at' =>
+                    date('Y-m-d H:i:s')
+            ]
+        );
+        /*
+         * -----------------------------------------------------
+         * HEADER CUCI
+         * -----------------------------------------------------
+         */
+        $cuci_uuid =
+            Uuid::uuid4()
+                ->toString();
+        $this->db->insert(
+            't_cuci',
+            [
+                'uuid' =>
+                    $cuci_uuid,
+                'varian_uuid' =>
+                    $varian_uuid,
+                'kode_batch_hasil' =>
+                    $kode_batch_hasil,
+                'tbatch_uuid_hasil' =>
+                    $batch_uuid_hasil,
+                'jumlah_box_hasil' =>
+                    $total_box,
+                'status' =>
+                    1,
+                'keterangan' =>
+                    $keterangan,
+                'user_uuid' =>
+                    $user->uuid,
+                'created_at' =>
+                    date('Y-m-d H:i:s'),
+                'modified_at' =>
+                    date('Y-m-d H:i:s')
+            ]
+        );
+        /*
+         * -----------------------------------------------------
+         * DETAIL CUCI
+         * -----------------------------------------------------
+         */
+        foreach ($detail as $row) {
+            $this->db->insert(
+                't_cuci_detail',
+                [
+                    'uuid' =>
+                        Uuid::uuid4()
+                            ->toString(),
+                    't_cuci_uuid' =>
+                        $cuci_uuid,
+                    'sortasi_uuid' =>
+                        $row['sortasi_uuid'],
+                    'tbatch_uuid' =>
+                        $row['tbatch_uuid'],
+                    'jumlah_box' =>
+                        $row['jumlah_box'],
+                    'varian_uuid' =>
+                        $row['varian_uuid'],
+                    'created_at' =>
+                        date('Y-m-d H:i:s'),
+                    'modified_at' =>
+                        date('Y-m-d H:i:s')
+                ]
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * BUAT WIP BATCH HASIL CUCI
+         * -----------------------------------------------------
+         */
+        $this->db->insert(
+            'sortasi_wip',
+            [
+                'uuid' =>
+                    Uuid::uuid4()
+                        ->toString(),
+                'tbatch_uuid' =>
+                    $batch_uuid_hasil,
+                'sortasi_output_uuid' =>
+                    NULL,
+                'jenis_wip' =>
+                    'BELUM_SORTIR',
+                'jumlah_awal' =>
+                    $total_box,
+                'jumlah_terpakai' =>
+                    0,
+                'satuan' =>
+                    'BOX',
+                'created_at' =>
+                    date('Y-m-d H:i:s'),
+                'modified_at' =>
+                    date('Y-m-d H:i:s')
+            ]
+        );
+        /*
+         * -----------------------------------------------------
+         * CEK TRANSAKSI
+         * -----------------------------------------------------
+         */
+        if (
+            !$this->db
+                ->trans_status()
+        ) {
+            throw new Exception(
+                'Gagal menyimpan transaksi Cuci.'
+            );
+        }
+        $this->db
+            ->trans_commit();
+        return [
+            'status' =>
+                TRUE,
+            'message' =>
+                'Data Cuci berhasil disimpan.'
+        ];
+    } catch (Exception $e) {
+        $this->db
+            ->trans_rollback();
+        log_message(
+            'error',
+            'Insert Cuci Error: ' .
+            $e->getMessage()
+        );
+        return [
+            'status' =>
+                FALSE,
+            'message' =>
+                $e->getMessage()
+        ];
+    }
+}
+public function get_cuci_by_varian($varian_uuid)
+{
+    $this->db->select("
+        so.uuid AS sortasi_output_uuid,
+        so.sortasi_uuid,
+        so.jumlah AS jumlah_output,
+        COALESCE(
+            (
+                SELECT SUM(cd.jumlah_box)
+                FROM t_cuci_detail cd
+                WHERE cd.sortasi_uuid = so.sortasi_uuid
+                  AND cd.deleted_at IS NULL
+            ),
+            0
+        ) AS sudah_dicuci,
+        (
+            so.jumlah -
+            COALESCE(
+                (
+                    SELECT SUM(cd.jumlah_box)
+                    FROM t_cuci_detail cd
+                    WHERE cd.sortasi_uuid = so.sortasi_uuid
+                      AND cd.deleted_at IS NULL
+                ),
+                0
+            )
+        ) AS sisa_belum_dicuci,
+        tb.uuid AS tbatch_uuid,
+        tb.kode_batch,
+        v.uuid AS varian_uuid,
+        v.varian,
+        v.keterangan,
+        v.box_kg
+    ", FALSE);
+    $this->db->from('sortasi_output so');
+    $this->db->join(
+        'sortasi s',
+        's.uuid = so.sortasi_uuid',
+        'left'
+    );
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = s.tbatch_uuid',
+        'left'
+    );
+    $this->db->join(
+        't_planning tp',
+        'tp.uuid = tb.t_planning_uuid',
+        'left'
+    );
+    $this->db->join(
+        'varian v',
+        'v.uuid = tp.varian',
+        'left'
+    );
+    $this->db->where(
+        'so.jenis_output',
+        'CUCI'
+    );
+    $this->db->where(
+        'so.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        's.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'tb.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->where(
+        'v.uuid',
+        $varian_uuid
+    );
+    $this->db->having(
+        'sisa_belum_dicuci >',
+        0
+    );
+    $this->db->order_by(
+        'so.created_at',
+        'ASC'
+    );
+    return $this->db
+        ->get()
+        ->result();
+}
+public function get_cuci_history()
+{
+    $this->db->select("
+        c.uuid,
+        c.varian_uuid,
+        c.kode_batch_hasil,
+        c.tbatch_uuid_hasil,
+        c.jumlah_box_hasil,
+        c.status,
+        c.keterangan,
+        c.created_at,
+        v.varian,
+        v.keterangan AS varian_keterangan,
+        (
+            SELECT COUNT(cd.id)
+            FROM t_cuci_detail cd
+            WHERE cd.t_cuci_uuid = c.uuid
+              AND cd.deleted_at IS NULL
+        ) AS jumlah_sumber
+    ", FALSE);
+    $this->db->from('t_cuci c');
+    $this->db->join(
+        'varian v',
+        'v.uuid = c.varian_uuid',
+        'left'
+    );
+    $this->db->where(
+        'c.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->order_by(
+        'c.created_at',
+        'DESC'
+    );
+    return $this->db
+        ->get()
+        ->result();
+}
+public function get_cuci_by_uuid($uuid)
+{
+    $this->db->select("
+        c.*,
+        v.varian,
+        v.keterangan AS varian_keterangan
+    ");
+    $this->db->from('t_cuci c');
+    $this->db->join(
+        'varian v',
+        'v.uuid = c.varian_uuid',
+        'left'
+    );
+    $this->db->where(
+        'c.uuid',
+        $uuid
+    );
+    $this->db->where(
+        'c.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    return $this->db
+        ->get()
+        ->row();
+}
+public function get_cuci_details($cuci_uuid)
+{
+    $this->db->select("
+        cd.uuid,
+        cd.t_cuci_uuid,
+        cd.sortasi_uuid,
+        cd.tbatch_uuid,
+        cd.jumlah_box,
+        cd.varian_uuid,
+        tb.kode_batch,
+        so.jumlah AS jumlah_output,
+        COALESCE((
+            SELECT SUM(x.jumlah_box)
+            FROM t_cuci_detail x
+            WHERE x.sortasi_uuid = cd.sortasi_uuid
+              AND x.deleted_at IS NULL
+        ), 0) AS total_dicuci
+    ", FALSE);
+    $this->db->from('t_cuci_detail cd');
+    $this->db->join(
+        'tbatch tb',
+        'tb.uuid = cd.tbatch_uuid',
+        'left'
+    );
+    $this->db->join(
+        'sortasi_output so',
+        "so.sortasi_uuid = cd.sortasi_uuid
+         AND so.jenis_output = 'CUCI'
+         AND so.deleted_at IS NULL",
+        'left'
+    );
+    $this->db->where(
+        'cd.t_cuci_uuid',
+        $cuci_uuid
+    );
+    $this->db->where(
+        'cd.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    return $this->db
+        ->get()
+        ->result();
+}
+public function cuci_batch_sudah_dipakai($tbatch_uuid)
+{
+    if (!$tbatch_uuid) {
+        return FALSE;
+    }
+    $row = $this->db
+        ->select('COUNT(*) AS total', FALSE)
+        ->from('sortasi')
+        ->where(
+            'tbatch_uuid',
+            $tbatch_uuid
+        )
+        ->where(
+            'deleted_at IS NULL',
+            NULL,
+            FALSE
+        )
+        ->get()
+        ->row();
+    return $row && (int)$row->total > 0;
+}
+public function update_cuci($cuci_uuid)
+{
+    $this->db->trans_begin();
+    try {
+        $user =
+            $this->Auth_model
+                ->current_user();
+        /*
+         * -----------------------------------------------------
+         * AMBIL HEADER
+         * -----------------------------------------------------
+         */
+        $cuci =
+            $this->get_cuci_by_uuid(
+                $cuci_uuid
+            );
+        if (!$cuci) {
+            throw new Exception(
+                'Data Cuci tidak ditemukan.'
+            );
+        }
+        /*
+         * Jangan edit jika batch hasil
+         * sudah masuk proses Sortasi.
+         */
+        if (
+            $this->cuci_batch_sudah_dipakai(
+                $cuci->tbatch_uuid_hasil
+            )
+        ) {
+            throw new Exception(
+                'Cuci tidak dapat diedit karena batch hasil sudah digunakan pada proses Sortasi.'
+            );
+        }
+        $items =
+            $this->input
+                ->post('items', TRUE);
+        $varian_uuid =
+            $this->input
+                ->post('varian_uuid', TRUE);
+        $total_box =
+            (int) $this->input
+                ->post('total_box', TRUE);
+        $kode_batch_hasil =
+            trim(
+                $this->input
+                    ->post(
+                        'kode_batch_hasil',
+                        TRUE
+                    )
+            );
+        $keterangan =
+            trim(
+                $this->input
+                    ->post(
+                        'keterangan',
+                        TRUE
+                    )
+            );
+        if (!$varian_uuid) {
+            throw new Exception(
+                'Varian wajib dipilih.'
+            );
+        }
+        if ($total_box <= 0) {
+            throw new Exception(
+                'Jumlah Cuci harus lebih dari 0.'
+            );
+        }
+        if (!$kode_batch_hasil) {
+            throw new Exception(
+                'Kode batch wajib diisi.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * CEK KODE BATCH
+         * -----------------------------------------------------
+         *
+         * Boleh menggunakan kode lama.
+         * Yang dicek hanya batch lain.
+         */
+        $cek_batch =
+            $this->db
+                ->where(
+                    'kode_batch',
+                    $kode_batch_hasil
+                )
+                ->where(
+                    'uuid !=',
+                    $cuci->tbatch_uuid_hasil
+                )
+                ->where(
+                    'deleted_at IS NULL',
+                    NULL,
+                    FALSE
+                )
+                ->get('tbatch')
+                ->row();
+        if ($cek_batch) {
+            throw new Exception(
+                'Kode batch ' .
+                $kode_batch_hasil .
+                ' sudah digunakan.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * DETAIL BARU
+         * -----------------------------------------------------
+         */
+        $detail = [];
+        $total_detail = 0;
+        foreach ($items as $item) {
+            if (
+                empty($item['check'])
+            ) {
+                continue;
+            }
+            $sortasi_uuid =
+                isset($item['sortasi_uuid'])
+                    ? trim($item['sortasi_uuid'])
+                    : '';
+            $tbatch_uuid =
+                isset($item['tbatch_uuid'])
+                    ? trim($item['tbatch_uuid'])
+                    : '';
+            $jumlah =
+                isset($item['jumlah'])
+                    ? (int)$item['jumlah']
+                    : 0;
+            if (
+                !$sortasi_uuid ||
+                !$tbatch_uuid ||
+                $jumlah <= 0
+            ) {
+                continue;
+            }
+            /*
+             * Ambil sumber.
+             *
+             * Di sini total lama masih ikut dihitung.
+             * Karena nanti detail lama kita soft delete,
+             * maka untuk validasi kita tambahkan kembali
+             * jumlah lama dari transaksi ini.
+             */
+            $source =
+                $this->get_cuci_detail(
+                    $sortasi_uuid
+                );
+            if (!$source) {
+                throw new Exception(
+                    'Sumber Cuci tidak ditemukan.'
+                );
+            }
+            if (
+                $source->varian_uuid
+                != $varian_uuid
+            ) {
+                throw new Exception(
+                    'Varian sumber Cuci tidak sesuai.'
+                );
+            }
+            if (
+                $source->tbatch_uuid
+                != $tbatch_uuid
+            ) {
+                throw new Exception(
+                    'Batch sumber Cuci tidak sesuai.'
+                );
+            }
+            /*
+             * Cari jumlah lama dari transaksi
+             * yang sedang diedit.
+             */
+            $old_row =
+                $this->db
+                    ->select(
+                        'jumlah_box'
+                    )
+                    ->where(
+                        't_cuci_uuid',
+                        $cuci_uuid
+                    )
+                    ->where(
+                        'sortasi_uuid',
+                        $sortasi_uuid
+                    )
+                    ->where(
+                        'deleted_at IS NULL',
+                        NULL,
+                        FALSE
+                    )
+                    ->get('t_cuci_detail')
+                    ->row();
+            $old_qty =
+                $old_row
+                    ? (int)$old_row->jumlah_box
+                    : 0;
+            /*
+             * Sisa sebenarnya untuk transaksi edit.
+             */
+            $sisa =
+                (float)
+                $source->sisa_belum_dicuci;
+            $sisa += $old_qty;
+            if ($jumlah > $sisa) {
+                throw new Exception(
+                    'Jumlah Cuci batch ' .
+                    $source->kode_batch .
+                    ' melebihi sisa.'
+                );
+            }
+            $detail[] = [
+                'sortasi_uuid' =>
+                    $source->sortasi_uuid,
+                'tbatch_uuid' =>
+                    $source->tbatch_uuid,
+                'jumlah_box' =>
+                    $jumlah,
+                'varian_uuid' =>
+                    $source->varian_uuid
+            ];
+            $total_detail += $jumlah;
+        }
+        if (
+            empty($detail)
+        ) {
+            throw new Exception(
+                'Tidak ada sumber Cuci yang dipilih.'
+            );
+        }
+        if (
+            $total_detail !=
+            $total_box
+        ) {
+            throw new Exception(
+                'Total Cuci tidak sama dengan total detail.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * UPDATE HEADER CUCI
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                'uuid',
+                $cuci_uuid
+            )
+            ->update(
+                't_cuci',
+                [
+                    'varian_uuid' =>
+                        $varian_uuid,
+                    'kode_batch_hasil' =>
+                        $kode_batch_hasil,
+                    'jumlah_box_hasil' =>
+                        $total_box,
+                    'keterangan' =>
+                        $keterangan,
+                    'modified_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        )
+                ]
+            );
+        /*
+         * -----------------------------------------------------
+         * UPDATE TBATCH HASIL
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                'uuid',
+                $cuci->tbatch_uuid_hasil
+            )
+            ->update(
+                'tbatch',
+                [
+                    'kode_batch' =>
+                        $kode_batch_hasil,
+                    'total' =>
+                        $total_box,
+                    'modified_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        )
+                ]
+            );
+        /*
+         * -----------------------------------------------------
+         * SOFT DELETE DETAIL LAMA
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                't_cuci_uuid',
+                $cuci_uuid
+            )
+            ->where(
+                'deleted_at IS NULL',
+                NULL,
+                FALSE
+            )
+            ->update(
+                't_cuci_detail',
+                [
+                    'deleted_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        ),
+                    'modified_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        )
+                ]
+            );
+        /*
+         * -----------------------------------------------------
+         * INSERT DETAIL BARU
+         * -----------------------------------------------------
+         */
+        foreach ($detail as $row) {
+            $this->db->insert(
+                't_cuci_detail',
+                [
+                    'uuid' =>
+                        Uuid::uuid4()
+                            ->toString(),
+                    't_cuci_uuid' =>
+                        $cuci_uuid,
+                    'sortasi_uuid' =>
+                        $row['sortasi_uuid'],
+                    'tbatch_uuid' =>
+                        $row['tbatch_uuid'],
+                    'jumlah_box' =>
+                        $row['jumlah_box'],
+                    'varian_uuid' =>
+                        $row['varian_uuid'],
+                    'created_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        ),
+                    'modified_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        )
+                ]
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * UPDATE WIP HASIL CUCI
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                'tbatch_uuid',
+                $cuci->tbatch_uuid_hasil
+            )
+            ->where(
+                'jenis_wip',
+                'BELUM_SORTIR'
+            )
+            ->where(
+                'deleted_at IS NULL',
+                NULL,
+                FALSE
+            )
+            ->update(
+                'sortasi_wip',
+                [
+                    'jumlah_awal' =>
+                        $total_box,
+                    'modified_at' =>
+                        date(
+                            'Y-m-d H:i:s'
+                        )
+                ]
+            );
+        if (
+            !$this->db
+                ->trans_status()
+        ) {
+            throw new Exception(
+                'Gagal mengubah transaksi Cuci.'
+            );
+        }
+        $this->db
+            ->trans_commit();
+        return [
+            'status' =>
+                TRUE,
+            'message' =>
+                'Data Cuci berhasil diubah.'
+        ];
+    } catch (Exception $e) {
+        $this->db
+            ->trans_rollback();
+        log_message(
+            'error',
+            'Update Cuci Error: ' .
+            $e->getMessage()
+        );
+        return [
+            'status' =>
+                FALSE,
+            'message' =>
+                $e->getMessage()
+        ];
+    }
+}
+public function delete_cuci($cuci_uuid)
+{
+    $this->db->trans_begin();
+    try {
+        $cuci =
+            $this->get_cuci_by_uuid(
+                $cuci_uuid
+            );
+        if (!$cuci) {
+            throw new Exception(
+                'Data Cuci tidak ditemukan.'
+            );
+        }
+        /*
+         * -----------------------------------------------------
+         * CEK BATCH HASIL SUDAH DIPAKAI SORTASI
+         * -----------------------------------------------------
+         */
+        if (
+            $this->cuci_batch_sudah_dipakai(
+                $cuci->tbatch_uuid_hasil
+            )
+        ) {
+            throw new Exception(
+                'Cuci tidak dapat dihapus karena batch hasil sudah digunakan pada proses Sortasi.'
+            );
+        }
+        $now =
+            date('Y-m-d H:i:s');
+        /*
+         * -----------------------------------------------------
+         * SOFT DELETE DETAIL
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                't_cuci_uuid',
+                $cuci_uuid
+            )
+            ->where(
+                'deleted_at IS NULL',
+                NULL,
+                FALSE
+            )
+            ->update(
+                't_cuci_detail',
+                [
+                    'deleted_at' =>
+                        $now,
+                    'modified_at' =>
+                        $now
+                ]
+            );
+        /*
+         * -----------------------------------------------------
+         * SOFT DELETE HEADER
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                'uuid',
+                $cuci_uuid
+            )
+            ->update(
+                't_cuci',
+                [
+                    'deleted_at' =>
+                        $now,
+                    'modified_at' =>
+                        $now
+                ]
+            );
+        /*
+         * -----------------------------------------------------
+         * SOFT DELETE WIP HASIL CUCI
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                'tbatch_uuid',
+                $cuci->tbatch_uuid_hasil
+            )
+            ->where(
+                'jenis_wip',
+                'BELUM_SORTIR'
+            )
+            ->where(
+                'deleted_at IS NULL',
+                NULL,
+                FALSE
+            )
+            ->update(
+                'sortasi_wip',
+                [
+                    'deleted_at' =>
+                        $now,
+                    'modified_at' =>
+                        $now
+                ]
+            );
+        /*
+         * -----------------------------------------------------
+         * SOFT DELETE BATCH HASIL
+         * -----------------------------------------------------
+         */
+        $this->db
+            ->where(
+                'uuid',
+                $cuci->tbatch_uuid_hasil
+            )
+            ->where(
+                'deleted_at IS NULL',
+                NULL,
+                FALSE
+            )
+            ->update(
+                'tbatch',
+                [
+                    'deleted_at' =>
+                        $now,
+                    'modified_at' =>
+                        $now
+                ]
+            );
+        if (
+            !$this->db
+                ->trans_status()
+        ) {
+            throw new Exception(
+                'Gagal menghapus transaksi Cuci.'
+            );
+        }
+        $this->db
+            ->trans_commit();
+        return [
+            'status' =>
+                TRUE,
+            'message' =>
+                'Data Cuci berhasil dihapus.'
+        ];
+    } catch (Exception $e) {
+        $this->db
+            ->trans_rollback();
+        log_message(
+            'error',
+            'Delete Cuci Error: ' .
+            $e->getMessage()
+        );
+        return [
+            'status' =>
+                FALSE,
+            'message' =>
+                $e->getMessage()
+        ];
+    }
+}
 }

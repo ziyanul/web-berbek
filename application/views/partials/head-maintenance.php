@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,8 +13,6 @@
     <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/datatables/datatables.min.css'); ?>">
     <link href="<?= base_url('assets/vendor/css/select2.min.css'); ?>" rel="stylesheet" />
-
-
     <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/daterangepicker/daterangepicker.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/vendor/lightbox/lightbox.min.css'); ?>">
@@ -28,26 +25,21 @@
         padding: 0.75rem 1rem;
         border-bottom: 1px solid #eaecf4;
     }
-
     .dropdown-user-header .name {
         font-weight: 700;
         color: #3a3b45;
         margin-bottom: 2px;
     }
-
     .dropdown-user-header .meta {
         font-size: 0.8rem;
         color: #858796;
     }
-
     .sidebar-brand-icon {
         width: 200px;
     }
-
     .sidebar-brand-icon img {
         width: 200%;
     }
-
     .dashboard-title {
         font-size: 16px;
         font-weight: 800;
@@ -57,21 +49,17 @@
         padding: 8px 20px;
         margin-bottom: 0px;
     }
-
     @media (min-width: 768px) {
         .sidebar {
             width: 20rem !important;
         }
-
         .sidebar-brand-icon img {
             width: 100%;
         }
-
         @media (min-width: 768px) {
             .sidebar {
                 width: 20rem !important;
             }
-
             .sidebar .nav-item .nav-link {
                 width: 100% !important;
             }
@@ -79,7 +67,6 @@
     }
     </style>
 </head>
-
 <body id="page-top">
     <div id="wrapper">
         <?php
@@ -101,55 +88,40 @@
                     <span>DASHBOARD</span>
                 </a>
             </li>
-
             <!-- ================= MAINTENANCE ================= -->
-
             <li class="nav-item <?= in_array($active_nav,['pm','pm-tpm','pm-history']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#maintenanceMenu">
                     <span>PREVENTIVE MAINTENANCE</span>
                 </a>
-
                 <div id="maintenanceMenu"
                     class="collapse <?= in_array($active_nav,['pm','pm-tpm','pm-history']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
-
                         <a class="collapse-item <?= $active_nav=='pm-tpm'?'active':'' ?>"
                             href="<?= base_url('pm/tpm') ?>">PENGAJUAN</a>
-
                         <a class="collapse-item <?= $active_nav=='pm'?'active':'' ?>"
                             href="<?= base_url('pm') ?>">MONITORING</a>
-
                         <a class="collapse-item <?= $active_nav=='pm-history'?'active':'' ?>"
                             href="<?= base_url('pm/history') ?>">HISTORY</a>
-
                     </div>
                 </div>
             </li>
-
             <!-- ================= AUTONOMOUS MAINTENANCE ================= -->
-
             <li class="nav-item <?= in_array($active_nav,['am','am-tpm','am-history']) ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#amMenu">
                     <span>AUTONOMOUS MAINTENANCE</span>
                 </a>
-
                 <div id="amMenu"
                     class="collapse <?= in_array($active_nav,['am','am-tpm','am-history']) ? 'show' : '' ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
-
                         <a class="collapse-item <?= $active_nav=='am-tpm'?'active':'' ?>"
                             href="<?= base_url('am/tpm') ?>">PLANNING</a>
-
                         <a class="collapse-item <?= $active_nav=='am'?'active':'' ?>"
                             href="<?= base_url('am') ?>">TASK</a>
-
                         <a class="collapse-item <?= $active_nav=='am-history'?'active':'' ?>"
                             href="<?= base_url('am/history') ?>">HISTORY</a>
                     </div>
                 </div>
             </li>
-
-
             <!-- ================= PART ================= -->
             <?php if(is_admin() || is_produksi() || is_engineering() || is_warehouse()){ ?>
             <li class="nav-item <?= in_array($active_nav,['tpm-part','monitor','histori-part']) ? 'active' : '' ?>">
@@ -169,10 +141,8 @@
                 </div>
             </li>
             <?php } ?>
-
             <?php if($type==1 || $type==2){ ?>
             <!-- ================= REPAIR PART ================= -->
-
             <li
                 class="nav-item <?= $active_nav == 'pengajuan-part' || $active_nav == 'pengajuan-history' ? 'active' : '' ?>">
                 <a class="nav-link collapsed" data-toggle="collapse" data-target="#repairPart">
@@ -189,10 +159,8 @@
                 </div>
             </li>
             <?php } ?>
-
             <hr class="sidebar-divider">
             <hr class="sidebar-divider">
-
             <?php if ($type == 1 || $type == 2) { ?>
             <li class="nav-item <?= in_array($active_nav, [
                                         'area',
@@ -255,7 +223,7 @@
                     <div class="dashboard-title">
                         <?= $this->session->userdata('fullname'); ?> |
                             <?= $this->session->userdata('departemen'); ?>  |
-                            YIELD
+                            MAINTENANCE
                         </div>
                     <!-- Right Menu -->
                     <ul class="navbar-nav ml-auto">
