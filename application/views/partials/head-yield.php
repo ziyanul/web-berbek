@@ -147,15 +147,35 @@
                     <a class="nav-link" href="<?= base_url('filkar') ?>">
                         <i class="fa fa-box"></i> <span>FILLING KARANTINA</span></a>
                 </li>
-                <li class="nav-item <?= $active_nav == 'sortasi' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= base_url('sortasi') ?>">
-                        <i class="fa fa-check"></i> <span>SORTASI</span></a>
+
+                <!-- ================= SORTASI ================= -->
+
+                <li
+                    class="nav-item <?= in_array($active_nav, ['sortasi', 'rework', 'cuci', 'drystore']) ? 'active' : '' ?>">
+                    <a class="nav-link collapsed" data-toggle="collapse" data-target="#yieldSortasi">
+                        <span>PACKING</span>
+                    </a>
+                    <div id="yieldSortasi"
+                        class="collapse <?= in_array($active_nav, ['sortasi', 'rework', 'cuci', 'drystore']) ? 'show' : '' ?>">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item <?= $active_nav == 'sortasi' ? 'active' : '' ?>"
+                                href="<?= base_url('sortasi') ?>">
+                                <i class="fa fa-filter mr-2"></i> <span>SORTASI</span></a>
+
+                            <a class="collapse-item <?= $active_nav == 'rework' ? 'active' : '' ?>"
+                                href="<?= base_url('rework/kupas') ?>">
+                                <i class="fa fa-recycle mr-2"></i>REWORK</a>
+                            <a class="collapse-item <?= $active_nav == 'cuci' ? 'active' : '' ?>"
+                                href="<?= base_url('sortasi/cuci') ?>">
+                                <i class="fa fa-tint mr-2"></i>CUCIAN</a>
+                            <h3 class="collapse-header">PACKAGING</h3>
+                            <a class="collapse-item <?= $active_nav == 'drystore' ? 'active' : '' ?>"
+                                href="<?= base_url('drystore') ?>">
+                                <i class="fa fa-box-open mr-2"></i>DRYSTORE</a>
+                        </div>
+                    </div>
                 </li>
 
-                <li class="nav-item <?= $active_nav == 'rework' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= base_url('rework/kupas') ?>">
-                        <i class="fa fa-recycle"></i> <span>REWORK</span></a>
-                </li>
 
             <?php } ?>
             <hr class="sidebar-divider">

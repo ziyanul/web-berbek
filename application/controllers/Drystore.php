@@ -47,6 +47,9 @@ class Drystore extends CI_Controller
 
         $data['tanggal'] = $tanggal;
 
+        $data['release'] =
+            $this->Drystore_model->get_release();
+
         $data['types'] =
             $this->Drystore_model->get_all_type();
 
@@ -54,6 +57,10 @@ class Drystore extends CI_Controller
             $this->Drystore_model->get_all_waste();
 
         $data['active_nav'] = 'Drystore';
+
+        echo '<pre>';
+        print_r($data['release']);
+        echo '</pre>';
 
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/tambah', $data);
@@ -315,5 +322,11 @@ class Drystore extends CI_Controller
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/edit-waste', $data);
         $this->load->view('partials/footer');
+    }
+
+    public function get_release()
+    {
+        $release = $this->Drystore_model->get_release();
+        echo json_encode($release);
     }
 }

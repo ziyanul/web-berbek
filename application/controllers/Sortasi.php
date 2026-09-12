@@ -111,7 +111,7 @@ class Sortasi extends CI_Controller
      */
 		$data = [
 			'data' => $sortasi,
-			'batch' => $this->Sortasi_model->get_batch_edit($sortasi->tbatch_uuid),
+			'batch' => $this->Sortasi_model->get_batch_edit($sortasi->uuid),
 			'jenis_sortasi' =>	$this->Sortasi_model->get_jenis_sortasi(),
 			'wip' => $this->Sortasi_model->get_wip_for_edit($sortasi->tbatch_uuid, $uuid),
 			'output' => $this->Sortasi_model->get_output_by_sortasi($uuid),
@@ -122,7 +122,7 @@ class Sortasi extends CI_Controller
 			'active_nav' => 'sortasi'
 		];
 		$this->load->view('partials/head-yield', $data);
-		$this->load->view('sortasi/edit', $data);
+		$this->load->view('sortasi/sortasi-edit', $data);
 		$this->load->view('partials/footer');
 	}
 	public function hapus($uuid)
@@ -241,7 +241,7 @@ class Sortasi extends CI_Controller
 	{
 		$data = [
 			'data'       => $this->Sortasi_model->get_cuci(),
-			'active_nav' => 'sortasi'
+			'active_nav' => 'cuci'
 		];
 		$this->load->view(
 			'partials/head-yield',
@@ -259,7 +259,7 @@ class Sortasi extends CI_Controller
 	{
 		$data = [
 			'varian'     => $this->Varian_model->get_all(),
-			'active_nav' => 'sortasi'
+			'active_nav' => 'cuci'
 		];
 		$this->load->view(
 			'partials/head-yield',
@@ -337,7 +337,7 @@ class Sortasi extends CI_Controller
 				->get_cuci_details($uuid),
 			'varian' => $this->Sortasi_model
 				->get_varian(),
-			'active_nav' => 'sortasi'
+			'active_nav' => 'cuci'
 		];
 		$this->load->view(
 			'partials/head-yield',

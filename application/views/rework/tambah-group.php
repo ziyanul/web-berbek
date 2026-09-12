@@ -7,7 +7,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="<?= base_url('rework'); ?>">
+                <a href="<?= base_url('rework/kupas'); ?>">
                     <i class="fas fa-arrow-left"></i>
                     Rework
                 </a>
@@ -36,10 +36,10 @@
                             </option>
 
                             <?php foreach ($varian as $v) : ?>
-                            <option value="<?= html_escape($v->uuid) ?>">
-                                <?= html_escape($v->varian) ?>
-                                (<?= html_escape($v->keterangan) ?>)
-                            </option>
+                                <option value="<?= html_escape($v->uuid) ?>">
+                                    <?= html_escape($v->varian) ?>
+                                    (<?= html_escape($v->keterangan) ?>)
+                                </option>
 
                             <?php endforeach; ?>
 
@@ -167,43 +167,43 @@ $(document).ready(function() {
 </script> -->
 
 <script>
-$(document).ready(function() {
-    // Fungsi untuk membagi total_berat ke baris detail secara otomatis
-    function distributeBerat() {
-        let totalBerat = parseFloat($('#total_berat').val()) || 0;
+    $(document).ready(function() {
+        // Fungsi untuk membagi total_berat ke baris detail secara otomatis
+        function distributeBerat() {
+            let totalBerat = parseFloat($('#total_berat').val()) || 0;
 
-        $('#table-kegiatan tbody tr').each(function() {
-            let $row = $(this);
-            let sisaKupas = parseFloat($row.data('sisa-kupas')) || 0;
-            let $inputBerat = $row.find('.input-berat');
-            let $checkbox = $row.find('.check-item');
+            $('#table-kegiatan tbody tr').each(function() {
+                let $row = $(this);
+                let sisaKupas = parseFloat($row.data('sisa-kupas')) || 0;
+                let $inputBerat = $row.find('.input-berat');
+                let $checkbox = $row.find('.check-item');
 
-            if (totalBerat > 0 && sisaKupas > 0) {
-                // Ambil nilai terkecil antara sisa total berat atau sisa kupas batch tersebut
-                let allocation = Math.min(totalBerat, sisaKupas);
+                if (totalBerat > 0 && sisaKupas > 0) {
+                    // Ambil nilai terkecil antara sisa total berat atau sisa kupas batch tersebut
+                    let allocation = Math.min(totalBerat, sisaKupas);
 
-                $inputBerat.val(allocation.toFixed(3));
-                $checkbox.prop('checked', true);
+                    $inputBerat.val(allocation.toFixed(3));
+                    $checkbox.prop('checked', true);
 
-                // Kurangi total berat yang tersisa
-                totalBerat -= allocation;
-            } else {
-                $inputBerat.val('0.000');
-                $checkbox.prop('checked', false);
-            }
-        });
-    }
+                    // Kurangi total berat yang tersisa
+                    totalBerat -= allocation;
+                } else {
+                    $inputBerat.val('0.000');
+                    $checkbox.prop('checked', false);
+                }
+            });
+        }
 
-    // Event ketika Varian dipilih
-    $('select[name="varian_uuid"]').change(function() {
-        let varian = $(this).val();
+        // Event ketika Varian dipilih
+        $('select[name="varian_uuid"]').change(function() {
+            let varian = $(this).val();
 
-        $.get('<?= base_url("rework/get_sisa_kupas_by_varian/") ?>' + varian, function(res) {
-            let data = JSON.parse(res);
-            let html = '';
+            $.get('<?= base_url("rework/get_sisa_kupas_by_varian/") ?>' + varian, function(res) {
+                let data = JSON.parse(res);
+                let html = '';
 
-            data.forEach((v, i) => {
-                html += `
+                data.forEach((v, i) => {
+                    html += `
                 <tr data-sisa-kupas="${v.sisa_kupas}">
                     <td>${i+1}</td>
                     <td>
@@ -221,18 +221,18 @@ $(document).ready(function() {
                         <input type="number" step="0.001" min="0" max="${v.sisa_kupas}" name="items[${i}][berat]" class="form-control form-control-sm input-berat" value="0">
                     </td>
                 </tr>`;
+                });
+
+                $('#table-kegiatan tbody').html(html);
+
+                // Panggil fungsi pembagian otomatis setelah tabel terisi
+                distributeBerat();
             });
+        });
 
-            $('#table-kegiatan tbody').html(html);
-
-            // Panggil fungsi pembagian otomatis setelah tabel terisi
+        // Event ketika nilai #total_berat diketik/diubah secara real-time
+        $('#total_berat').on('input', function() {
             distributeBerat();
         });
     });
-
-    // Event ketika nilai #total_berat diketik/diubah secara real-time
-    $('#total_berat').on('input', function() {
-        distributeBerat();
-    });
-});
 </script>

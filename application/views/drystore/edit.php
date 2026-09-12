@@ -9,11 +9,12 @@
 
 
     </div>
-<nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= base_url('drystore') ?>"><i class="fas fa-arrow-left"></i>  Drystore</a></li>
-        <li class="breadcrumb-item active" aria-current="page"> Edit</li>
-      </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= base_url('drystore') ?>"><i class="fas fa-arrow-left"></i>
+                    Drystore</a></li>
+            <li class="breadcrumb-item active" aria-current="page"> Edit</li>
+        </ol>
     </nav>
 
     <?php if ($this->session->flashdata('error_msg')): ?>
@@ -76,9 +77,7 @@
 
                         <?= tanggal_indo($drystore->tanggal); ?>
 
-                        <small class="text-muted ml-2">
-                            (otomatis dari server)
-                        </small>
+
 
                     </div>
 
@@ -87,65 +86,64 @@
             </div>
 
 
-            <form
-                action="<?= base_url('drystore/update/' . $drystore->uuid); ?>"
-                method="post"
-            >
+            <form action="<?= base_url('drystore/update/' . $drystore->uuid); ?>" method="post">
 
-<div class="row">
+                <div class="row">
 
-    <?php foreach ($types as $type): ?>
+                    <?php foreach ($types as $type): ?>
 
-        <div class="col-lg-6 mb-4">
+                        <div class="col-lg-6 mb-4">
 
-            <div class="card border-left-primary shadow-sm h-100">
+                            <div class="card border-left-primary shadow-sm h-100">
 
-                <div class="card-header py-2">
+                                <div class="card-header py-2">
 
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-box mr-2"></i>
-                        <?= htmlspecialchars($type->nama); ?>
-                    </h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-box mr-2"></i>
+                                        <?= htmlspecialchars($type->nama); ?>
+                                    </h6>
 
-                </div>
+                                </div>
 
-                <div class="card-body py-2">
+                                <div class="card-body py-2">
 
-                    <?php foreach ($wastes as $waste): ?>
+                                    <?php foreach ($wastes as $waste): ?>
 
-                        <?php
-                        $value = '';
+                                        <?php
+                                        $value = '';
 
-                        if (isset($matrix[$type->uuid][$waste->uuid])) {
-                            $value = $matrix[$type->uuid][$waste->uuid];
-                        }
-                        ?>
+                                        if (isset($matrix[$type->uuid][$waste->uuid])) {
+                                            $value = $matrix[$type->uuid][$waste->uuid];
+                                        }
+                                        ?>
 
-                        <div class="form-group row align-items-center mb-2">
+                                        <div class="form-group row align-items-center mb-2">
 
-                            <label class="col-sm-7 col-form-label py-1">
-                                <?= htmlspecialchars($waste->nama); ?>
-                            </label>
+                                            <label class="col-sm-7 col-form-label py-1">
+                                                <?= htmlspecialchars($waste->nama); ?>
+                                            </label>
 
-                            <div class="col-sm-5">
+                                            <div class="col-sm-5">
 
-                                <div class="input-group input-group-sm">
+                                                <div class="input-group input-group-sm">
 
-                                    <input
-                                        type="number"
-                                        name="waste[<?= $type->uuid; ?>][<?= $waste->uuid; ?>]"
-                                        class="form-control text-right"
-                                        step="0.001"
-                                        min="0"
-                                        value="<?= $value; ?>"
-                                        placeholder="0"
-                                    >
+                                                    <input type="number" name="waste[<?= $type->uuid; ?>][<?= $waste->uuid; ?>]"
+                                                        class="form-control text-right" step="0.001" min="0"
+                                                        value="<?= $value; ?>" placeholder="0">
 
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">
-                                            Kg
-                                        </span>
-                                    </div>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">
+                                                            Kg
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    <?php endforeach; ?>
 
                                 </div>
 
@@ -157,21 +155,12 @@
 
                 </div>
 
-            </div>
-
-        </div>
-
-    <?php endforeach; ?>
-
-</div>
-
 
                 <!-- BUTTON -->
 
                 <div class="text-right mt-4">
 
-                    <a href="<?= base_url('drystore'); ?>"
-                        class="btn btn-secondary shadow-sm mr-2">
+                    <a href="<?= base_url('drystore'); ?>" class="btn btn-secondary shadow-sm mr-2">
 
                         <i class="fas fa-times mr-2"></i>
                         Batal
@@ -179,8 +168,7 @@
                     </a>
 
 
-                    <button type="submit"
-                        class="btn btn-warning shadow-sm">
+                    <button type="submit" class="btn btn-warning shadow-sm">
 
                         <i class="fas fa-save mr-2"></i>
                         Simpan Perubahan

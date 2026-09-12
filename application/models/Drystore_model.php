@@ -1,82 +1,84 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
+
 use Ramsey\Uuid\Uuid;
+
 class Drystore_model extends CI_Model
 {
-	public function __construct()
-	{
-		parent::__construct();
-		$this->load->model('Auth_model');
-		$this->load->model('Proses_model');
-		$this->load->model('Counter_model');
-		//$this->dberetort = $this->load->database('e-retort', TRUE);
-	}
-	public function rules()
-	{
-		return [
-			[
-				'field' => 'varian_uuid',
-				'label' => 'Varian',
-				'rules' => 'required',
-				'errors' => [
-					'required' => '{field} wajib diisi !',
-				]
-			],
-			[
-				'field' => 'jumlah_badpro[]',
-				'label' => 'Jumlah Bad Produk',
-				'rules' => 'required|numeric',
-				'errors' => [
-					'required' => '{field} wajib diisi !',
-					'numeric' => '{field} harus berupa angka !',
-				]
-			]
-		];
-	}
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Auth_model');
+        $this->load->model('Proses_model');
+        $this->load->model('Counter_model');
+        //$this->dberetort = $this->load->database('e-retort', TRUE);
+    }
+    public function rules()
+    {
+        return [
+            [
+                'field' => 'varian_uuid',
+                'label' => 'Varian',
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{field} wajib diisi !',
+                ]
+            ],
+            [
+                'field' => 'jumlah_badpro[]',
+                'label' => 'Jumlah Bad Produk',
+                'rules' => 'required|numeric',
+                'errors' => [
+                    'required' => '{field} wajib diisi !',
+                    'numeric' => '{field} harus berupa angka !',
+                ]
+            ]
+        ];
+    }
 
     public function rules_type()
-	{
-		return [
-			[
-				'field' => 'nama',
-				'label' => 'Type',
-				'rules' => 'required',
-				'errors' => [
-					'required' => '{label} wajib diisi !',
-				]
-			],
-			[
-				'field' => 'std_waste',
-				'label' => 'Standar %',
-				'rules' => 'required',
-				'errors' => [
-					'required' => '{label} wajib diisi !',
-				]
-			],
+    {
+        return [
             [
-				'field' => 'satuan',
-				'label' => 'Satuan',
-				'rules' => 'required',
-				'errors' => [
-					'required' => '{label} wajib diisi !',
-				]
-			]
-		];
-	}
+                'field' => 'nama',
+                'label' => 'Type',
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{label} wajib diisi !',
+                ]
+            ],
+            [
+                'field' => 'std_waste',
+                'label' => 'Standar %',
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{label} wajib diisi !',
+                ]
+            ],
+            [
+                'field' => 'satuan',
+                'label' => 'Satuan',
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{label} wajib diisi !',
+                ]
+            ]
+        ];
+    }
 
     public function rules_waste()
-	{
-		return [
-			[
-				'field' => 'nama',
-				'label' => 'Type',
-				'rules' => 'required',
-				'errors' => [
-					'required' => '{label} wajib diisi !',
-				]
-			]
-		];
-	}
+    {
+        return [
+            [
+                'field' => 'nama',
+                'label' => 'Type',
+                'rules' => 'required',
+                'errors' => [
+                    'required' => '{label} wajib diisi !',
+                ]
+            ]
+        ];
+    }
 
     /**
      * Generate UUID
@@ -225,7 +227,8 @@ class Drystore_model extends CI_Model
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
-            $this->db->insert('drystore',
+            $this->db->insert(
+                'drystore',
                 $header
             );
 
@@ -294,7 +297,6 @@ class Drystore_model extends CI_Model
             $this->db->trans_commit();
 
             return $drystore_uuid;
-
         } catch (Exception $e) {
 
             $this->db->trans_rollback();
@@ -397,7 +399,6 @@ class Drystore_model extends CI_Model
             $this->db->trans_commit();
 
             return true;
-
         } catch (Exception $e) {
 
             $this->db->trans_rollback();
@@ -413,43 +414,43 @@ class Drystore_model extends CI_Model
      * ========================================================= */
 
     public function insert_type()
-	{
-		$uuid = Uuid::uuid4()->toString();
+    {
+        $uuid = Uuid::uuid4()->toString();
 
-		$nama = $this->input->post('nama');
-		$std_waste = $this->input->post('std_waste');
+        $nama = $this->input->post('nama');
+        $std_waste = $this->input->post('std_waste');
         $satuan = $this->input->post('satuan');
 
-		$data = array(
-			'uuid' => $uuid,
-			'nama' => $nama,
+        $data = array(
+            'uuid' => $uuid,
+            'nama' => $nama,
             'satuan' => $satuan,
             'aktif' => 1,
-			'std_waste' => $std_waste,
-			'user_uuid'     => $this->auth_model->current_user()->uuid
+            'std_waste' => $std_waste,
+            'user_uuid'     => $this->auth_model->current_user()->uuid
 
-		);
+        );
 
-		$this->db->insert('drystore_type', $data);
-		return ($this->db->affected_rows() > 0) ? true : false;
-	}
+        $this->db->insert('drystore_type', $data);
+        return ($this->db->affected_rows() > 0) ? true : false;
+    }
 
     public function insert_waste()
-	{
-		$uuid = Uuid::uuid4()->toString();
+    {
+        $uuid = Uuid::uuid4()->toString();
 
-		$nama = $this->input->post('nama');
+        $nama = $this->input->post('nama');
 
-		$data = array(
-			'uuid' => $uuid,
-			'nama' => $nama,
+        $data = array(
+            'uuid' => $uuid,
+            'nama' => $nama,
             'aktif' => 1,
-			'user_uuid'     => $this->auth_model->current_user()->uuid
-		);
+            'user_uuid'     => $this->auth_model->current_user()->uuid
+        );
 
-		$this->db->insert('drystore_waste', $data);
-		return ($this->db->affected_rows() > 0) ? true : false;
-	}
+        $this->db->insert('drystore_waste', $data);
+        return ($this->db->affected_rows() > 0) ? true : false;
+    }
 
     public function get_type_by_uuid($uuid)
     {
@@ -460,43 +461,43 @@ class Drystore_model extends CI_Model
     }
 
     public function update_type($uuid)
-	{
-		$nama = $this->input->post('nama');
-		$std_waste = $this->input->post('std_waste');
-		$satuan = $this->input->post('satuan');
+    {
+        $nama = $this->input->post('nama');
+        $std_waste = $this->input->post('std_waste');
+        $satuan = $this->input->post('satuan');
 
-		$data = array(
-			'nama' => $nama,
-			'std_waste' => $std_waste,
-			'user_uuid'     => $this->auth_model->current_user()->uuid,
-			'updated_at'  => date('Y-m-d h:i:s'),
-			'satuan' => $satuan
+        $data = array(
+            'nama' => $nama,
+            'std_waste' => $std_waste,
+            'user_uuid'     => $this->auth_model->current_user()->uuid,
+            'updated_at'  => date('Y-m-d h:i:s'),
+            'satuan' => $satuan
 
-		);
+        );
 
-		$this->db->update('drystore_type', $data, array('uuid' => $uuid));
-		return ($this->db->affected_rows() > 0) ? true : false;
-	}
+        $this->db->update('drystore_type', $data, array('uuid' => $uuid));
+        return ($this->db->affected_rows() > 0) ? true : false;
+    }
 
     /* =========================================================
      * MASTER WASTE
      * ========================================================= */
 
     public function update_waste($uuid)
-	{
-		$nama = $this->input->post('nama');
+    {
+        $nama = $this->input->post('nama');
 
-		$data = array(
-			'nama' => $nama,
-			'user_uuid'     => $this->auth_model->current_user()->uuid,
-			'updated_at'  => date('Y-m-d h:i:s')
+        $data = array(
+            'nama' => $nama,
+            'user_uuid'     => $this->auth_model->current_user()->uuid,
+            'updated_at'  => date('Y-m-d h:i:s')
 
 
-		);
+        );
 
-		$this->db->update('drystore_waste', $data, array('uuid' => $uuid));
-		return ($this->db->affected_rows() > 0) ? true : false;
-	}
+        $this->db->update('drystore_waste', $data, array('uuid' => $uuid));
+        return ($this->db->affected_rows() > 0) ? true : false;
+    }
 
     public function get_waste_by_uuid($uuid)
     {
@@ -504,5 +505,21 @@ class Drystore_model extends CI_Model
             ->where('uuid', $uuid)
             ->get('drystore_waste')
             ->row();
+    }
+
+    public function get_release()
+    {
+        $tanggal = $this->input->post('tanggal');
+        $this->db->select('v.varian,
+        SUM(s.jml_release) AS total_release
+        ');
+        $this->db->from('sortasi s');
+        $this->db->join('tbatch tb', 'tb.uuid = s.tbatch_uuid', 'left');
+        $this->db->join('varian v', 'v.uuid = tb.varian_uuid', 'left');
+        $this->db->where('date(s.created_at)', $tanggal);
+        $this->db->group_by('v.varian');
+        $this->db->order_by('v.varian', 'ASC');
+        $data = $this->db->get()->result();
+        return $data;
     }
 }
