@@ -27,3 +27,4 @@ application/config/config.php
 application/config/database.php
 .vscode
 .editorconfig
+upload/*.jpeg
