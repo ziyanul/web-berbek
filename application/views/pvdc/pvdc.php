@@ -20,7 +20,6 @@
                         <tr>
                             <th>Pemakaian PVDC</th>
                             <th>Pemakaian Wire</th>
-
                         </tr>
                     </thead>
                     <tbody>
