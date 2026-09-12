@@ -1,6 +1,8 @@
-<?php 
+<?php
 date_default_timezone_set('Asia/Jakarta');
+
 use Ramsey\Uuid\Uuid;
+
 class Varian_model extends CI_Model
 {
 	public function __construct()
@@ -17,7 +19,7 @@ class Varian_model extends CI_Model
 				'label' => 'varian',
 				'rules' => 'required'
 			],
-			
+
 		];
 	}
 
@@ -44,7 +46,7 @@ class Varian_model extends CI_Model
 			'keterangan' => $keterangan,
 			'user_uuid'     => $this->auth_model->current_user()->uuid
 
-		);	
+		);
 
 		$this->db->insert('varian', $data);
 		return ($this->db->affected_rows() > 0) ? true : false;
@@ -58,9 +60,10 @@ class Varian_model extends CI_Model
 		$berat = $this->input->post('berat');
 		$kontainer_kg = $this->input->post('kontainer_kg');
 		$box_kg = $this->input->post('box_kg');
+		$pvdc_batch = $this->input->post('pvdc_batch');
+		$wire_batch = $this->input->post('wire_batch');
 
 		$data = array(
-			
 			'varian' => $varian,
 			'keterangan' => $keterangan,
 			'user_uuid'     => $this->auth_model->current_user()->uuid,
@@ -68,9 +71,11 @@ class Varian_model extends CI_Model
 			'panjang' => $panjang,
 			'berat' => $berat,
 			'kontainer_kg' => $kontainer_kg,
-			'box_kg' => $box_kg
+			'box_kg' => $box_kg,
+			'pvdc_batch' => $pvdc_batch,
+			'wire_batch' => $wire_batch
 
-		);	
+		);
 
 		$this->db->update('varian', $data, array('uuid' => $uuid));
 		return ($this->db->affected_rows() > 0) ? true : false;
@@ -78,6 +83,6 @@ class Varian_model extends CI_Model
 
 	public function get_by_uuid($uuid)
 	{
-		return $this->db->get_where('varian', array('uuid' => $uuid ))->row();
+		return $this->db->get_where('varian', array('uuid' => $uuid))->row();
 	}
 }

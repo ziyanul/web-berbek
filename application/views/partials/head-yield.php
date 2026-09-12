@@ -26,47 +26,38 @@
     <script src="<?= base_url('assets/js/select2.min.js'); ?>">
     </script>
     <style>
-    .dropdown-user-header {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #eaecf4;
-    }
+        .dropdown-user-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eaecf4;
+        }
 
-    .dropdown-user-header .name {
-        font-weight: 700;
-        color: #3a3b45;
-        margin-bottom: 2px;
-    }
+        .dropdown-user-header .name {
+            font-weight: 700;
+            color: #3a3b45;
+            margin-bottom: 2px;
+        }
 
-    .dropdown-user-header .meta {
-        font-size: 0.8rem;
-        color: #858796;
-    }
+        .dropdown-user-header .meta {
+            font-size: 0.8rem;
+            color: #858796;
+        }
 
-    .sidebar-brand-icon {
-        width: 200px;
-    }
-
-    .sidebar-brand-icon img {
-        width: 200%;
-    }
-
-    .dashboard-title {
-        font-size: 16px;
-        font-weight: 800;
-        letter-spacing: .5px;
-        color: #3b8ce7;
-        border-radius: 10px;
-        padding: 8px 20px;
-        margin-bottom: 0px;
-    }
-
-    @media (min-width: 768px) {
-        .sidebar {
-            width: 20rem !important;
+        .sidebar-brand-icon {
+            width: 200px;
         }
 
         .sidebar-brand-icon img {
-            width: 100%;
+            width: 200%;
+        }
+
+        .dashboard-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            color: #3b8ce7;
+            border-radius: 10px;
+            padding: 8px 20px;
+            margin-bottom: 0px;
         }
 
         @media (min-width: 768px) {
@@ -74,11 +65,20 @@
                 width: 20rem !important;
             }
 
-            .sidebar .nav-item .nav-link {
-                width: 100% !important;
+            .sidebar-brand-icon img {
+                width: 100%;
+            }
+
+            @media (min-width: 768px) {
+                .sidebar {
+                    width: 20rem !important;
+                }
+
+                .sidebar .nav-item .nav-link {
+                    width: 100% !important;
+                }
             }
         }
-    }
     </style>
 </head>
 
@@ -113,49 +113,49 @@
             <?php if (is_admin()) { ?>
             <?php } ?>
             <?php if (is_admin() || is_produksi()) { ?>
-            <!-- PLAN PRODUKSI -->
-            <li class="nav-item <?= $active_nav == 'filler' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('filler/planning') ?>">
-                    <i class="fa fa-list"></i>
-                    <span>PLAN PRODUKSI</span>
-                </a>
-            </li>
-            <li class="nav-item <?= $active_nav == 'mpusage' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('mpusage') ?>">
-                    <i class="fa fa-blender"></i> <span>FORMULA & REWORK</span></a>
-            </li>
-            <!-- ================= FILLER ================= -->
+                <!-- PLAN PRODUKSI -->
+                <li class="nav-item <?= $active_nav == 'filler' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= base_url('filler/planning') ?>">
+                        <i class="fa fa-list"></i>
+                        <span>PLAN PRODUKSI</span>
+                    </a>
+                </li>
+                <li class="nav-item <?= $active_nav == 'mpusage' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= base_url('mpusage') ?>">
+                        <i class="fa fa-blender"></i> <span>FORMULA & REWORK</span></a>
+                </li>
+                <!-- ================= FILLER ================= -->
 
-            <li class="nav-item <?= in_array($active_nav, ['counter', 'pvdc']) ? 'active' : '' ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#manualBook">
-                    <span>FILLER</span>
-                </a>
-                <div id="manualBook" class="collapse <?= in_array($active_nav, ['counter', 'pvdc']) ? 'show' : '' ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav == 'counter' ? 'active' : '' ?>"
-                            href="<?= base_url('counter') ?>">
-                            <i class="fa fa-calculator mr-2"></i> <span>COUNTER FILLER</span></a>
-                        <a class="collapse-item <?= $active_nav == 'pvdc' ? 'active' : '' ?>"
-                            href="<?= base_url('pvdc') ?>">
-                            <i class="fa fa-tape mr-2"></i>PEMAKAIAN PVDC & WIRE</a>
+                <li class="nav-item <?= in_array($active_nav, ['counter', 'pvdc']) ? 'active' : '' ?>">
+                    <a class="nav-link collapsed" data-toggle="collapse" data-target="#manualBook">
+                        <span>FILLER</span>
+                    </a>
+                    <div id="manualBook" class="collapse <?= in_array($active_nav, ['counter', 'pvdc']) ? 'show' : '' ?>">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item <?= $active_nav == 'counter' ? 'active' : '' ?>"
+                                href="<?= base_url('counter') ?>">
+                                <i class="fa fa-calculator mr-2"></i> <span>COUNTER FILLER</span></a>
+                            <a class="collapse-item <?= $active_nav == 'pvdc' ? 'active' : '' ?>"
+                                href="<?= base_url('pvdc') ?>">
+                                <i class="fa fa-tape mr-2"></i>PEMAKAIAN PVDC & WIRE</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
 
 
-            <li class="nav-item <?= $active_nav == 'filkar' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('filkar') ?>">
-                    <i class="fa fa-box"></i> <span>FILLING KARANTINA</span></a>
-            </li>
-            <li class="nav-item <?= $active_nav == 'sortasi' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('sortasi') ?>">
-                    <i class="fa fa-check"></i> <span>SORTASI</span></a>
-            </li>
+                <li class="nav-item <?= $active_nav == 'filkar' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= base_url('filkar') ?>">
+                        <i class="fa fa-box"></i> <span>FILLING KARANTINA</span></a>
+                </li>
+                <li class="nav-item <?= $active_nav == 'sortasi' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= base_url('sortasi') ?>">
+                        <i class="fa fa-check"></i> <span>SORTASI</span></a>
+                </li>
 
-            <li class="nav-item <?= $active_nav == 'rework' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('rework/kupas') ?>">
-                    <i class="fa fa-recycle"></i> <span>REWORK</span></a>
-            </li>
+                <li class="nav-item <?= $active_nav == 'rework' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= base_url('rework/kupas') ?>">
+                        <i class="fa fa-recycle"></i> <span>REWORK</span></a>
+                </li>
 
             <?php } ?>
             <hr class="sidebar-divider">
@@ -165,7 +165,7 @@
                     <i class="fa fa-calculator"></i> <span>FORMULA</span></a>
             </li>
             <?php if ($type == 1 || $type == 2) { ?>
-            <li class="nav-item <?= in_array($active_nav, [
+                <li class="nav-item <?= in_array($active_nav, [
                                         'area',
                                         'bahan',
                                         'sortasi-jenis',
@@ -176,12 +176,14 @@
                                         'gmp-data',
                                         'm_kondisi',
                                         'varian',
+                                        'type-ds',
+                                        'waste-ds',
                                         'm-badpro'
                                     ]) ? 'active' : ''; ?>">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseMaster">
-                    <span><i class="fa fa-table"></i> MASTER DATA</span>
-                </a>
-                <div id="collapseMaster" class="collapse <?= in_array($active_nav, [
+                    <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseMaster">
+                        <span><i class="fa fa-table"></i> MASTER DATA</span>
+                    </a>
+                    <div id="collapseMaster" class="collapse <?= in_array($active_nav, [
                                                                     'area',
                                                                     'bahan',
                                                                     'sortasi-jenis',
@@ -192,22 +194,30 @@
                                                                     'gmp-data',
                                                                     'm_kondisi',
                                                                     'varian',
+                                                                    'type-ds',
+                                                                    'waste-ds',
                                                                     'm-badpro'
                                                                 ]) ? 'show' : ''; ?>">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item <?= $active_nav == 'area' ? 'active' : ''; ?>"
-                            href="<?= base_url('area_proses') ?>">AREA PROSES</a>
-                        <a class="collapse-item <?= $active_nav == 'varian' ? 'active' : ''; ?>"
-                            href="<?= base_url('varian') ?>">VARIAN SOSIS</a>
-                        <a class="collapse-item <?= $active_nav == 'bahan' ? 'active' : ''; ?>"
-                            href="<?= base_url('bahan') ?>">BAHAN BAKU</a>
-                        <a class="collapse-item <?= $active_nav == 'sortasi-jenis' ? 'active' : ''; ?>"
-                            href="<?= base_url('sortasi/jenis') ?>">JENIS SORTASI</a>
-                        <a class="collapse-item <?= $active_nav == 'm-badpro' ? 'active' : ''; ?>"
-                            href="<?= base_url('badpro') ?>">BAD PRODUK</a>
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item <?= $active_nav == 'area' ? 'active' : ''; ?>"
+                                href="<?= base_url('area_proses') ?>">AREA PROSES</a>
+                            <a class="collapse-item <?= $active_nav == 'varian' ? 'active' : ''; ?>"
+                                href="<?= base_url('varian') ?>">VARIAN SOSIS</a>
+                            <a class="collapse-item <?= $active_nav == 'bahan' ? 'active' : ''; ?>"
+                                href="<?= base_url('bahan') ?>">BAHAN BAKU</a>
+                            <a class="collapse-item <?= $active_nav == 'sortasi-jenis' ? 'active' : ''; ?>"
+                                href="<?= base_url('sortasi/jenis') ?>">JENIS SORTASI</a>
+                            <a class="collapse-item <?= $active_nav == 'm-badpro' ? 'active' : ''; ?>"
+                                href="<?= base_url('badpro') ?>">BAD PRODUK</a>
+
+                            <h6 class="collapse-header">DRYSTORE</h6>
+                            <a class="collapse-item <?= $active_nav == 'type-ds' ? 'active' : ''; ?>"
+                                href="<?= base_url('drystore/type') ?>">TYPE</a>
+                            <a class="collapse-item <?= $active_nav == 'waste-ds' ? 'active' : ''; ?>"
+                                href="<?= base_url('drystore/waste') ?>">JENIS REJECT</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
             <?php } ?>
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>

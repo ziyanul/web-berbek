@@ -819,63 +819,105 @@ BAD PRODUK PER VARIAN
                                         <table class="table table-dashboard bad-varian-table">
                                             <thead>
                                                 <tr>
-                                                    <th rowspan="2">
-                                                        Varian
-                                                    </th>
-                                                    <th colspan="2">
-                                                        PVDC
-                                                    </th>
-                                                    <th colspan="2">
-                                                        WIRE
-                                                    </th>
+                                                    <th colspan="4" class="text-center">Data Pemakaian PVDC (ROLL)</th>
                                                 </tr>
                                                 <tr>
-                                                    <th>
-                                                        Pakai (M)
-                                                    </th>
-                                                    <th>
-                                                        Reject (M)
-                                                    </th>
-                                                    <th>
-                                                        Pakai (kg)
-                                                    </th>
-                                                    <th>
-                                                        Reject (kg)
-                                                    </th>
+                                                    <th class="align-middle text-center">Varian</th>
+                                                    <th class="text-center">Onproduk</th>
+                                                    <th class="text-center">Pakai</th>
+                                                    <th class="text-center">Reject (%)</th>
                                                 </tr>
                                             </thead>
                                             <?php
-                                            // Initialize totals
-                                            $total_pvdc = 0;
+                                            $total_onproduk_pvdc = 0;
+                                            $total_pakai_pvdc = 0;
                                             $total_reject_pvdc = 0;
-                                            $total_wire = 0;
+                                            ?>
+                                            <tbody>
+                                                <?php foreach ($pvdc as $v) : ?>
+                                                    <?php
+                                                    $total_onproduk_pvdc += (float)$v->onproduk_pvdc;
+                                                    $total_pakai_pvdc += (float)$v->pvdc;
+                                                    $total_reject_pvdc += (float)$v->reject_pvdc;
+
+                                                    // Logika warna merah jika lebih dari 1.5%
+                                                    $warna_pvdc = ((float)$v->reject_pvdc_persen > 1.5) ? 'text-danger font-weight-bold' : '';
+                                                    ?>
+                                                    <tr>
+                                                        <td> <?= $v->varian ?> </td>
+                                                        <td class="text-right"> <?= round($v->onproduk_pvdc, 2) ?> </td>
+                                                        <td class="text-right"> <?= round($v->pvdc, 2) ?> </td>
+                                                        <td class="text-right <?= $warna_pvdc ?>">
+                                                            <?= $v->reject_pvdc_persen ?>% </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                            <tfoot>
+                                                <?php
+                                                $total_persen_pvdc = $total_pakai_pvdc > 0 ? round(($total_reject_pvdc / $total_pakai_pvdc) * 100, 2) : 0;
+                                                $warna_total_pvdc = ((float)$total_persen_pvdc > 1.5) ? 'text-danger font-weight-bold' : '';
+                                                ?>
+                                                <tr class="bg-light">
+                                                    <td class="font-weight-bold text-center"> TOTAL </td>
+                                                    <td class="text-right"> <b> <?= round($total_onproduk_pvdc, 2) ?>
+                                                        </b> </td>
+                                                    <td class="text-right"> <b> <?= round($total_pakai_pvdc, 2) ?> </b>
+                                                    </td>
+                                                    <td class="text-right <?= $warna_total_pvdc ?>"> <b>
+                                                            <?= $total_persen_pvdc ?>% </b> </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+
+                                        <table class="table table-dashboard bad-varian-table">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="4" class="text-center">Data Pemakaian WIRE (ROLL)</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="align-middle text-center">Varian</th>
+                                                    <th class="text-center">Onproduk</th>
+                                                    <th class="text-center">Pakai</th>
+                                                    <th class="text-center">Reject (%)</th>
+                                                </tr>
+                                            </thead>
+                                            <?php
+                                            $total_onproduk_wire = 0;
+                                            $total_pakai_wire = 0;
                                             $total_reject_wire = 0;
                                             ?>
                                             <tbody>
                                                 <?php foreach ($pvdc as $v) : ?>
                                                     <?php
-                                                    // Accumulate values
-                                                    $total_pvdc += (float)$v->pvdc;
-                                                    $total_reject_pvdc += (float)$v->reject_pvdc;
-                                                    $total_wire += (float)$v->wire;
+                                                    $total_onproduk_wire += (float)$v->onproduk_wire;
+                                                    $total_pakai_wire += (float)$v->wire;
                                                     $total_reject_wire += (float)$v->reject_wire;
+
+                                                    // Logika warna merah jika lebih dari 1.5%
+                                                    $warna_wire = ((float)$v->reject_wire_persen > 1.5) ? 'text-danger font-weight-bold' : '';
                                                     ?>
                                                     <tr>
-                                                        <td> <?= $v->nama_varian ?> </td>
-                                                        <td> <?= $v->pvdc ?> </td>
-                                                        <td> <?= $v->reject_pvdc ?> </td>
-                                                        <td> <?= $v->wire ?> </td>
-                                                        <td> <?= $v->reject_wire ?> </td>
+                                                        <td> <?= $v->varian ?> </td>
+                                                        <td class="text-right"> <?= round($v->onproduk_wire, 2) ?> </td>
+                                                        <td class="text-right"> <?= round($v->wire, 2) ?> </td>
+                                                        <td class="text-right <?= $warna_wire ?>">
+                                                            <?= $v->reject_wire_persen ?>% </td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
                                             <tfoot>
-                                                <tr>
-                                                    <td> TOTAL </td>
-                                                    <td> <b> <?= $total_pvdc ?> </b> </td>
-                                                    <td> <b> <?= $total_reject_pvdc ?> </b> </td>
-                                                    <td> <b> <?= $total_wire ?> </b> </td>
-                                                    <td> <b> <?= $total_reject_wire ?> </b> </td>
+                                                <?php
+                                                $total_persen_wire = $total_pakai_wire > 0 ? round(($total_reject_wire / $total_pakai_wire) * 100, 2) : 0;
+                                                $warna_total_wire = ((float)$total_persen_wire > 1.5) ? 'text-danger font-weight-bold' : '';
+                                                ?>
+                                                <tr class="bg-light">
+                                                    <td class="font-weight-bold text-center"> TOTAL </td>
+                                                    <td class="text-right"> <b> <?= round($total_onproduk_wire, 2) ?>
+                                                        </b> </td>
+                                                    <td class="text-right"> <b> <?= round($total_pakai_wire, 2) ?> </b>
+                                                    </td>
+                                                    <td class="text-right <?= $warna_total_wire ?>"> <b>
+                                                            <?= $total_persen_wire ?>% </b> </td>
                                                 </tr>
                                             </tfoot>
                                         </table>

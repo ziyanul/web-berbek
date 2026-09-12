@@ -1,4 +1,3 @@
-
 <div class="container-fluid">
 
     <!-- Page Header -->
@@ -103,8 +102,31 @@
                     </div>
                 </div>
             </div>
+            <!-- Standart per batch -->
+            <!-- Filkar -->
+            <h5 class="font-weight-bold text-gray-800 border-bottom pb-2 mt-4 mb-4">
+                STANDARD
+            </h5>
 
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="font-weight-bold mb-1">
+                        PVDC PER BATCH
+                    </label>
+                    <div class="text-muted">
+                        <?= $data->pvdc_batch ?> Kg
+                    </div>
+                </div>
 
+                <div class="col-md-6 mb-3">
+                    <label class="font-weight-bold mb-1">
+                        WIRE PER BATCH
+                    </label>
+                    <div class="text-muted">
+                        <?= $data->wire_batch ?> Kg
+                    </div>
+                </div>
+            </div>
             <!-- Action -->
             <hr class="mt-4 mb-3">
 

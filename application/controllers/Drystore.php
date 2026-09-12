@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Drystore extends CI_Controller {
+class Drystore extends CI_Controller
+{
 
     public function __construct()
     {
@@ -10,9 +11,9 @@ class Drystore extends CI_Controller {
         $this->load->model('Drystore_model');
         $this->load->library('form_validation');
         $this->load->model('Auth_model');
-			if(!$this->Auth_model->current_user()){
-				redirect('login');
-			}
+        if (!$this->Auth_model->current_user()) {
+            redirect('login');
+        }
     }
 
     public function index()
@@ -21,7 +22,7 @@ class Drystore extends CI_Controller {
         $data['active_nav'] = 'Drystore';
         $data['data'] = $this->Drystore_model->get_all();
 
-        $this->load->view('partials/head-packing', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/drystore', $data);
         $this->load->view('partials/footer');
     }
@@ -52,9 +53,9 @@ class Drystore extends CI_Controller {
         $data['wastes'] =
             $this->Drystore_model->get_all_waste();
 
-            $data['active_nav'] = 'Drystore';
+        $data['active_nav'] = 'Drystore';
 
-        $this->load->view('partials/head-packing', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/tambah', $data);
         $this->load->view('partials/footer');
     }
@@ -137,9 +138,9 @@ class Drystore extends CI_Controller {
 
         $data['matrix'] =
             $this->Drystore_model
-                ->get_transaksi_matrix($uuid);
-$data['active_nav'] = 'Drystore';
-        $this->load->view('partials/head-packing', $data);
+            ->get_transaksi_matrix($uuid);
+        $data['active_nav'] = 'Drystore';
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/edit', $data);
         $this->load->view('partials/footer');
     }
@@ -208,7 +209,7 @@ $data['active_nav'] = 'Drystore';
             'active_nav' => 'type-ds'
         );
 
-        $this->load->view('partials/head-packing', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/type', $data);
         $this->load->view('partials/footer');
     }
@@ -266,7 +267,7 @@ $data['active_nav'] = 'Drystore';
             'active_nav' => 'waste-ds'
         );
 
-        $this->load->view('partials/head-packing', $data);
+        $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/waste', $data);
         $this->load->view('partials/footer');
     }
