@@ -1,9 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-
 use Dompdf\Dompdf;
 use Dompdf\Options;
-
 class Sortasi extends CI_Controller
 {
 	public function __construct()
@@ -60,7 +58,7 @@ class Sortasi extends CI_Controller
 			);
 			redirect('sortasi');
 		}
-		$rules = $this->Sortasi_model->rules();
+		$rules = $this->Sortasi_model->rules_edit();
 		$this->form_validation->set_rules(
 			$rules
 		);
@@ -69,6 +67,9 @@ class Sortasi extends CI_Controller
      * SIMPAN
      * =====================================================
      */
+	$sortasi =
+			$this->Sortasi_model
+			->get_by_uuid($uuid);
 		if (
 			$this->form_validation->run()
 			=== TRUE
@@ -87,22 +88,19 @@ class Sortasi extends CI_Controller
 					'Data Sortasi gagal diubah.'
 				);
 			}
-			redirect('sortasi/');
+			redirect('sortasi/detail/' . $sortasi->tbatch_uuid);
 		}
 		/*
      * =====================================================
      * DATA SORTASI
      * =====================================================
      */
-		$sortasi =
-			$this->Sortasi_model
-			->get_by_uuid($uuid);
 		if (!$sortasi) {
 			$this->session->set_flashdata(
 				'error_msg',
 				'Data Sortasi tidak ditemukan.'
 			);
-			redirect('sortasi');
+			redirect('sortasi/detail/' . $sortasi->tbatch_uuid);
 		}
 		/*
      * =====================================================
@@ -111,7 +109,7 @@ class Sortasi extends CI_Controller
      */
 		$data = [
 			'data' => $sortasi,
-			'batch' => $this->Sortasi_model->get_batch_edit($sortasi->uuid),
+			'batch' => $this->Sortasi_model->get_batch_edit($sortasi->tbatch_uuid),
 			'jenis_sortasi' =>	$this->Sortasi_model->get_jenis_sortasi(),
 			'wip' => $this->Sortasi_model->get_wip_for_edit($sortasi->tbatch_uuid, $uuid),
 			'output' => $this->Sortasi_model->get_output_by_sortasi($uuid),
@@ -240,20 +238,15 @@ class Sortasi extends CI_Controller
 	public function cuci()
 	{
 		$data = [
-			'data'       => $this->Sortasi_model->get_cuci(),
+			'data'       => $this->Sortasi_model->get_cuci_history(),
 			'active_nav' => 'cuci'
 		];
-		$this->load->view(
-			'partials/head-yield',
-			$data
-		);
-		$this->load->view(
-			'sortasi/cuci',
-			$data
-		);
-		$this->load->view(
-			'partials/footer'
-		);
+		echo "<pre>";
+		print_r($data);
+		echo "</pre>";
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/cuci',$data);
+		$this->load->view('partials/footer');
 	}
 	public function cuci_tambah()
 	{
@@ -335,8 +328,8 @@ class Sortasi extends CI_Controller
 			'data' => $data_cuci,
 			'detail' => $this->Sortasi_model
 				->get_cuci_details($uuid),
-			'varian' => $this->Sortasi_model
-				->get_varian(),
+			'varian' => $this->Varian_model
+				->get_all(),
 			'active_nav' => 'cuci'
 		];
 		$this->load->view(
@@ -411,4 +404,22 @@ class Sortasi extends CI_Controller
 		}
 		redirect('sortasi/cuci');
 	}
+	public function cuci_detail($uuid)
+{
+    if (empty($uuid)) {
+        redirect('sortasi/cuci');
+    }
+    $data = [
+        'data'   => $this->Sortasi_model->get_cuci_by_uuid($uuid),
+        'detail' => $this->Sortasi_model->get_cuci_details($uuid),
+        'active_nav' => 'cuci'
+    ];
+    if (!$data['data']) {
+        $this->session->set_flashdata('error', 'Data Cuci tidak ditemukan.');
+        redirect('sortasi/cuci');
+    }
+    $this->load->view('partials/head-yield', $data);
+    $this->load->view('sortasi/cuci-detail', $data);
+    $this->load->view('partials/footer');
+}
 }

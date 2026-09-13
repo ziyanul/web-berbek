@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
-
 use Ramsey\Uuid\Uuid;
-
 class Sortasi_model extends CI_Model
 {
     public function __construct()
@@ -49,6 +47,16 @@ class Sortasi_model extends CI_Model
             [
                 'field' => 'jml_mp',
                 'label' => 'Jumlah MP',
+                'rules' => 'required'
+            ]
+        ];
+    }
+    public function rules_edit()
+    {
+        return [
+            [
+                'field' => 'tbatch_uuid',
+                'label' => 'Kode Batch',
                 'rules' => 'required'
             ]
         ];
@@ -574,6 +582,7 @@ class Sortasi_model extends CI_Model
                     ]);
                 }
             }
+            $this->update_total_sortasi($tbatch_uuid);
             $this->update_total_bad_sortasi($tbatch_uuid);
             $this->update_total_release_batch($tbatch_uuid);
             if (!$this->db->trans_status()) throw new Exception('Gagal menyimpan transaksi Sortasi.');
@@ -634,7 +643,7 @@ class Sortasi_model extends CI_Model
                 if ($x && $q > 0) $badkg += $q;
             }
             $knownkg = ($release + $tampung + $kasar + $cuci) * $boxkg + $badkg;
-            if ($knownkg > $input_kg + 0.000001) throw new Exception('Total output dan Bad melebihi WIP yang digunakan.');
+            // if ($knownkg > $input_kg + 0.000001) throw new Exception('Total output dan Bad melebihi WIP yang digunakan.');
             $sisa_box = max(0, ($input_kg - $knownkg) / $boxkg);
             $this->db->where('uuid', $uuid)->update('sortasi', [
                 'tbatch_uuid' => $tbatch_uuid,
@@ -686,10 +695,12 @@ class Sortasi_model extends CI_Model
                 foreach (($mesins[$i] ?? []) as $m) if ($m) $this->db->insert('t_badpro_mesin', ['uuid' => Uuid::uuid4()->toString(), 'user_uuid' => $user, 't_badpro_uuid' => $bu, 'mesin_uuid' => $m, 'created_at' => date('Y-m-d H:i:s')]);
             }
             $this->update_total_bad_sortasi($oldbatch);
+            $this->update_total_sortasi($oldbatch);
             $this->update_total_release_batch($oldbatch);
             if ($oldbatch !== $tbatch_uuid) {
                 $this->update_total_bad_sortasi($tbatch_uuid);
                 $this->update_total_release_batch($tbatch_uuid);
+                $this->update_total_sortasi($oldbatch);
             }
             if (!$this->db->trans_status()) throw new Exception('Gagal mengubah transaksi Sortasi.');
             $this->db->trans_commit();
@@ -1011,6 +1022,9 @@ class Sortasi_model extends CI_Model
         | 7. UPDATE TOTAL BAD
         |--------------------------------------------------------------------------
         */
+        $this->update_total_sortasi(
+    $data->tbatch_uuid
+);
             $this->update_total_bad_sortasi(
                 $data->tbatch_uuid
             );
@@ -1080,22 +1094,71 @@ class Sortasi_model extends CI_Model
         return $this->db->get()->row();
     }
     public function get_batch_edit($tbatch_uuid)
-    {
-        $this->ensure_initial_wip($tbatch_uuid);
-        $this->db->select("
-            b.uuid,b.kode_batch,b.adonan,b.filkar_box,
-            COALESCE((SELECT SUM(sw.jumlah_awal-sw.jumlah_terpakai) FROM sortasi_wip sw
-              WHERE sw.tbatch_uuid=b.uuid AND sw.deleted_at IS NULL
-              AND sw.jenis_wip IN ('BELUM_SORTIR','TAMPUNG','KASAR')),0) AS sisa_wip,
-            v.varian,v.keterangan,v.kontainer_kg,v.box_kg
-        ", FALSE)->from('tbatch b')
-            ->join('t_planning p', 'p.uuid=b.t_planning_uuid', 'left')
-            ->join('varian v', 'v.uuid=p.varian', 'left')
-            ->where('b.deleted_at', NULL);
-        $this->db->group_start()->having('sisa_wip >', 0)->or_where('b.uuid', $tbatch_uuid)->group_end();
-        $this->db->order_by('b.created_at', 'DESC')->order_by('b.kode_batch', 'DESC');
-        return $this->db->get()->result();
-    }
+{
+    $this->ensure_initial_wip($tbatch_uuid);
+    $sisaWipSql = "
+        COALESCE((
+            SELECT SUM(sw.jumlah_awal - sw.jumlah_terpakai)
+            FROM sortasi_wip sw
+            WHERE sw.tbatch_uuid = b.uuid
+              AND sw.deleted_at IS NULL
+              AND sw.jenis_wip IN ('BELUM_SORTIR', 'TAMPUNG', 'KASAR')
+        ), 0)
+    ";
+    $this->db->select("
+        b.uuid,
+        b.kode_batch,
+        b.adonan,
+        b.filkar_box,
+        {$sisaWipSql} AS sisa_wip,
+        v.varian,
+        v.keterangan,
+        v.kontainer_kg,
+        v.box_kg
+    ", FALSE);
+    $this->db->from('tbatch b');
+    $this->db->join(
+        't_planning p',
+        'p.uuid = b.t_planning_uuid',
+        'left'
+    );
+    $this->db->join(
+        'varian v',
+        'v.uuid = p.varian',
+        'left'
+    );
+    $this->db->where(
+        'b.deleted_at',
+        NULL
+    );
+    /*
+     * Batch yang sedang diedit WAJIB muncul,
+     * walaupun sisa WIP-nya 0.
+     *
+     * Batch lain hanya ditampilkan jika
+     * masih memiliki WIP.
+     */
+    $this->db->group_start();
+    $this->db->where(
+        "($sisaWipSql) > 0",
+        NULL,
+        FALSE
+    );
+    $this->db->or_where(
+        'b.uuid',
+        $tbatch_uuid
+    );
+    $this->db->group_end();
+    $this->db->order_by(
+        'b.created_at',
+        'DESC'
+    );
+    $this->db->order_by(
+        'b.kode_batch',
+        'DESC'
+    );
+    return $this->db->get()->result();
+}
     /*
 *=======================================
 JENIS SORTASI
@@ -1255,7 +1318,6 @@ JENIS SORTASI
         }
         return $rows;
     }
-
     /**
      * =========================================================
      * LIST OUTPUT CUCI YANG MASIH MEMILIKI SISA
@@ -1879,8 +1941,8 @@ JENIS SORTASI
             ->result();
     }
     public function get_cuci_history()
-    {
-        $this->db->select("
+{
+    $this->db->select("
         c.uuid,
         c.varian_uuid,
         c.kode_batch_hasil,
@@ -1898,51 +1960,51 @@ JENIS SORTASI
               AND cd.deleted_at IS NULL
         ) AS jumlah_sumber
     ", FALSE);
-        $this->db->from('t_cuci c');
-        $this->db->join(
-            'varian v',
-            'v.uuid = c.varian_uuid',
-            'left'
-        );
-        $this->db->where(
-            'c.deleted_at IS NULL',
-            NULL,
-            FALSE
-        );
-        $this->db->order_by(
-            'c.created_at',
-            'DESC'
-        );
-        return $this->db
-            ->get()
-            ->result();
-    }
+    $this->db->from('t_cuci c');
+    $this->db->join(
+        'varian v',
+        'v.uuid = c.varian_uuid',
+        'left'
+    );
+    $this->db->where(
+        'c.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    $this->db->order_by(
+        'c.created_at',
+        'DESC'
+    );
+    return $this->db
+        ->get()
+        ->result();
+}
     public function get_cuci_by_uuid($uuid)
-    {
-        $this->db->select("
+{
+    $this->db->select("
         c.*,
         v.varian,
         v.keterangan AS varian_keterangan
     ");
-        $this->db->from('t_cuci c');
-        $this->db->join(
-            'varian v',
-            'v.uuid = c.varian_uuid',
-            'left'
-        );
-        $this->db->where(
-            'c.uuid',
-            $uuid
-        );
-        $this->db->where(
-            'c.deleted_at IS NULL',
-            NULL,
-            FALSE
-        );
-        return $this->db
-            ->get()
-            ->row();
-    }
+    $this->db->from('t_cuci c');
+    $this->db->join(
+        'varian v',
+        'v.uuid = c.varian_uuid',
+        'left'
+    );
+    $this->db->where(
+        'c.uuid',
+        $uuid
+    );
+    $this->db->where(
+        'c.deleted_at IS NULL',
+        NULL,
+        FALSE
+    );
+    return $this->db
+        ->get()
+        ->row();
+}
     public function get_cuci_details($cuci_uuid)
     {
         $this->db->select("
