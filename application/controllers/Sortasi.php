@@ -1,7 +1,9 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
+
 class Sortasi extends CI_Controller
 {
 	public function __construct()
@@ -67,7 +69,7 @@ class Sortasi extends CI_Controller
      * SIMPAN
      * =====================================================
      */
-	$sortasi =
+		$sortasi =
 			$this->Sortasi_model
 			->get_by_uuid($uuid);
 		if (
@@ -241,11 +243,9 @@ class Sortasi extends CI_Controller
 			'data'       => $this->Sortasi_model->get_cuci_history(),
 			'active_nav' => 'cuci'
 		];
-		echo "<pre>";
-		print_r($data);
-		echo "</pre>";
+
 		$this->load->view('partials/head-yield', $data);
-		$this->load->view('sortasi/cuci',$data);
+		$this->load->view('sortasi/cuci', $data);
 		$this->load->view('partials/footer');
 	}
 	public function cuci_tambah()
@@ -405,21 +405,21 @@ class Sortasi extends CI_Controller
 		redirect('sortasi/cuci');
 	}
 	public function cuci_detail($uuid)
-{
-    if (empty($uuid)) {
-        redirect('sortasi/cuci');
-    }
-    $data = [
-        'data'   => $this->Sortasi_model->get_cuci_by_uuid($uuid),
-        'detail' => $this->Sortasi_model->get_cuci_details($uuid),
-        'active_nav' => 'cuci'
-    ];
-    if (!$data['data']) {
-        $this->session->set_flashdata('error', 'Data Cuci tidak ditemukan.');
-        redirect('sortasi/cuci');
-    }
-    $this->load->view('partials/head-yield', $data);
-    $this->load->view('sortasi/cuci-detail', $data);
-    $this->load->view('partials/footer');
-}
+	{
+		if (empty($uuid)) {
+			redirect('sortasi/cuci');
+		}
+		$data = [
+			'data'   => $this->Sortasi_model->get_cuci_by_uuid($uuid),
+			'detail' => $this->Sortasi_model->get_cuci_details($uuid),
+			'active_nav' => 'cuci'
+		];
+		if (!$data['data']) {
+			$this->session->set_flashdata('error', 'Data Cuci tidak ditemukan.');
+			redirect('sortasi/cuci');
+		}
+		$this->load->view('partials/head-yield', $data);
+		$this->load->view('sortasi/cuci-detail', $data);
+		$this->load->view('partials/footer');
+	}
 }

@@ -115,10 +115,26 @@ class Drystore_model extends CI_Model
 
     public function get_type()
     {
-        return $this->db
-            ->order_by('nama', 'DESC')
-            ->get('drystore_type')
-            ->result();
+        $this->db->select('dt.*');
+        $this->db->from('drystore_type dt');
+        $this->db->order_by('dt.nama', 'ASC');
+
+        $data = $this->db->get()->result();
+
+        foreach ($data as $val) {
+
+            $val->varian = [];
+
+            if (!empty($val->varian_uuid)) {
+
+                $varian_uuid = explode(',', $val->varian_uuid);
+                $this->db->select('v.varian');
+                $this->db->where_in('uuid', $varian_uuid);
+                $val->varian = $this->db->get('varian v')->result();
+            }
+        }
+
+        return $data;
     }
 
     public function get_waste()
@@ -420,20 +436,27 @@ class Drystore_model extends CI_Model
         $nama = $this->input->post('nama');
         $std_waste = $this->input->post('std_waste');
         $satuan = $this->input->post('satuan');
+        $varian = $this->input->post('varian');
+
+        $varian_uuid = !empty($varian)
+            ? implode(',', $varian)
+            : null;
 
         $data = array(
-            'uuid' => $uuid,
-            'nama' => $nama,
-            'satuan' => $satuan,
-            'aktif' => 1,
-            'std_waste' => $std_waste,
-            'user_uuid'     => $this->auth_model->current_user()->uuid
-
+            'uuid'        => $uuid,
+            'nama'        => $nama,
+            'satuan'      => $satuan,
+            'aktif'       => 1,
+            'std_waste'   => $std_waste,
+            'varian_uuid' => $varian_uuid,
+            'user_uuid'   => $this->auth_model->current_user()->uuid
         );
 
         $this->db->insert('drystore_type', $data);
-        return ($this->db->affected_rows() > 0) ? true : false;
+
+        return ($this->db->affected_rows() > 0);
     }
+
 
     public function insert_waste()
     {
@@ -465,19 +488,31 @@ class Drystore_model extends CI_Model
         $nama = $this->input->post('nama');
         $std_waste = $this->input->post('std_waste');
         $satuan = $this->input->post('satuan');
+        $varian = $this->input->post('varian');
+
+        // Select2 multiple menghasilkan array
+        $varian_uuid = !empty($varian)
+            ? implode(',', $varian)
+            : null;
 
         $data = array(
-            'nama' => $nama,
-            'std_waste' => $std_waste,
-            'user_uuid'     => $this->auth_model->current_user()->uuid,
-            'updated_at'  => date('Y-m-d h:i:s'),
-            'satuan' => $satuan
-
+            'nama'        => $nama,
+            'std_waste'   => $std_waste,
+            'user_uuid'   => $this->auth_model->current_user()->uuid,
+            'updated_at'  => date('Y-m-d H:i:s'),
+            'satuan'      => $satuan,
+            'varian_uuid' => $varian_uuid
         );
 
-        $this->db->update('drystore_type', $data, array('uuid' => $uuid));
-        return ($this->db->affected_rows() > 0) ? true : false;
+        $this->db->update(
+            'drystore_type',
+            $data,
+            array('uuid' => $uuid)
+        );
+
+        return ($this->db->affected_rows() > 0);
     }
+
 
     /* =========================================================
      * MASTER WASTE
@@ -507,16 +542,13 @@ class Drystore_model extends CI_Model
             ->row();
     }
 
-    public function get_release()
+    public function get_release($tanggal)
     {
-        $tanggal = $this->input->post('tanggal');
-        $this->db->select('v.varian,
-        SUM(s.jml_release) AS total_release
-        ');
+        $this->db->select('v.varian, SUM(s.jml_release) AS total_release');
         $this->db->from('sortasi s');
         $this->db->join('tbatch tb', 'tb.uuid = s.tbatch_uuid', 'left');
         $this->db->join('varian v', 'v.uuid = tb.varian_uuid', 'left');
-        $this->db->where('date(s.created_at)', $tanggal);
+        $this->db->where('DATE(s.created_at)', $tanggal);
         $this->db->group_by('v.varian');
         $this->db->order_by('v.varian', 'ASC');
         $data = $this->db->get()->result();

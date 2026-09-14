@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html lang="id" class="h-full">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SMART FACTORY PORTAL</title>
+
     <link rel="icon" type="image/png" href="<?= base_url('assets/img/Prod-title.png'); ?>">
-    <!-- Tailwind -->
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide -->
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
+        /* =========================================================
+           BASE
+        ========================================================= */
+
         * {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+
         body {
-            overflow-x: hidden;
             min-height: 100vh;
+            overflow-x: hidden;
             background:
                 radial-gradient(circle at top left, #60a5fa22, transparent 25%),
                 radial-gradient(circle at bottom right, #fb718522, transparent 25%),
@@ -27,214 +40,271 @@
                     #fef2f2 50%,
                     #f0fdf4 100%);
         }
-        /* GRID */
+
+        /* =========================================================
+           BACKGROUND GRID
+        ========================================================= */
+
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, .4) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, .4) 1px, transparent 1px);
-            background-size: 45px 45px;
             z-index: 0;
             pointer-events: none;
+
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+
+            background-size: 45px 45px;
         }
-        /* ORB */
+
+        /* =========================================================
+           FLOATING ORBS
+        ========================================================= */
+
         .orb {
             position: absolute;
+            z-index: 0;
+
             border-radius: 9999px;
             filter: blur(90px);
-            opacity: .45;
-            animation: float 8s ease-in-out infinite;
-            z-index: 0;
+            opacity: 0.45;
+
+            animation: orb-float 8s ease-in-out infinite;
         }
+
         .orb1 {
+            top: -120px;
+            left: -120px;
             width: 320px;
             height: 320px;
             background: #60a5fa;
-            top: -120px;
-            left: -120px;
         }
+
         .orb2 {
+            right: -120px;
+            bottom: -120px;
             width: 320px;
             height: 320px;
             background: #fb7185;
-            bottom: -120px;
-            right: -120px;
             animation-delay: 2s;
         }
+
         .orb3 {
+            top: 40%;
+            left: 45%;
             width: 250px;
             height: 250px;
             background: #34d399;
-            top: 40%;
-            left: 45%;
             animation-delay: 4s;
         }
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
+
+        @keyframes orb-float {
+
+            0%,
+            100% {
+                transform: translateY(0);
             }
+
             50% {
                 transform: translateY(-25px);
             }
-            100% {
-                transform: translateY(0px);
-            }
         }
-        /* GLASS */
+
+        /* =========================================================
+           GLASS
+        ========================================================= */
+
         .glass {
-            background: rgba(255, 255, 255, .55);
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+
             backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, .4);
-            box-shadow:
-                0 10px 40px rgba(0, 0, 0, .06);
+            -webkit-backdrop-filter: blur(18px);
         }
-        /* CARD */
+
+        /* =========================================================
+           CARD
+        ========================================================= */
+
         .card {
             position: relative;
             overflow: hidden;
-            transition: .4s ease;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
+
         .card:hover {
-            transform:
-                translateY(-12px) scale(1.02);
+            transform: translateY(-12px) scale(1.02);
+
             box-shadow:
-                0 30px 60px rgba(0, 0, 0, .12),
-                0 0 25px rgba(255, 255, 255, .35);
+                0 30px 60px rgba(0, 0, 0, 0.12),
+                0 0 25px rgba(255, 255, 255, 0.35);
         }
+
         .card::before {
             content: '';
             position: absolute;
             inset: 0;
-            background:
-                linear-gradient(135deg,
-                    rgba(255, 255, 255, .4),
+
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.4),
                     transparent);
+
             opacity: 0;
-            transition: .4s ease;
+            transition: opacity 0.4s ease;
         }
+
         .card:hover::before {
             opacity: 1;
         }
-        /* ICON BACKGROUND */
+
+        /* =========================================================
+           ICON BACKGROUND
+        ========================================================= */
+
         .icon-bg {
             position: absolute;
             right: -15px;
             bottom: -15px;
-            opacity: .08;
+            opacity: 0.08;
         }
-        /* BUTTON */
+
+        /* =========================================================
+           BUTTON
+        ========================================================= */
+
         .open-btn {
-            transition: .3s ease;
+            transition: transform 0.3s ease;
         }
+
         .open-btn:hover {
             transform: scale(1.03);
         }
-        /* PULSE */
+
+        /* =========================================================
+           PULSE
+        ========================================================= */
+
         .pulse {
-            animation: pulse 1.8s infinite;
+            animation: pulse-effect 1.8s infinite;
         }
-        @keyframes pulse {
-            0% {
+
+        @keyframes pulse-effect {
+
+            0%,
+            100% {
                 transform: scale(1);
                 opacity: 1;
             }
+
             50% {
                 transform: scale(1.5);
-                opacity: .4;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
+                opacity: 0.4;
             }
         }
-        /* FLOAT CARD */
-        .floating {
-            animation: floating 5s ease-in-out infinite;
-        }
-        @keyframes floating {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-        }
-        /* BADGE */
+
+        /* =========================================================
+           BADGE
+        ========================================================= */
+
         .badge {
-            background: rgba(255, 255, 255, .7);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-        /* MARQUEE */
+
+        /* =========================================================
+           MARQUEE
+        ========================================================= */
+
         .marquee-wrapper {
-            position: relative;
             width: 100%;
             overflow: hidden;
+
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 20px;
-            background: rgba(255, 255, 255, .55);
+
+            background: rgba(255, 255, 255, 0.55);
+
             backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, .5);
-            padding: 14px 0;
+            -webkit-backdrop-filter: blur(14px);
         }
+
         .marquee-content {
             display: inline-block;
+
+            padding-left: 100%;
+
             white-space: nowrap;
             font-weight: 700;
             color: #374151;
-            padding-left: 100%;
+
             animation: marquee 24s linear infinite;
         }
+
         @keyframes marquee {
-            0% {
-                transform: translateX(0%);
+            from {
+                transform: translateX(0);
             }
-            100% {
+
+            to {
                 transform: translateX(-100%);
             }
         }
     </style>
 </head>
-<body class="relative text-gray-800 overflow-hidden h-screen">
-    <!-- ORB -->
+
+<body class="relative h-screen overflow-hidden text-gray-800">
+
+    <!-- Background Orbs -->
     <div class="orb orb1"></div>
     <div class="orb orb2"></div>
     <div class="orb orb3"></div>
-    <div class="relative z-10 h-screen flex flex-col">
-        <!-- HEADER -->
-        <header class="max-w-7xl w-full mx-auto px-5 pt-3 pb-2">
-            <!-- TOP -->
+
+    <div class="relative z-10 flex h-screen flex-col">
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <header class="mx-auto w-full max-w-7xl px-5 pb-2 pt-3">
             <div class="flex items-center justify-between">
-                <div class="glass rounded-2xl px-4 py-2 inline-flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 pulse"></span>
-                    <span class="font-bold text-xs text-gray-700">
+
+                <!-- System Status -->
+                <div class="glass inline-flex items-center gap-2 rounded-2xl px-4 py-2">
+                    <span class="pulse h-2 w-2 rounded-full bg-green-500"></span>
+
+                    <span class="text-xs font-bold text-gray-700">
                         ALL SYSTEM OPERATIONAL
                     </span>
                 </div>
-                <div id="clock" class="glass rounded-2xl px-4 py-2 text-xs font-bold text-gray-700">
-                </div>
+
+                <!-- Clock -->
+                <div id="clock" class="glass rounded-2xl px-4 py-2 text-xs font-bold text-gray-700"></div>
+
             </div>
         </header>
-        <!-- MAIN -->
-        <main class="flex-1 flex flex-col justify-center px-4 -mt-2">
-            <!-- HERO -->
-            <div class="flex flex-col items-center text-center">
-                <!-- WELCOME -->
-                <!-- TITLE -->
-                <h1 class="text-4xl lg:text-5xl font-black leading-tight">
+
+        <!-- =====================================================
+             MAIN
+        ====================================================== -->
+
+        <main class="-mt-2 flex flex-1 flex-col justify-center px-4">
+
+            <!-- Hero -->
+            <section class="flex flex-col items-center text-center">
+
+                <!-- Title -->
+                <h1 class="text-4xl font-black leading-tight lg:text-5xl">
                     SMART
-                    <span class="text-blue-600">
-                        FACTORY
-                    </span>
-                    <span class="text-red-500">
-                        PORTAL
-                    </span>
+                    <span class="text-blue-600">FACTORY</span>
+                    <span class="text-red-500">PORTAL</span>
                 </h1>
-                <!-- MARQUEE -->
-                <div class="mt-3 overflow-hidden w-full max-w-4xl">
+
+                <!-- Marquee -->
+                <div class="mt-3 w-full max-w-4xl overflow-hidden">
                     <div class="marquee-wrapper py-2">
                         <div class="marquee-content text-xs">
                             🚀 Semua sistem produksi, engineering,
@@ -246,208 +316,279 @@
                         </div>
                     </div>
                 </div>
-                <!-- STATS -->
-                <!-- <div class="mt-4 flex flex-wrap justify-center gap-3">
-                <div class="glass rounded-2xl px-4 py-2">
-                    <h3 class="text-lg font-black text-blue-600">
-                        14
-                    </h3>
-                    <p class="text-[11px] text-gray-500">
-                        Mesin Online
-                    </p>
-                </div>
-                <div class="glass rounded-2xl px-4 py-2">
-                    <h3 class="text-lg font-black text-green-600">
-                        4
-                    </h3>
-                    <p class="text-[11px] text-gray-500">
-                        System Active
-                    </p>
-                </div>
-                <div class="glass rounded-2xl px-4 py-2">
-                    <h3 class="text-lg font-black text-red-500">
-                        LIVE
-                    </h3>
-                    <p class="text-[11px] text-gray-500">
-                        Monitoring Data
-                    </p>
-                </div>
-            </div> -->
-                <!-- SYSTEM -->
+
+                <!-- System Selection -->
                 <div class="relative mt-4 w-full max-w-5xl">
                     <div class="glass rounded-[28px] p-3">
+
                         <div class="mb-3">
                             <h2 class="text-lg font-black">
                                 Pilih sistem yang ingin digunakan
                             </h2>
                         </div>
-                        <!-- GRID -->
-                        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 items-stretch">
-                            <!-- CARD -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="cpu" class="icon-bg w-20 h-20"></i>
-                                <div class="relative z-10 flex flex-col h-full">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
+
+                        <!-- System Grid -->
+                        <div class="grid grid-cols-2 items-stretch gap-3 lg:grid-cols-3 xl:grid-cols-5">
+
+                            <!-- =================================================
+                                 MONITORING WEB
+                            ================================================== -->
+
+                            <div class="card glass flex h-full flex-col rounded-[22px] p-3">
+                                <i data-lucide="cpu" class="icon-bg h-20 w-20"></i>
+
+                                <div class="relative z-10 flex h-full flex-col">
+
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <div
+                                            class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg">
+                                            <i data-lucide="cpu" class="h-5 w-5 text-white"></i>
                                         </div>
-                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-green-700 pulse"></span>
+
+                                        <div class="badge flex items-center gap-1 rounded-full px-2 py-1">
+                                            <span class="pulse h-2 w-2 rounded-full bg-green-700"></span>
+
                                             <span class="text-[10px] font-bold text-green-700">
                                                 ONLINE
                                             </span>
                                         </div>
                                     </div>
-                                    <h3 class="text-base font-black mb-1">
+
+                                    <h3 class="mb-1 text-base font-black">
                                         Monitoring Web
                                     </h3>
-                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
+
+                                    <p class="mb-3 text-[11px] leading-snug text-gray-600">
                                         Monitoring produksi realtime.
                                     </p>
-                                    <a href="<?= base_url('yield/'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-blue-500 to-orange-500 shadow-lg">
-                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+
+                                    <a href="<?= base_url('yield/'); ?>"
+                                        class="open-btn mt-auto flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-orange-500 py-2 text-xs font-bold text-white shadow-lg">
+                                        <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
                                         OPEN
                                     </a>
+
                                 </div>
                             </div>
-                            <!-- CARD -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="activity" class="icon-bg w-20 h-20"></i>
-                                <div class="relative z-10 flex flex-col h-full">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+
+                            <!-- =================================================
+                                 MANSYS
+                            ================================================== -->
+
+                            <div class="card glass flex h-full flex-col rounded-[22px] p-3">
+                                <i data-lucide="activity" class="icon-bg h-20 w-20"></i>
+
+                                <div class="relative z-10 flex h-full flex-col">
+
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <div
+                                            class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-orange-500 shadow-lg">
+                                            <i data-lucide="activity" class="h-5 w-5 text-white"></i>
                                         </div>
-                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-green-700 pulse"></span>
+
+                                        <div class="badge flex items-center gap-1 rounded-full px-2 py-1">
+                                            <span class="pulse h-2 w-2 rounded-full bg-green-700"></span>
+
                                             <span class="text-[10px] font-bold text-green-700">
                                                 ONLINE
                                             </span>
                                         </div>
                                     </div>
-                                    <h3 class="text-base font-black mb-1">
+
+                                    <h3 class="mb-1 text-base font-black">
                                         MANSYS
                                     </h3>
-                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
-                                        Monitoring Release Produksi & Warehouse.
+
+                                    <p class="mb-3 text-[11px] leading-snug text-gray-600">
+                                        Monitoring Release Produksi &amp; Warehouse.
                                     </p>
-                                    <a href="http://prod.io:8000/" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-pink-500 to-orange-500 shadow-lg">
-                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+
+                                    <a href="http://prod.io:8000/"
+                                        class="open-btn mt-auto flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-pink-500 to-orange-500 py-2 text-xs font-bold text-white shadow-lg">
+                                        <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
                                         OPEN
                                     </a>
+
                                 </div>
                             </div>
-                            <!-- CARD -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="wrench" class="icon-bg w-20 h-20"></i>
-                                <div class="relative z-10 flex flex-col h-full">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
+
+                            <!-- =================================================
+                                 MAINTENANCE
+                            ================================================== -->
+
+                            <div class="card glass flex h-full flex-col rounded-[22px] p-3">
+                                <i data-lucide="wrench" class="icon-bg h-20 w-20"></i>
+
+                                <div class="relative z-10 flex h-full flex-col">
+
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <div
+                                            class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg">
+                                            <i data-lucide="wrench" class="h-5 w-5 text-white"></i>
                                         </div>
-                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-green-700 pulse"></span>
+
+                                        <div class="badge flex items-center gap-1 rounded-full px-2 py-1">
+                                            <span class="pulse h-2 w-2 rounded-full bg-green-700"></span>
+
                                             <span class="text-[10px] font-bold text-green-700">
                                                 ONLINE
                                             </span>
                                         </div>
                                     </div>
-                                    <h3 class="text-base font-black mb-1">
+
+                                    <h3 class="mb-1 text-base font-black">
                                         MAINTENANCE
                                     </h3>
-                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
+
+                                    <p class="mb-3 text-[11px] leading-snug text-gray-600">
                                         Preventive maintenance mesin<br>
                                         Autonomous Maintenance<br>
                                         Sparepart<br>
-                                        New & Repair Part
+                                        New &amp; Repair Part
                                     </p>
-                                    <a href="<?= base_url('maintenance'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-amber-500 to-green-500 shadow-lg">
-                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+
+                                    <a href="<?= base_url('maintenance'); ?>"
+                                        class="open-btn mt-auto flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-green-500 py-2 text-xs font-bold text-white shadow-lg">
+                                        <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
                                         OPEN
                                     </a>
+
                                 </div>
                             </div>
-                            <!-- CARD -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="file-text" class="icon-bg w-20 h-20"></i>
-                                <div class="relative z-10 flex flex-col h-full">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
+
+                            <!-- =================================================
+                                 PAPERLESS
+                            ================================================== -->
+
+                            <div class="card glass flex h-full flex-col rounded-[22px] p-3">
+                                <i data-lucide="file-text" class="icon-bg h-20 w-20"></i>
+
+                                <div class="relative z-10 flex h-full flex-col">
+
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <div
+                                            class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-sky-500 shadow-lg">
+                                            <i data-lucide="file-text" class="h-5 w-5 text-white"></i>
                                         </div>
-                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-red-700"></span>
+
+                                        <div class="badge flex items-center gap-1 rounded-full px-2 py-1">
+                                            <span class="h-2 w-2 rounded-full bg-red-700"></span>
+
                                             <span class="text-[10px] font-bold text-red-700">
-                                                COMMING SOON
+                                                COMING SOON
                                             </span>
                                         </div>
                                     </div>
-                                    <h3 class="text-base font-black mb-1">
+
+                                    <h3 class="mb-1 text-base font-black">
                                         PAPERLESS
                                     </h3>
-                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
+
+                                    <p class="mb-3 text-[11px] leading-snug text-gray-600">
                                         Form digital tanpa kertas.
                                     </p>
-                                    <a href="<?= base_url('paperless'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-green-500 to-sky-500 shadow-lg">
-                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+
+                                    <a href="<?= base_url('paperless'); ?>"
+                                        class="open-btn mt-auto flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-500 to-sky-500 py-2 text-xs font-bold text-white shadow-lg">
+                                        <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
                                         OPEN
-            </a>
+                                    </a>
+
                                 </div>
                             </div>
-                            <!-- CARD PACKING -->
-                            <div class="card glass rounded-[22px] p-3 h-full flex flex-col">
-                                <i data-lucide="package" class="icon-bg w-20 h-20"></i>
-                                <div class="relative z-10 flex flex-col h-full">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="package" class="w-5 h-5 text-white"></i>
+
+                            <!-- =================================================
+                                 MONITORING PACKING
+                            ================================================== -->
+
+                            <div class="card glass flex h-full flex-col rounded-[22px] p-3">
+                                <i data-lucide="package" class="icon-bg h-20 w-20"></i>
+
+                                <div class="relative z-10 flex h-full flex-col">
+
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <div
+                                            class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg">
+                                            <i data-lucide="package" class="h-5 w-5 text-white"></i>
                                         </div>
-                                        <div class="badge px-2 py-1 rounded-full flex items-center gap-1">
-                                        <span class="w-2 h-2 rounded-full bg-red-700"></span>
+
+                                        <div class="badge flex items-center gap-1 rounded-full px-2 py-1">
+                                            <span class="h-2 w-2 rounded-full bg-red-700"></span>
+
                                             <span class="text-[10px] font-bold text-red-700">
-                                                COMMING SOON
+                                                COMING SOON
                                             </span>
                                         </div>
                                     </div>
-                                    <h3 class="text-base font-black mb-1">Monitoring Packing</h3>
-                                    <p class="text-[11px] text-gray-600 leading-snug mb-3">
+
+                                    <h3 class="mb-1 text-base font-black">
+                                        Monitoring Packing
+                                    </h3>
+
+                                    <p class="mb-3 text-[11px] leading-snug text-gray-600">
                                         Monitoring dan pengelolaan produktifitas packing.
                                     </p>
-                                    <a href="<?= base_url('drystore/dashboard'); ?>" class="open-btn mt-auto rounded-lg py-2 flex items-center justify-center gap-2 text-xs text-white font-bold bg-gradient-to-r from-sky-500 to-green-500 shadow-lg">
-                                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+
+                                    <a href="<?= base_url('drystore/dashboard'); ?>"
+                                        class="open-btn mt-auto flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-sky-500 to-green-500 py-2 text-xs font-bold text-white shadow-lg">
+                                        <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
                                         OPEN
                                     </a>
+
                                 </div>
                             </div>
+
                         </div>
                     </div>
+                </div>
+
+            </section>
+
         </main>
-        <!-- FOOTER -->
+
+        <!-- =====================================================
+             FOOTER
+        ====================================================== -->
+
         <footer class="pb-2 text-center">
             <p class="text-[10px] text-gray-500">
                 © 2026 PT. Charoen Pokphand Indonesia
             </p>
         </footer>
+
     </div>
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
+
     <script>
         lucide.createIcons();
+
+        const clockElement = document.getElementById('clock');
+
         function updateClock() {
             const now = new Date();
+
             const date = now.toLocaleDateString('id-ID', {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             });
+
             const time = now.toLocaleTimeString('id-ID');
-            document.getElementById('clock').innerHTML =
-                `
-        <div>${date}</div>
-        <div class="text-blue-600">${time}</div>
-        `;
+
+            clockElement.innerHTML = `
+                <div>${date}</div>
+                <div class="text-blue-600">${time}</div>
+            `;
         }
+
         updateClock();
         setInterval(updateClock, 1000);
     </script>
+
 </body>
+
 </html>

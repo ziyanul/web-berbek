@@ -9,6 +9,7 @@ class Drystore extends CI_Controller
         parent::__construct();
 
         $this->load->model('Drystore_model');
+        $this->load->model('Varian_model');
         $this->load->library('form_validation');
         $this->load->model('Auth_model');
         if (!$this->Auth_model->current_user()) {
@@ -47,9 +48,6 @@ class Drystore extends CI_Controller
 
         $data['tanggal'] = $tanggal;
 
-        $data['release'] =
-            $this->Drystore_model->get_release();
-
         $data['types'] =
             $this->Drystore_model->get_all_type();
 
@@ -57,10 +55,6 @@ class Drystore extends CI_Controller
             $this->Drystore_model->get_all_waste();
 
         $data['active_nav'] = 'Drystore';
-
-        echo '<pre>';
-        print_r($data['release']);
-        echo '</pre>';
 
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/tambah', $data);
@@ -212,9 +206,10 @@ class Drystore extends CI_Controller
     {
         $data = array(
             'data' => $this->Drystore_model->get_type(),
-
+            'varian' => $this->Varian_model->get_all(),
             'active_nav' => 'type-ds'
         );
+
 
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/type', $data);
@@ -248,16 +243,15 @@ class Drystore extends CI_Controller
             $update = $this->Drystore_model->update_type($uuid);
             if ($update) {
                 $this->session->set_flashdata('success_msg', 'Data berhasil di ubah.');
-                redirect('drystore/type');
             } else {
-                redirect('drystore/type');
                 $this->session->set_flashdata('error_msg', 'Data gagal di ubah.');
             }
+            redirect('drystore/type');
         }
 
         $data = array(
             'data' => $this->Drystore_model->get_type_by_uuid($uuid),
-
+            'varian' => $this->Varian_model->get_all(),
             'active_nav' => 'type-ds'
         );
 
@@ -326,7 +320,21 @@ class Drystore extends CI_Controller
 
     public function get_release()
     {
-        $release = $this->Drystore_model->get_release();
-        echo json_encode($release);
+        $tanggal = $this->input->post('tanggal', true);
+
+        if (!$tanggal) {
+            echo json_encode([
+                'status' => false,
+                'message' => 'Tanggal tidak boleh kosong.'
+            ]);
+            return;
+        }
+
+        $data = $this->Drystore_model->get_release($tanggal);
+
+        echo json_encode([
+            'status' => true,
+            'data' => $data
+        ]);
     }
 }
