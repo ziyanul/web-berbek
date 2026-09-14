@@ -102,7 +102,7 @@
                     </div>
 
                     <div class="form-group col-md-6">
-                        <label>Wire (ROLL)</label>
+                        <label>Wire (Kg)</label>
                         <input type="number" class="form-control" name="wire_batch" step="0.001" placeholder="0.000"
                             value="<?= $data->wire_batch ?>">
                     </div>

@@ -38,6 +38,17 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-sm-6">
+                        <label class="form-label">Kebutuhan Perbox <span class="text-danger">*</span></label>
+                        <input type="number" name="perbox" step="0.0001"
+                            class="form-control <?= form_error('perbox') ? 'invalid' : '' ?>"
+                            value="<?= $data->perbox; ?>">
+                        <div class="invalid-feedback <?= !empty(form_error('perbox')) ? 'd-block' : ''; ?>">
+                            <?= form_error('perbox') ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-sm-6">
                         <label class="form-label">Satuan <span class="text-danger">*</span></label>
                         <input type="text" name="satuan"
                             class="form-control <?= form_error('satuan') ? 'invalid' : '' ?>"

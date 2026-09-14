@@ -114,7 +114,7 @@
                         PVDC PER BATCH
                     </label>
                     <div class="text-muted">
-                        <?= $data->pvdc_batch ?> Kg
+                        <?= $data->pvdc_batch ?> Roll
                     </div>
                 </div>
 

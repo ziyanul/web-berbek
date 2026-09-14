@@ -170,7 +170,7 @@
                                 <i class="fa fa-tint mr-2"></i>CUCIAN</a>
                             <h3 class="collapse-header">PACKAGING</h3>
                             <a class="collapse-item <?= $active_nav == 'drystore' ? 'active' : '' ?>"
-                                href="<?= base_url('drystore') ?>">
+                                href="<?= base_url('') ?>">
                                 <i class="fa fa-box-open mr-2"></i>DRYSTORE</a>
                         </div>
                     </div>

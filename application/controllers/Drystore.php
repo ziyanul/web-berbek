@@ -41,12 +41,55 @@ class Drystore extends CI_Controller
      */
     public function tambah()
     {
+        // Jika form disubmit
+        if ($this->input->method() === 'post') {
+
+            // Tetap menggunakan tanggal dari form/server
+            $tanggal = $this->input->post('tanggal');
+
+            // Ambil user UUID dari session
+            $user_uuid = $this->session->userdata('user_uuid');
+
+            $result = $this->Drystore_model->insert_harian(
+                $tanggal,
+                $this->input->post(),
+                $user_uuid
+            );
+
+            // Jika terjadi error
+            if (is_array($result) && isset($result['error'])) {
+
+                $this->session->set_flashdata(
+                    'error',
+                    $result['error']
+                );
+
+                redirect('drystore/tambah');
+                return;
+            }
+
+            // Berhasil
+            $this->session->set_flashdata(
+                'success',
+                'Data Drystore berhasil disimpan.'
+            );
+
+            redirect('drystore');
+            return;
+        }
+
+        // =========================
+        // TAMPILKAN FORM TAMBAH
+        // =========================
+
         // Tanggal dari server
         $tanggal = date('Y-m-d');
 
         $data['title'] = 'Tambah Drystore';
-
         $data['tanggal'] = $tanggal;
+
+        $data['release'] =
+            $this->Drystore_model->get_release($tanggal);
 
         $data['types'] =
             $this->Drystore_model->get_all_type();
@@ -59,53 +102,6 @@ class Drystore extends CI_Controller
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/tambah', $data);
         $this->load->view('partials/footer');
-    }
-
-    /**
-     * Simpan transaksi baru
-     */
-    public function simpan()
-    {
-        if ($this->input->method() !== 'post') {
-            redirect('drystore');
-            return;
-        }
-
-        // Tetap menggunakan server date
-        $tanggal = $this->input->post('tanggal');
-
-        /*
-         * Ambil user UUID.
-         *
-         * SESUAIKAN bagian ini dengan session
-         * user_uuid yang digunakan project-mu.
-         */
-        $user_uuid = $this->session->userdata('user_uuid');
-
-        $result =
-            $this->Drystore_model->insert_harian(
-                $tanggal,
-                $this->input->post(),
-                $user_uuid
-            );
-
-        if (is_array($result) && isset($result['error'])) {
-
-            $this->session->set_flashdata(
-                'error',
-                $result['error']
-            );
-
-            redirect('drystore/tambah');
-            return;
-        }
-
-        $this->session->set_flashdata(
-            'success',
-            'Data Drystore berhasil disimpan.'
-        );
-
-        redirect('drystore');
     }
 
     /**
@@ -209,7 +205,6 @@ class Drystore extends CI_Controller
             'varian' => $this->Varian_model->get_all(),
             'active_nav' => 'type-ds'
         );
-
 
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/type', $data);

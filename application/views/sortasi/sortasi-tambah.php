@@ -115,8 +115,7 @@
                     <div class="card-header bg-light">
                         <div class="d-flex justify-content-between align-items-center">
                             <b>Bad Produk</b>
-                            <button type="button" id="btnTambahBad" class="btn btn-primary btn-sm"><i
-                                    class="fa fa-plus mr-1"></i>Tambah</button>
+
                         </div>
                     </div>
                     <div class="card-body">
@@ -124,6 +123,11 @@
                             <div class="text-center text-muted">Tidak ada Bad Produk.</div>
                         </div>
                         <div class="text-right mt-2"><b>Total Bad: <span id="totalBad">0.000</span> Kg</b></div>
+                    </div>
+                    <div class=card-footer>
+                        <button type="button" id="btnTambahBad" class="btn btn-primary btn-sm"><i
+                                class="fa fa-plus mr-1"></i>Tambah Bad Produk</button>
+
                     </div>
                 </div>
                 <div class="card border-left-secondary mb-4">
@@ -153,12 +157,23 @@
         </div>
     </div>
 </div>
+
 <script>
     $(function() {
-        let boxKg = 0,
-            wipRows = [],
-            badIndex = 0;
 
+        let boxKg = 0;
+        let wipRows = [];
+        let badIndex = 0;
+
+        // ========================================================
+        // DATA MESIN DOMINAN
+        // ========================================================
+        let daftarMesin = [];
+
+
+        // ========================================================
+        // HELPER
+        // ========================================================
         function n(v) {
             return parseFloat(v) || 0;
         }
@@ -170,148 +185,628 @@
             });
         }
 
+        function escapeHtml(text) {
+            return $('<div>').text(text ?? '').html();
+        }
+
+
+        // ========================================================
+        // LOAD WIP
+        // ========================================================
         function loadWip(uuid) {
-            $.getJSON("<?= base_url('sortasi/get_wip_batch/') ?>" + uuid, function(rows) {
-                wipRows = rows || [];
-                let total = 0;
-                wipRows.forEach(r => total += n(r.sisa_wip));
-                $('#sisaWipBox').text(fmt(total));
-                $('#sisaWipKg').text(fmt(total * boxKg));
-                $('#wipInfo').removeClass('d-none');
-                updateWip();
+
+            $.getJSON(
+                "<?= base_url('sortasi/get_wip_batch/') ?>" + uuid,
+                function(rows) {
+
+                    wipRows = rows || [];
+
+                    let total = 0;
+
+                    wipRows.forEach(function(r) {
+                        total += n(r.sisa_wip);
+                    });
+
+                    $('#sisaWipBox').text(fmt(total));
+                    $('#sisaWipKg').text(fmt(total * boxKg));
+
+                    $('#wipInfo').removeClass('d-none');
+
+                    updateWip();
+                }
+            ).fail(function() {
+
+                wipRows = [];
+
+                $('#sisaWipBox').text('0.000');
+                $('#sisaWipKg').text('0.000');
+
+                console.error('Gagal mengambil data WIP batch.');
+
             });
         }
-        $('#tbatch_uuid').change(function() {
-            let o = $(this).find(':selected');
-            boxKg = n(o.data('box-kg'));
-            $('#wip_kg,#wip_box').val('');
-            $('#wipHidden').empty();
-            if (!$(this).val()) {
-                $('#wipInfo').addClass('d-none');
-                return;
-            }
-            $('#sisaWipBox').text(fmt(o.data('sisa-box')));
-            $('#sisaWipKg').text(fmt(o.data('sisa-kg')));
-            $('#wipInfo').removeClass('d-none');
-            loadWip($(this).val());
-        });
-        $('#wip_kg').on('input', function() {
-            if (boxKg > 0) $('#wip_box').val(n($(this).val()) / boxKg || '');
-            updateWip();
-        });
-        $('#wip_box').on('input', function() {
-            if (boxKg > 0) $('#wip_kg').val((n($(this).val()) * boxKg).toFixed(3));
-            updateWip();
-        });
 
-        function updateWip() {
-            let box = n($('#wip_box').val()),
-                kg = box * boxKg;
-            $('#jumlah_sortir').val(box);
-            allocate(box);
-            calculate();
+
+        // ========================================================
+        // LOAD MESIN BATCH
+        // ========================================================
+        function loadMesin(uuid) {
+
+            daftarMesin = [];
+
+            // Hapus select2 yang sudah ada
+            $('.select2Mesin').each(function() {
+                if ($(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2('destroy');
+                }
+            });
+
+            $.getJSON(
+                "<?= base_url('sortasi/get_mesin_batch/') ?>" + uuid,
+                function(rows) {
+
+                    daftarMesin = rows || [];
+
+                    console.log('Mesin batch:', daftarMesin);
+
+                }
+            ).fail(function() {
+
+                daftarMesin = [];
+
+                console.error('Gagal mengambil data mesin batch.');
+
+            });
         }
 
-        function allocate(total) {
-            let remain = total,
-                html = '';
+
+        // ========================================================
+        // PILIH BATCH
+        // ========================================================
+        $('#tbatch_uuid').change(function() {
+
+            let selected = $(this).find(':selected');
+            let uuid = $(this).val();
+
+            boxKg = n(selected.data('box-kg'));
+
+            $('#wip_kg').val('');
+            $('#wip_box').val('');
+
             $('#wipHidden').empty();
-            for (let i = 0; i < wipRows.length && remain > 0; i++) {
+
+            // Reset mesin
+            daftarMesin = [];
+
+            if (!uuid) {
+
+                $('#wipInfo').addClass('d-none');
+
+                return;
+            }
+
+            $('#sisaWipBox').text(
+                fmt(selected.data('sisa-box'))
+            );
+
+            $('#sisaWipKg').text(
+                fmt(selected.data('sisa-kg'))
+            );
+
+            $('#wipInfo').removeClass('d-none');
+
+            // Load WIP
+            loadWip(uuid);
+
+            // Load mesin
+            loadMesin(uuid);
+
+        });
+
+
+        // ========================================================
+        // INPUT WIP KG
+        // ========================================================
+        $('#wip_kg').on('input', function() {
+
+            if (boxKg > 0) {
+
+                let kg = n($(this).val());
+
+                $('#wip_box').val(
+                    kg > 0 ? (kg / boxKg).toFixed(3) : ''
+                );
+
+            }
+
+            updateWip();
+
+        });
+
+
+        // ========================================================
+        // INPUT WIP BOX
+        // ========================================================
+        $('#wip_box').on('input', function() {
+
+            if (boxKg > 0) {
+
+                let box = n($(this).val());
+
+                $('#wip_kg').val(
+                    box > 0 ? (box * boxKg).toFixed(3) : ''
+                );
+
+            }
+
+            updateWip();
+
+        });
+
+
+        // ========================================================
+        // UPDATE WIP
+        // ========================================================
+        function updateWip() {
+
+            let box = n($('#wip_box').val());
+
+            $('#jumlah_sortir').val(box);
+
+            allocate(box);
+
+            calculate();
+
+        }
+
+
+        // ========================================================
+        // ALOKASI WIP
+        // ========================================================
+        function allocate(total) {
+
+            let remain = total;
+            let html = '';
+
+            $('#wipHidden').empty();
+
+            for (
+                let i = 0; i < wipRows.length && remain > 0; i++
+            ) {
+
                 let available = n(wipRows[i].sisa_wip);
-                let take = Math.min(remain, available);
+
+                let take = Math.min(
+                    remain,
+                    available
+                );
+
                 if (take > 0) {
-                    html += '<input type="hidden" name="wip_uuid[]" value="' + wipRows[i].uuid + '">';
-                    html += '<input type="hidden" name="wip_jumlah[]" value="' + take + '">';
+
+                    html += `
+                        <input type="hidden"
+                               name="wip_uuid[]"
+                               value="${escapeHtml(wipRows[i].uuid)}">
+
+                        <input type="hidden"
+                               name="wip_jumlah[]"
+                               value="${take}">
+                    `;
+
                     remain -= take;
                 }
             }
-            $('#wipHidden').html(html);
-        }
-        $('.outputBox').on('input', calculate);
 
+            $('#wipHidden').html(html);
+
+        }
+
+
+        // ========================================================
+        // OUTPUT SORTASI
+        // ========================================================
+        $('.outputBox').on('input', function() {
+            calculate();
+        });
+
+
+        // ========================================================
+        // HITUNG HASIL
+        // ========================================================
         function calculate() {
+
             let inputKg = n($('#wip_kg').val());
-            let outputKg = (
+
+            let outputBox =
                 n($('#release_box').val()) +
                 n($('#output_tampung').val()) +
                 n($('#output_kasar').val()) +
-                n($('#output_cuci').val())
-            ) * boxKg;
-            let bad = n($('#totalBad').text());
-            let sisa = inputKg - outputKg - bad;
-            $('#sisaKg').text(fmt(sisa));
-            $('#sisaBox').text(boxKg > 0 ? fmt(sisa / boxKg) : '0.000');
+                n($('#output_cuci').val());
+
+            let outputKg =
+                outputBox * boxKg;
+
+            let bad =
+                n($('#totalBad').text());
+
+            let sisa =
+                inputKg -
+                outputKg -
+                bad;
+
+            $('#sisaKg').text(
+                fmt(sisa)
+            );
+
+            $('#sisaBox').text(
+                boxKg > 0 ?
+                fmt(sisa / boxKg) :
+                '0.000'
+            );
         }
-        $('#btnTambahBad').click(function() {
+
+
+        // ========================================================
+        // TAMBAH BAD PRODUK
+        // ========================================================
+        $('#btnTambahBad').on('click', function(e) {
+
+            e.preventDefault();
+
             $('#badContainer .text-muted').remove();
+
             let i = badIndex++;
-            $('#badContainer').append(badRow(i));
-            loadMachines(i);
+
+            let row = badRow(i);
+
+            $('#badContainer').append(row);
+
+            // Inisialisasi select2 hanya pada row baru
+            initSelect2Mesin(
+                $('#badContainer .bad-card').last()
+            );
+
         });
 
+
+        // ========================================================
+        // BAD ROW
+        // ========================================================
         function badRow(i) {
-            let options = '<option value="">Pilih Bad Produk</option>';
+
+            let options =
+                '<option value="">Pilih Bad Produk</option>';
+
             <?php foreach ($badpro as $b): ?>
-                options +=
-                    '<option value="<?= html_escape($b->uuid_badpro) ?>" data-kategori="<?= html_escape($b->kategori_nama) ?>"><?= html_escape($b->nama_badpro) ?></option>';
+
+                options += `
+                    <option
+                        value="<?= html_escape($b->uuid_badpro) ?>"
+                        data-kategori="<?= html_escape($b->kategori_nama) ?>">
+                        <?= html_escape($b->nama_badpro) ?>
+                    </option>
+                `;
+
             <?php endforeach; ?>
-            return '<div class="card border mb-2 bad-card" data-i="' + i +
-                '"><div class="card-body"><div class="row">' +
-                '<div class="col-md-5"><label>Bad Produk</label><select name="badpro_uuid[]" class="form-control badSelect" required>' +
-                options + '</select></div>' +
-                '<div class="col-md-2"><label>Kategori</label><input class="form-control kategori" readonly></div>' +
-                '<div class="col-md-3"><label>Berat (Kg)</label><input type="number" name="badpro_berat[]" class="form-control badWeight" min="0" step="0.001" required></div>' +
-                '<div class="col-md-2"><label>Mesin Dominan <small>(opsional)</small></label><select name="mesin_uuid[' +
-                i + '][]" class="form-control mesin" multiple></select></div>' +
-                '</div><div class="text-right mt-2"><button type="button" class="btn btn-danger btn-sm removeBad"><i class="fa fa-trash"></i></button></div></div></div>';
+
+
+            return `
+                <div class="card border mb-2 bad-card" data-i="${i}">
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-5">
+
+                                <label>
+                                    Bad Produk
+                                </label>
+
+                                <select
+                                    name="badpro_uuid[]"
+                                    class="form-control badSelect"
+                                    required>
+
+                                    ${options}
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-2">
+
+                                <label>
+                                    Kategori
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control kategori"
+                                    readonly>
+
+                            </div>
+
+
+                            <div class="col-md-3">
+
+                                <label>
+                                    Berat (Kg)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="badpro_berat[]"
+                                    class="form-control badWeight"
+                                    min="0"
+                                    step="0.001"
+                                    required>
+
+                            </div>
+
+
+                            <div class="col-md-2">
+
+                                <label>
+                                    Mesin Dominan
+                                    <small>(opsional)</small>
+                                </label>
+
+                                <select
+                                    name="mesin_uuid[${i}][]"
+                                    class="form-control mesinDominan select2Mesin"
+                                    multiple="multiple">
+
+                                    ${generateOptionMesinDominan()}
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="text-right mt-2">
+
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm removeBad">
+
+                                <i class="fa fa-trash"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
         }
 
-        function loadMachines(i) {
-            $.getJSON("<?= base_url('sortasi/get_mesin_batch/') ?>" + $('#tbatch_uuid').val(), function(rows) {
-                let sel = $('.bad-card[data-i="' + i + '"] .mesin');
-                (rows || []).forEach(function(m) {
-                    sel.append('<option value="' + m.uuid + '">' + m.nama_mesin + '</option>');
+
+        // ========================================================
+        // OPTION MESIN
+        // ========================================================
+        function generateOptionMesinDominan() {
+
+            let html = '';
+
+            if (!Array.isArray(daftarMesin) ||
+                daftarMesin.length === 0) {
+
+                return `
+                    <option value="" disabled>
+                        Mesin tidak tersedia
+                    </option>
+                `;
+            }
+
+            daftarMesin.forEach(function(m) {
+
+                html += `
+                    <option value="${escapeHtml(m.uuid)}">
+                        ${escapeHtml(m.nama_mesin)}
+                    </option>
+                `;
+
+            });
+
+            return html;
+        }
+
+
+        // ========================================================
+        // SELECT2 MESIN
+        // ========================================================
+        function initSelect2Mesin(container) {
+
+            $(container)
+                .find('.select2Mesin')
+                .each(function() {
+
+                    let $select = $(this);
+
+                    if (
+                        $select.hasClass(
+                            'select2-hidden-accessible'
+                        )
+                    ) {
+                        return;
+                    }
+
+                    $select.select2({
+
+                        placeholder: 'Pilih Mesin Dominan',
+
+                        width: '100%',
+
+                        allowClear: true,
+
+                        closeOnSelect: false
+
+                    });
+
                 });
-            });
         }
-        $(document).on('change', '.badSelect', function() {
-            $(this).closest('.bad-card').find('.kategori').val($(this).find(':selected').data('kategori') ||
-                '');
-        });
-        $(document).on('input', '.badWeight', function() {
-            totalBad();
-            calculate();
-        });
-        $(document).on('click', '.removeBad', function() {
-            $(this).closest('.bad-card').remove();
-            totalBad();
-            calculate();
-        });
 
+
+        // ========================================================
+        // BAD PRODUK CHANGE
+        // ========================================================
+        $(document).on(
+            'change',
+            '.badSelect',
+            function() {
+
+                let kategori =
+                    $(this)
+                    .find(':selected')
+                    .data('kategori') || '';
+
+                $(this)
+                    .closest('.bad-card')
+                    .find('.kategori')
+                    .val(kategori);
+
+            }
+        );
+
+
+        // ========================================================
+        // BERAT BAD
+        // ========================================================
+        $(document).on(
+            'input',
+            '.badWeight',
+            function() {
+
+                totalBad();
+
+                calculate();
+
+            }
+        );
+
+
+        // ========================================================
+        // HAPUS BAD
+        // ========================================================
+        $(document).on(
+            'click',
+            '.removeBad',
+            function() {
+
+                let card =
+                    $(this).closest('.bad-card');
+
+                // Destroy select2 sebelum remove
+                card.find('.select2Mesin').each(function() {
+
+                    if (
+                        $(this).hasClass(
+                            'select2-hidden-accessible'
+                        )
+                    ) {
+
+                        $(this).select2('destroy');
+
+                    }
+
+                });
+
+                card.remove();
+
+                if (
+                    $('#badContainer .bad-card').length === 0
+                ) {
+
+                    $('#badContainer').html(`
+                        <div class="text-center text-muted">
+                            Tidak ada Bad Produk.
+                        </div>
+                    `);
+
+                }
+
+                totalBad();
+
+                calculate();
+
+            }
+        );
+
+
+        // ========================================================
+        // TOTAL BAD
+        // ========================================================
         function totalBad() {
-            let t = 0;
+
+            let total = 0;
+
             $('.badWeight').each(function() {
-                t += n($(this).val());
+
+                total += n($(this).val());
+
             });
-            $('#totalBad').text(t.toFixed(3));
+
+            $('#totalBad').text(
+                total.toFixed(3)
+            );
+
         }
+
+
+        // ========================================================
+        // SUBMIT
+        // ========================================================
         $('#formSortasi').submit(function(e) {
-            let input = n($('#wip_kg').val()),
-                totalOutput = (
-                    n($('#release_box').val()) + n($('#output_tampung').val()) + n($('#output_kasar')
-                        .val()) + n($('#output_cuci').val())
-                ) * boxKg + n($('#totalBad').text());
+
+            let input =
+                n($('#wip_kg').val());
+
             if (input <= 0) {
-                alert('WIP yang digunakan harus diisi.');
+
+                alert(
+                    'WIP yang digunakan harus diisi.'
+                );
+
                 e.preventDefault();
+
                 return false;
             }
-            let available = 0;
-            wipRows.forEach(r => available += n(r.sisa_wip));
 
+
+            let available = 0;
+
+            wipRows.forEach(function(r) {
+
+                available +=
+                    n(r.sisa_wip);
+
+            });
+
+
+            let usedBox =
+                n($('#wip_box').val());
+
+
+            if (usedBox > available + 0.000001) {
+
+                alert(
+                    'WIP yang digunakan melebihi sisa WIP batch.'
+                );
+
+                e.preventDefault();
+
+                return false;
+            }
 
 
             return true;
+
         });
+
     });
 </script>

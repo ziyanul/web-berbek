@@ -49,14 +49,14 @@
         align-items: center;
         gap: 8px;
         padding: 6px 12px;
-        background: #ed1c24;
+        background: #FF0000;
         border-radius: 20px;
         color: white;
         font-family: Arial, sans-serif;
         font-size: 12px;
         font-weight: bold;
         line-height: 1;
-        box-shadow: 0 3px 8px rgba(237, 28, 36, .25);
+        box-shadow: 0 3px 8px rgba(255, 0, 0, 0);
     }
 
     .live-icon {
@@ -160,11 +160,11 @@
         gap: 7px;
         height: 32px;
         padding: 0 11px;
-        background: #f0fff4;
-        border: 1px solid #b7ebc6;
+        background: #fff0f0;
+        border: 1px solid #FF0000;
         border-radius: 18px;
-        color: #16803c;
-        box-shadow: 0 2px 6px rgba(22, 128, 60, .08);
+        color: #f02424;
+        box-shadow: 0 2px 6px rgba(247, 19, 19, 0.08);
     }
 
     /* DOT */
@@ -180,7 +180,7 @@
     .live-dot {
         width: 7px;
         height: 7px;
-        background: #22c55e;
+        background: #FF0000;
         border-radius: 50%;
         position: relative;
         z-index: 2;
@@ -194,7 +194,7 @@
         width: 9px;
         height: 9px;
         border-radius: 50%;
-        background: rgba(34, 197, 94, .35);
+        background: rgba(255, 0, 0);
         animation: live-pulse 1.5s infinite;
     }
 
@@ -217,7 +217,7 @@
     .live-signal i {
         display: block;
         width: 3px;
-        background: #22c55e;
+        background: #c52222;
         border-radius: 2px;
     }
 
@@ -688,7 +688,7 @@ MONITORING SORTASI
                                                     Varian
                                                 </th>
                                                 <th colspan="3">
-                                                    Sortasi (box)
+                                                    Sortasi (kg)
                                                 </th>
                                                 <th colspan="4">
                                                     Bad Produk (kg)
@@ -699,13 +699,13 @@ MONITORING SORTASI
                                             </tr>
                                             <tr>
                                                 <th>
-                                                    Sortir (Box)
+                                                    Sortir (kg)
                                                 </th>
                                                 <th>
-                                                    Release (box)
+                                                    Release (kg)
                                                 </th>
                                                 <th>
-                                                    Sisa WIP (box)
+                                                    Sisa WIP (kg)
                                                 </th>
                                                 <th>
                                                     Rework (kg)
@@ -729,13 +729,13 @@ MONITORING SORTASI
                                                             <?= $row->nama_varian ?>
                                                         </td>
                                                         <td>
-                                                            <?= number_format($row->sortasi_box) ?>
+                                                            <?= number_format($row->sortasi_box * $row->berat_box, 3) ?>
                                                         </td>
                                                         <td>
-                                                            <?= number_format($row->release_box) ?>
+                                                            <?= number_format($row->release_box * $row->berat_box, 3) ?>
                                                         </td>
                                                         <td>
-                                                            <?= number_format($row->blm_sortir) ?>
+                                                            <?= number_format($row->blm_sortir * $row->berat_box, 3) ?>
                                                         </td>
                                                         <td>
                                                             <?= number_format($row->sortasi_rework, 2) ?>
@@ -872,7 +872,7 @@ BAD PRODUK PER VARIAN
                                         <table class="table table-dashboard bad-varian-table">
                                             <thead>
                                                 <tr>
-                                                    <th colspan="4" class="text-center">Data Pemakaian WIRE (ROLL)</th>
+                                                    <th colspan="4" class="text-center">Data Pemakaian WIRE (KG)</th>
                                                 </tr>
                                                 <tr>
                                                     <th class="align-middle text-center">Varian</th>

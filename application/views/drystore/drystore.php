@@ -4,15 +4,12 @@
 
         <h1 class="h3 mb-2 text-gray-800">Drystore</h1>
 
-            <a href="<?= base_url('drystore/tambah'); ?>"
-                class="btn btn-md btn-primary shadow-sm">
-                <i class="fas fa-plus fa-sm text-white mr-2"></i>
-                Tambah
-            </a>
-
+        <a href="<?= base_url('drystore/tambah'); ?>" class="btn btn-md btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white mr-2"></i>
+            Tambah
+        </a>
 
     </div>
-
 
     <?php if ($this->session->flashdata('success_msg')): ?>
 

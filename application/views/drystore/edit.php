@@ -158,9 +158,9 @@
 
                 <!-- BUTTON -->
 
-                <div class="text-right mt-4">
+                <div class="text-left ml-3 mt-4">
 
-                    <a href="<?= base_url('drystore'); ?>" class="btn btn-secondary shadow-sm mr-2">
+                    <a href="<?= base_url('drystore'); ?>" class="btn btn-danger shadow-sm mr-2">
 
                         <i class="fas fa-times mr-2"></i>
                         Batal

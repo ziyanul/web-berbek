@@ -83,9 +83,9 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Batch</th>
-                                    <th>Stock Rework</th>
+                                    <th>Stock Rework (Kg)</th>
                                     <th>Check</th>
-                                    <th>Kupas</th>
+                                    <th>Kupas (Kg)</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -212,7 +212,7 @@ $(document).ready(function() {
                         <input type="hidden" name="items[${i}][varian_uuid]" value="${v.uuid_varian}">
                     </td>
                     <td>
-                        ${parseFloat(v.sisa_kupas).toFixed(3)}
+                        ${parseFloat(v.sisa_kupas).toFixed(2)}
                     </td>
                     <td>
                         <input type="checkbox" name="items[${i}][check]" value="1" class="check-item">

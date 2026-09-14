@@ -489,6 +489,7 @@ class Drystore_model extends CI_Model
         $std_waste = $this->input->post('std_waste');
         $satuan = $this->input->post('satuan');
         $varian = $this->input->post('varian');
+        $perbox = $this->input->post('perbox');
 
         // Select2 multiple menghasilkan array
         $varian_uuid = !empty($varian)
@@ -501,6 +502,7 @@ class Drystore_model extends CI_Model
             'user_uuid'   => $this->auth_model->current_user()->uuid,
             'updated_at'  => date('Y-m-d H:i:s'),
             'satuan'      => $satuan,
+            'perbox'      => $perbox,
             'varian_uuid' => $varian_uuid
         );
 
