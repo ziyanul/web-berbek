@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,8 +13,6 @@
     <link href="<?= base_url('assets/css/sb-admin-2.min.css'); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/vendor/datatables/datatables.min.css'); ?>">
     <link href="<?= base_url('assets/css/select2.min.css'); ?>" rel="stylesheet" />
-
-
     <link rel="stylesheet" href="<?= base_url('assets/vendor/daterangepicker/bootstrap-datepicker.min.css') ?>"
         integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -30,26 +27,21 @@
             padding: 0.75rem 1rem;
             border-bottom: 1px solid #eaecf4;
         }
-
         .dropdown-user-header .name {
             font-weight: 700;
             color: #3a3b45;
             margin-bottom: 2px;
         }
-
         .dropdown-user-header .meta {
             font-size: 0.8rem;
             color: #858796;
         }
-
         .sidebar-brand-icon {
             width: 200px;
         }
-
         .sidebar-brand-icon img {
             width: 200%;
         }
-
         .dashboard-title {
             font-size: 16px;
             font-weight: 800;
@@ -59,21 +51,17 @@
             padding: 8px 20px;
             margin-bottom: 0px;
         }
-
         @media (min-width: 768px) {
             .sidebar {
                 width: 20rem !important;
             }
-
             .sidebar-brand-icon img {
                 width: 100%;
             }
-
             @media (min-width: 768px) {
                 .sidebar {
                     width: 20rem !important;
                 }
-
                 .sidebar .nav-item .nav-link {
                     width: 100% !important;
                 }
@@ -81,7 +69,6 @@
         }
     </style>
 </head>
-
 <body id="page-top">
     <div id="wrapper">
         <?php
@@ -125,7 +112,6 @@
                         <i class="fa fa-blender"></i> <span>FORMULA & REWORK</span></a>
                 </li>
                 <!-- ================= FILLER ================= -->
-
                 <li class="nav-item <?= in_array($active_nav, ['counter', 'pvdc']) ? 'active' : '' ?>">
                     <a class="nav-link collapsed" data-toggle="collapse" data-target="#manualBook">
                         <span>FILLER</span>
@@ -141,15 +127,11 @@
                         </div>
                     </div>
                 </li>
-
-
                 <li class="nav-item <?= $active_nav == 'filkar' ? 'active' : '' ?>">
                     <a class="nav-link" href="<?= base_url('filkar') ?>">
                         <i class="fa fa-box"></i> <span>FILLING KARANTINA</span></a>
                 </li>
-
                 <!-- ================= SORTASI ================= -->
-
                 <li
                     class="nav-item <?= in_array($active_nav, ['sortasi', 'rework', 'cuci', 'drystore']) ? 'active' : '' ?>">
                     <a class="nav-link collapsed" data-toggle="collapse" data-target="#yieldSortasi">
@@ -161,7 +143,6 @@
                             <a class="collapse-item <?= $active_nav == 'sortasi' ? 'active' : '' ?>"
                                 href="<?= base_url('sortasi') ?>">
                                 <i class="fa fa-filter mr-2"></i> <span>SORTASI</span></a>
-
                             <a class="collapse-item <?= $active_nav == 'rework' ? 'active' : '' ?>"
                                 href="<?= base_url('rework/kupas') ?>">
                                 <i class="fa fa-recycle mr-2"></i>REWORK</a>
@@ -170,13 +151,11 @@
                                 <i class="fa fa-tint mr-2"></i>CUCIAN</a>
                             <h3 class="collapse-header">PACKAGING</h3>
                             <a class="collapse-item <?= $active_nav == 'drystore' ? 'active' : '' ?>"
-                                href="<?= base_url('') ?>">
+                                href="<?= base_url('drystore') ?>">
                                 <i class="fa fa-box-open mr-2"></i>DRYSTORE</a>
                         </div>
                     </div>
                 </li>
-
-
             <?php } ?>
             <hr class="sidebar-divider">
             <hr class="sidebar-divider">
@@ -229,7 +208,6 @@
                                 href="<?= base_url('sortasi/jenis') ?>">JENIS SORTASI</a>
                             <a class="collapse-item <?= $active_nav == 'm-badpro' ? 'active' : ''; ?>"
                                 href="<?= base_url('badpro') ?>">BAD PRODUK</a>
-
                             <h6 class="collapse-header">DRYSTORE</h6>
                             <a class="collapse-item <?= $active_nav == 'type-ds' ? 'active' : ''; ?>"
                                 href="<?= base_url('drystore/type') ?>">TYPE</a>
@@ -251,9 +229,6 @@
                         <i class="fa fa-bars"></i>
                     </button>
                     <!-- Info User -->
-
-
-
                     <div class="dashboard-title">
                         <?= $this->session->userdata('fullname'); ?> |
                         <?= $this->session->userdata('departemen'); ?> |

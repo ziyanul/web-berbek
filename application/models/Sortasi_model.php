@@ -412,7 +412,7 @@ class Sortasi_model extends CI_Model
     private function get_batch_uuid($uuid)
     {
         return $this->db
-            ->select('tb.*, v.box_kg')
+            ->select('tb.*, v.box_kg, tp.varian')
             ->from('tbatch tb')
             ->join('t_planning tp', 'tp.uuid = tb.t_planning_uuid', 'left')
             ->join('varian v', 'v.uuid = tp.varian', 'left')
@@ -582,6 +582,7 @@ class Sortasi_model extends CI_Model
                     ]);
                 }
             }
+            $this->db->where('uuid', $tbatch_uuid)->update('tbatch', ['varian_uuid' => $batch->varian]);
             $this->update_total_sortasi($tbatch_uuid);
             $this->update_total_bad_sortasi($tbatch_uuid);
             $this->update_total_release_batch($tbatch_uuid);

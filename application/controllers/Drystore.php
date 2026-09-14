@@ -1,13 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-
 class Drystore extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
-
         $this->load->model('Drystore_model');
         $this->load->model('Varian_model');
         $this->load->library('form_validation');
@@ -16,26 +13,43 @@ class Drystore extends CI_Controller
             redirect('login');
         }
     }
-
     public function index()
     {
         $data['title'] = 'Drystore';
         $data['active_nav'] = 'Drystore';
         $data['data'] = $this->Drystore_model->get_all();
-
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/drystore', $data);
         $this->load->view('partials/footer');
     }
-
     public function dashboard()
     {
         $data['title'] = 'Drystore';
         $data['active_nav'] = 'Drystore';
-
         $this->load->view('dashboard/dashboard-packing', $data);
     }
-
+    public function detail($uuid)
+{
+    if (empty($uuid)) {
+        redirect('drystore');
+        return;
+    }
+    $drystore = $this->Drystore_model->get_by_uuid($uuid);
+    if (!$drystore) {
+        $this->session->set_flashdata(
+            'error_msg',
+            'Data Dry Store tidak ditemukan.'
+        );
+        redirect('drystore');
+        return;
+    }
+    $data['drystore'] = $drystore;
+    $data['detail'] = $this->Drystore_model->get_detail($uuid);
+    $data['active_nav'] = 'drystore';
+    $this->load->view('partials/head-yield', $data);
+    $this->load->view('drystore/detail', $data);
+    $this->load->view('partials/footer');
+}
     /**
      * Tambah transaksi hari ini
      */
@@ -43,67 +57,50 @@ class Drystore extends CI_Controller
     {
         // Jika form disubmit
         if ($this->input->method() === 'post') {
-
             // Tetap menggunakan tanggal dari form/server
             $tanggal = $this->input->post('tanggal');
-
             // Ambil user UUID dari session
             $user_uuid = $this->session->userdata('user_uuid');
-
             $result = $this->Drystore_model->insert_harian(
                 $tanggal,
                 $this->input->post(),
                 $user_uuid
             );
-
             // Jika terjadi error
             if (is_array($result) && isset($result['error'])) {
-
                 $this->session->set_flashdata(
                     'error',
                     $result['error']
                 );
-
                 redirect('drystore/tambah');
                 return;
             }
-
             // Berhasil
             $this->session->set_flashdata(
                 'success',
                 'Data Drystore berhasil disimpan.'
             );
-
             redirect('drystore');
             return;
         }
-
         // =========================
         // TAMPILKAN FORM TAMBAH
         // =========================
-
         // Tanggal dari server
         $tanggal = date('Y-m-d');
-
         $data['title'] = 'Tambah Drystore';
         $data['tanggal'] = $tanggal;
-
         $data['release'] =
             $this->Drystore_model->get_release($tanggal);
-
         $data['types'] =
             $this->Drystore_model->get_all_type();
-
         $data['wastes'] =
             $this->Drystore_model->get_all_waste();
-
         $data['active_nav'] = 'Drystore';
-
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/tambah', $data);
         $this->load->view('partials/footer');
     }
-
     /**
      * Edit
      */
@@ -111,28 +108,20 @@ class Drystore extends CI_Controller
     {
         $drystore =
             $this->Drystore_model->get_by_uuid($uuid);
-
         if (!$drystore) {
-
             $this->session->set_flashdata(
                 'error',
                 'Data Drystore tidak ditemukan.'
             );
-
             redirect('drystore');
             return;
         }
-
         $data['title'] = 'Edit Drystore';
-
         $data['drystore'] = $drystore;
-
         $data['types'] =
             $this->Drystore_model->get_all_type();
-
         $data['wastes'] =
             $this->Drystore_model->get_all_waste();
-
         $data['matrix'] =
             $this->Drystore_model
             ->get_transaksi_matrix($uuid);
@@ -141,7 +130,6 @@ class Drystore extends CI_Controller
         $this->load->view('drystore/edit', $data);
         $this->load->view('partials/footer');
     }
-
     /**
      * Update
      */
@@ -151,53 +139,40 @@ class Drystore extends CI_Controller
             redirect('drystore');
             return;
         }
-
         $drystore =
             $this->Drystore_model->get_by_uuid($uuid);
-
         if (!$drystore) {
-
             $this->session->set_flashdata(
                 'error',
                 'Data Drystore tidak ditemukan.'
             );
-
             redirect('drystore');
             return;
         }
-
         $user_uuid =
             $this->session->userdata('user_uuid');
-
         $result =
             $this->Drystore_model->update_harian(
                 $uuid,
                 $this->input->post(),
                 $user_uuid
             );
-
         if (is_array($result) && isset($result['error'])) {
-
             $this->session->set_flashdata(
                 'error',
                 $result['error']
             );
-
             redirect(
                 'drystore/edit/' . $uuid
             );
-
             return;
         }
-
         $this->session->set_flashdata(
             'success',
             'Data Drystore berhasil diperbarui.'
         );
-
         redirect('drystore');
     }
-
     public function type()
     {
         $data = array(
@@ -205,7 +180,6 @@ class Drystore extends CI_Controller
             'varian' => $this->Varian_model->get_all(),
             'active_nav' => 'type-ds'
         );
-
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/type', $data);
         $this->load->view('partials/footer');
@@ -214,9 +188,7 @@ class Drystore extends CI_Controller
     {
         $rules_type = $this->Drystore_model->rules_type();
         $this->form_validation->set_rules($rules_type);
-
         if ($this->form_validation->run() === TRUE) {
-
             $insert_type = $this->Drystore_model->insert_type();
             if ($insert_type) {
                 $this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
@@ -227,14 +199,11 @@ class Drystore extends CI_Controller
             }
         }
     }
-
     public function edit_type($uuid)
     {
         $rules = $this->Drystore_model->rules_type();
         $this->form_validation->set_rules($rules);
-
         if ($this->form_validation->run() === TRUE) {
-
             $update = $this->Drystore_model->update_type($uuid);
             if ($update) {
                 $this->session->set_flashdata('success_msg', 'Data berhasil di ubah.');
@@ -243,26 +212,21 @@ class Drystore extends CI_Controller
             }
             redirect('drystore/type');
         }
-
         $data = array(
             'data' => $this->Drystore_model->get_type_by_uuid($uuid),
             'varian' => $this->Varian_model->get_all(),
             'active_nav' => 'type-ds'
         );
-
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/edit-type', $data);
         $this->load->view('partials/footer');
     }
-
     public function waste()
     {
         $data = array(
             'data' => $this->Drystore_model->get_waste(),
-
             'active_nav' => 'waste-ds'
         );
-
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/waste', $data);
         $this->load->view('partials/footer');
@@ -271,9 +235,7 @@ class Drystore extends CI_Controller
     {
         $rules_waste = $this->Drystore_model->rules_waste();
         $this->form_validation->set_rules($rules_waste);
-
         if ($this->form_validation->run() === TRUE) {
-
             $insert_waste = $this->Drystore_model->insert_waste();
             if ($insert_waste) {
                 $this->session->set_flashdata('success_msg', 'Data berhasil di simpan.');
@@ -284,14 +246,11 @@ class Drystore extends CI_Controller
             }
         }
     }
-
     public function edit_waste($uuid)
     {
         $rules = $this->Drystore_model->rules_waste();
         $this->form_validation->set_rules($rules);
-
         if ($this->form_validation->run() === TRUE) {
-
             $update = $this->Drystore_model->update_waste($uuid);
             if ($update) {
                 $this->session->set_flashdata('success_msg', 'Data berhasil di ubah.');
@@ -301,22 +260,17 @@ class Drystore extends CI_Controller
                 $this->session->set_flashdata('error_msg', 'Data gagal di ubah.');
             }
         }
-
         $data = array(
             'data' => $this->Drystore_model->get_waste_by_uuid($uuid),
-
             'active_nav' => 'waste-ds'
         );
-
         $this->load->view('partials/head-yield', $data);
         $this->load->view('drystore/edit-waste', $data);
         $this->load->view('partials/footer');
     }
-
     public function get_release()
     {
         $tanggal = $this->input->post('tanggal', true);
-
         if (!$tanggal) {
             echo json_encode([
                 'status' => false,
@@ -324,9 +278,7 @@ class Drystore extends CI_Controller
             ]);
             return;
         }
-
         $data = $this->Drystore_model->get_release($tanggal);
-
         echo json_encode([
             'status' => true,
             'data' => $data
