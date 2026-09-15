@@ -91,7 +91,7 @@
                 </a>
             </li>
             <li class="nav-item <?= $active_nav == 'yield' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= base_url('yieldportal/analisa') ?>">
+                <a class="nav-link" href="<?= base_url('analisa') ?>">
                     <i class="fa fa-list"></i>
                     <span>ANALISA</span>
                 </a>
