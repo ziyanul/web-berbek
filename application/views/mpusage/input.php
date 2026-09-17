@@ -39,7 +39,6 @@
                                 name="formula_uuid"
                                 id="formula_uuid"
                                 class="form-control">
-
                                 <?php foreach ($formula as $f): ?>
                                     <option
                                         value="<?= $f->uuid ?>"
@@ -186,7 +185,6 @@
                     $('#rework_kg').val('');
                 }
             });
-
             function loadTotalRework() {
                 $.ajax({
                     url: "<?= site_url('mpusage/get_total_rework') ?>",

@@ -1,215 +1,190 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-3">
         <div>
-            <h1 class="h3 mb-1 text-gray-800">Analisa Produksi</h1>
-            <div class="text-muted small">Analisa perjalanan produksi, performa mesin, bad product dan yield.</div>
+            <h1 class="h3 mb-1 text-gray-800">Analisa Produksi 2.0</h1>
+            <div class="text-muted small">Range tanggal adalah filter utama. Varian, Batch, Proses, Bad Product dan Mesin bersifat opsional.</div>
         </div>
     </div>
+
     <div class="card shadow mb-4">
-        <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Filter Analisa</h6></div>
+        <div class="card-header"><b>Filter Global</b></div>
         <div class="card-body">
             <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label>Tanggal Mulai</label>
-                    <input type="date" id="start" class="form-control" value="<?= date('Y-m-01') ?>">
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Tanggal Akhir</label>
-                    <input type="date" id="end" class="form-control" value="<?= date('Y-m-d') ?>">
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Varian <small class="text-muted">(opsional)</small></label>
-                    <select id="varian_uuid" class="form-control"><option value="">Semua Varian</option></select>
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Plan Produksi <small class="text-muted">(opsional)</small></label>
-                    <select id="plan_uuid" class="form-control"><option value="">Semua Plan</option></select>
-                </div>
+                <div class="form-group col-md-2"><label>Mulai</label><input id="start" type="date" class="form-control" value="<?= date('Y-m-01') ?>"></div>
+                <div class="form-group col-md-2"><label>Sampai</label><input id="end" type="date" class="form-control" value="<?= date('Y-m-d') ?>"></div>
+                <div class="form-group col-md-2"><label>Varian</label><select id="varian_uuid" class="form-control"><option value="">Semua Varian</option></select></div>
+                <div class="form-group col-md-2"><label>Kode Batch</label><select id="batch_uuid" class="form-control"><option value="">Semua Batch</option></select></div>
+                <div class="form-group col-md-2"><label>Mesin</label><select id="mesin_uuid" class="form-control"><option value="">Semua Mesin</option></select></div>
             </div>
             <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label>Kode Batch <small class="text-muted">(opsional)</small></label>
-                    <select id="batch_uuid" class="form-control"><option value="">Semua Batch</option></select>
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Proses <small class="text-muted">(opsional)</small></label>
-                    <select id="proses_uuid" class="form-control"><option value="">Semua Proses</option></select>
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Bad Product <small class="text-muted">(opsional)</small></label>
-                    <select id="badpro_uuid" class="form-control"><option value="">Semua Bad Product</option></select>
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Mode Analisa</label>
-                    <select id="mode" class="form-control">
-                        <option value="journey">Perjalanan Batch</option>
-                        <option value="performance">Performa Mesin</option>
-                        <option value="badpro" selected>Bad Product</option>
-                        <option value="yield">Yield</option>
-                    </select>
-                </div>
+                <div class="form-group col-md-3"><label>Proses</label><select id="proses_uuid" class="form-control"><option value="">Semua Proses</option></select></div>
+                <div class="form-group col-md-3"><label>Bad Product</label><select id="badpro_uuid" class="form-control"><option value="">Semua Bad Product</option></select></div>
+                <div class="form-group col-md-3"><label>Mode Analisa</label><select id="mode" class="form-control"><option value="journey">Perjalanan Produksi</option><option value="yield">Yield</option><option value="performance">Performa Mesin</option><option value="badpro">Bad Product</option></select></div>
+                <div class="form-group col-md-3 d-flex align-items-end"><button id="btnAnalisa" class="btn btn-primary btn-block"><i class="fas fa-chart-line mr-1"></i> Tampilkan Analisa</button></div>
             </div>
-            <div>
-                <button id="btnAnalisa" class="btn btn-primary"><i class="fas fa-chart-line mr-1"></i> Tampilkan Analisa</button>
-                <button id="btnExport" class="btn btn-success d-none"><i class="fas fa-file-excel mr-1"></i> Export Excel</button>
+            <div id="exportBox" class="d-none mt-2">
+                <button id="btnExport" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i> Download Excel Semua Mode</button>
+                <div class="small text-muted mt-1">Excel berisi seluruh 4 mode analisa sesuai range dan filter yang dipilih.</div>
             </div>
         </div>
     </div>
-    <div id="result" class="mb-4"></div>
+    <div id="result"></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-(function () {
-    const base = '<?= base_url('analisa') ?>';
-    const $ = id => document.getElementById(id);
-    let trendChart = null;
-    let lastBadData = null;
-    function esc(v) {
-        return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
+(() => {
+    const base='<?= base_url('analisa') ?>';
+    const g=id=>document.getElementById(id);
+    const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
+    const n=v=>Number(v||0).toLocaleString('id-ID',{maximumFractionDigits:3});
+
+    async function get(u){
+        const r=await fetch(u,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+        let x; try{x=await r.json()}catch(e){throw Error('Response bukan JSON')}
+        if(!r.ok)throw Error(x.error||('HTTP '+r.status));
+        return x;
     }
-    function num(v, d=3) { return Number(v || 0).toLocaleString('id-ID', {minimumFractionDigits:d, maximumFractionDigits:d}); }
-    async function get(url) {
-        const r = await fetch(url, {headers: {'X-Requested-With':'XMLHttpRequest'}});
-        let data = null;
-        try { data = await r.json(); } catch (_) {}
-        if (!r.ok) throw new Error((data && data.error) ? data.error : ('HTTP ' + r.status));
-        if (data && data.error) throw new Error(data.error);
-        return data;
-    }
-    function params(extra = {}) {
+
+    function qs(extra={}){
         return new URLSearchParams({
-            start: $('start').value, end: $('end').value,
-            varian_uuid: $('varian_uuid').value, plan_uuid: $('plan_uuid').value,
-            batch_uuid: $('batch_uuid').value, proses_uuid: $('proses_uuid').value,
-            badpro_uuid: $('badpro_uuid').value, ...extra
-        }).toString();
-    }
-    function selectedNames() {
-        return {
-            varian_name: $('varian_uuid').selectedOptions[0]?.text || '',
-            proses_name: $('proses_uuid').selectedOptions[0]?.text || '',
-            badpro_name: $('badpro_uuid').selectedOptions[0]?.text || ''
-        };
-    }
-    async function loadVariants() {
-        const keep = $('varian_uuid').value;
-        const data = await get(base + '/variants?' + params({varian_uuid:''}));
-        $('varian_uuid').innerHTML = '<option value="">Semua Varian</option>' + data.map(x => `<option value="${esc(x.uuid)}">${esc(x.varian)}</option>`).join('');
-        if (data.some(x => x.uuid === keep)) $('varian_uuid').value = keep;
-    }
-    async function loadPlans() {
-        const keep = $('plan_uuid').value;
-        const data = await get(base + '/plans?' + params({plan_uuid:'', batch_uuid:''}));
-        $('plan_uuid').innerHTML = '<option value="">Semua Plan</option>' + data.map(x => `<option value="${esc(x.uuid)}">${esc(x.tanggal)} - Plan ${esc(x.plan)} - ${esc(x.varian || '-')} (${esc(x.jumlah_batch)} batch)</option>`).join('');
-        if (data.some(x => x.uuid === keep)) $('plan_uuid').value = keep;
-        await loadBatches();
-    }
-    async function loadBatches() {
-        const keep = $('batch_uuid').value;
-        const data = await get(base + '/batches?' + params({batch_uuid:''}));
-        $('batch_uuid').innerHTML = '<option value="">Semua Batch</option>' + data.map(x => `<option value="${esc(x.uuid)}">${esc(x.kode_batch)} - ${esc(x.varian || '-')}</option>`).join('');
-        if (data.some(x => x.uuid === keep)) $('batch_uuid').value = keep;
-    }
-    async function loadProcesses() {
-        const data = await get(base + '/processes');
-        $('proses_uuid').innerHTML = '<option value="">Semua Proses</option>' + data.map(x => `<option value="${esc(x.uuid)}">${esc(x.kode || x.nama_proses)}</option>`).join('');
-    }
-    async function loadBadproducts() {
-        const keep = $('badpro_uuid').value;
-        const data = await get(base + '/badproducts?' + params({badpro_uuid:''}));
-        $('badpro_uuid').innerHTML = '<option value="">Semua Bad Product</option>' + data.map(x => `<option value="${esc(x.uuid)}">${esc(x.nama_badpro)} — ${num(x.total_kg)} kg</option>`).join('');
-        if (data.some(x => x.uuid === keep)) $('badpro_uuid').value = keep;
-    }
-    function card(title, value, sub='') {
-        return `<div class="col-md-3 mb-3"><div class="card shadow-sm h-100"><div class="card-body"><div class="text-xs font-weight-bold text-primary text-uppercase mb-1">${esc(title)}</div><div class="h5 mb-0 font-weight-bold text-gray-800">${esc(value)}</div><div class="small text-muted mt-1">${esc(sub)}</div></div></div></div>`;
-    }
-    function table(title, headers, rows, extra='') {
-        return `<div class="card shadow mb-4"><div class="card-header d-flex justify-content-between align-items-center"><b>${esc(title)}</b>${extra}</div><div class="card-body p-0"><div class="table-responsive"><table class="table table-sm table-hover mb-0"><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows || `<tr><td colspan="${headers.length}" class="text-center text-muted py-3">Tidak ada data.</td></tr>`}</tbody></table></div></div></div>`;
-    }
-    async function renderJourney() {
-        if (!$('batch_uuid').value) { $('result').innerHTML = '<div class="alert alert-info">Pilih Kode Batch untuk melihat perjalanan produksi lengkap.</div>'; return; }
-        const data = await get(base + '/batch/' + encodeURIComponent($('batch_uuid').value));
-        if (data.error) { $('result').innerHTML = `<div class="alert alert-danger">${esc(data.error)}</div>`; return; }
-        const b=data.batch, mp=data.mp||[], counter=data.counter||[], filkar=data.filkar||[], sortasi=data.sortasi||[], bad=data.badpro||[];
-        const totalBad=bad.reduce((s,x)=>s+Number(x.berat||0),0), totalCounter=counter.reduce((s,x)=>s+Number(x.counter||0),0), totalFilkar=filkar.reduce((s,x)=>s+Number(x.jumlah_kg||0),0);
-        $('result').innerHTML=`<div class="card shadow mb-4"><div class="card-body"><h4 class="mb-1">${esc(b.kode_batch)}</h4><div class="text-muted">Plan ${esc(b.plan)} · Varian <b>${esc(b.varian||'-')}</b> · Produksi ${esc(b.tanggal_produksi||'-')}</div></div></div><div class="row">${card('MP Usage',num(mp.reduce((s,x)=>s+Number(x.total_output||0),0),2)+' kg','formula + rework')}${card('Counter Filler',num(totalCounter,0),counter.length+' mesin')}${card('Filkar',num(totalFilkar,2)+' kg',filkar.length+' transaksi')}${card('Bad Product',num(totalBad)+' kg',bad.length+' transaksi')}</div>`;
-        $('result').innerHTML += table('Bad Product Batch',['Bad Product','Proses','Mesin','Kg','Kategori'],bad.map(x=>`<tr><td>${esc(x.nama_badpro||'-')}</td><td>${esc(x.nama_proses||'-')}</td><td>${esc(x.nama_mesin||'-')}</td><td>${num(x.berat)}</td><td>${Number(x.kategori)==1?'Rework':(Number(x.kategori)==2?'Reject':'-')}</td></tr>`).join(''));
-    }
-    async function renderPerformance() {
-        const data=await get(base+'/performance?'+params());
-        $('result').innerHTML=table('Ranking Performa Mesin',['Rank','Mesin','Area','Batch','Total Counter','Avg Speed','Performance'],data.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.nama_mesin||'-')}</td><td>${esc(x.nama_area||'-')}</td><td>${esc(x.jumlah_batch)}</td><td>${num(x.total_counter,0)}</td><td>${num(x.avg_speed,2)}</td><td>${x.performance==null?'-':num(x.performance,2)+'%'}</td></tr>`).join(''));
-    }
-    function renderTrend(rows) {
-        const box=document.getElementById('badTrend');
-        if (!box) return;
-        rows=Array.isArray(rows)?rows:[];
-        if (!rows.length) { box.innerHTML='<div class=\"text-center text-muted py-5\">Tidak ada tanggal pada range yang dipilih.</div>'; return; }
-        const vals=rows.map(x=>Number(x.total_kg||0));
-        const max=Math.max(...vals,1);
-        const W=1000,H=300,L=65,R=20,T=20,B=55;
-        const pw=W-L-R, ph=H-T-B;
-        const step=rows.length===1?pw:pw/(rows.length-1);
-        const points=vals.map((v,i)=>[L+i*step,T+ph-(v/max)*ph]);
-        const poly=points.map(p=>p.join(',')).join(' ');
-        const grid=[0,.25,.5,.75,1].map(f=>{const y=T+ph-f*ph;const val=max*f;return `<line x1=\"${L}\" y1=\"${y}\" x2=\"${W-R}\" y2=\"${y}\" stroke=\"#ddd\"/><text x=\"${L-8}\" y=\"${y+4}\" text-anchor=\"end\" font-size=\"11\">${num(val,2)}</text>`;}).join('');
-        const labels=rows.map((x,i)=>{ if(rows.length>15 && i%Math.ceil(rows.length/10)!==0 && i!==rows.length-1)return ''; const p=points[i]; return `<text x=\"${p[0]}\" y=\"${H-25}\" text-anchor=\"middle\" font-size=\"10\">${esc(x.tanggal)}</text>`; }).join('');
-        const dots=points.map((p,i)=>`<circle cx=\"${p[0]}\" cy=\"${p[1]}\" r=\"4\" fill=\"currentColor\"><title>${esc(rows[i].tanggal)}: ${num(vals[i])} kg</title></circle>`).join('');
-        box.innerHTML=`<div style=\"width:100%;overflow-x:auto\"><svg viewBox=\"0 0 ${W} ${H}\" style=\"width:100%;min-width:700px;height:300px;color:#007bff\" role=\"img\" aria-label=\"Trend harian bad product\">${grid}<polyline points=\"${poly}\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"/>${dots}${labels}</svg></div>`;
-    }
-    async function renderBadpro() {
-        const data=await get(base+'/badpro?'+params());
-        lastBadData=data;
-        const detail=data.detail||[];
-        const total=detail.reduce((s,x)=>s+Number(x.berat||0),0), batches=new Set(detail.map(x=>x.kode_batch)).size, plans=new Set(detail.map(x=>x.tanggal+'|'+x.plan)).size;
-        const machines={}; detail.forEach(x=>{(x.mesin||'Tidak diketahui').split(',').map(s=>s.trim()).filter(Boolean).forEach(m=>machines[m]=(machines[m]||0)+Number(x.berat||0)/(x.mesin.split(',').filter(Boolean).length||1));});
-        const dominant=Object.entries(machines).sort((a,b)=>b[1]-a[1])[0]?.[0]||'-';
-        const trend=await get(base+'/badpro_trend?'+params());
-        const journeyPlan=await get(base+'/badpro_journey?'+params({group_by:'plan'}));
-        const journeyBatch=await get(base+'/badpro_journey?'+params({group_by:'batch'}));
-        $('result').innerHTML=`<div class="row">${card('Total Bad',num(total)+' kg','sesuai filter')}${card('Jumlah Batch',batches)}${card('Jumlah Plan',plans)}${card('Mesin Dominan',dominant)}</div><div class="card shadow mb-4"><div class="card-header"><b>Trend Harian Bad Product</b></div><div class="card-body"><div id="badTrend" style="min-height:300px"></div></div></div>`;
-        renderTrend(trend);
-        const mr=(data.ranking_mesin||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.nama_mesin)}</td><td>${num(x.total_kg)}</td><td>${esc(x.jumlah_transaksi)}</td><td>${esc(x.jumlah_batch)}</td></tr>`).join('');
-        $('result').innerHTML+=table('Breakdown Mesin',['Rank','Mesin','Total Kontribusi Kg','Transaksi','Batch'],mr,'<span class="small text-muted">Jika 1 bad tercatat di beberapa mesin, berat dibagi rata.</span>');
-        const jp=journeyPlan.map(x=>`<tr><td>${esc(x.tanggal_plan)}</td><td>${esc(x.varian||'-')}</td><td>${esc(x.jumlah_batch)}</td><td>${num(x.total_kg)}</td></tr>`).join('');
-        const jb=journeyBatch.map(x=>`<tr><td>${esc(x.tanggal_produksi)}</td><td>${esc(x.varian||'-')}</td><td>${esc(x.kode_batch)}</td><td>${num(x.total_kg)}</td></tr>`).join('');
-        $('result').innerHTML+=`<div class="card shadow mb-4"><div class="card-header d-flex justify-content-between align-items-center"><b>Perjalanan Bad Product</b><div class="btn-group btn-group-sm"><button class="btn btn-primary active" id="journeyPlan">Per Plan Produksi</button><button class="btn btn-outline-primary" id="journeyBatch">Per Kode Batch</button></div></div><div id="journeyTable" class="card-body p-0"></div></div>`;
-        const setJourney=(mode)=>{if(mode==='plan'){$('journeyPlan').className='btn btn-primary active';$('journeyBatch').className='btn btn-outline-primary';$('journeyTable').innerHTML='<div class="table-responsive"><table class="table table-sm table-hover mb-0"><thead><tr><th>Tanggal Plan</th><th>Varian</th><th>Jumlah Batch</th><th>Total Bad (Kg)</th></tr></thead><tbody>'+ (jp||'<tr><td colspan="5" class="text-center text-muted py-3">Tidak ada data.</td></tr>')+'</tbody></table></div>';}else{$('journeyPlan').className='btn btn-outline-primary';$('journeyBatch').className='btn btn-primary active';$('journeyTable').innerHTML='<div class="table-responsive"><table class="table table-sm table-hover mb-0"><thead><tr><th>Tanggal Produksi</th><th>Varian</th><th>Kode Batch</th><th>Total Bad (Kg)</th></tr></thead><tbody>'+ (jb||'<tr><td colspan="5" class="text-center text-muted py-3">Tidak ada data.</td></tr>')+'</tbody></table></div>';}};
-        $('journeyPlan').onclick=()=>setJourney('plan');$('journeyBatch').onclick=()=>setJourney('batch');setJourney('plan');
-        const dr=detail.map(x=>`<tr><td>${esc(x.tanggal)}</td><td>${esc(x.varian||'-')}</td><td>${esc(x.proses)}</td><td>${esc(x.kode_batch)}</td><td>${esc(x.mesin)}</td><td>${esc(x.nama_badpro)}</td><td>${esc(x.kategori)}</td><td>${num(x.berat)}</td></tr>`).join('');
-        $('result').innerHTML+=table('Detail Bad Product',['Tanggal','Varian','Proses','Kode Batch','Mesin','Bad Product','Kategori','Berat (Kg)'],dr);
-        $('btnExport').classList.remove('d-none');
-    }
-    async function renderYield() {
-        const x=await get(base+'/yield_analysis?'+params());
-        $('result').innerHTML=`<div class="row">${card('Jumlah Batch',x.jumlah_batch||0)}${card('MP Usage',num(x.total_mp_kg,2)+' kg')}${card('Filkar',num(x.total_filkar_kg,2)+' kg','Yield '+num(x.filkar_yield,2)+'%')}${card('Sortasi WIP',num(x.total_sortasi_box,0)+' box')}</div>`;
-    }
-    async function render(){
-        $('result').innerHTML='<div class="text-center py-5"><i class="fas fa-spinner fa-spin"></i> Memuat analisa...</div>';
-        $('btnExport').classList.add('d-none');
-        try { if($('mode').value==='journey') await renderJourney(); else if($('mode').value==='performance') await renderPerformance(); else if($('mode').value==='badpro') await renderBadpro(); else await renderYield(); }
-        catch(e){console.error(e);$('result').innerHTML='<div class="alert alert-danger">Gagal memuat analisa. Periksa log aplikasi dan query database.</div>';}
-    }
-    function exportBadpro(){
-        const q=params(selectedNames());
-        window.location.href=base+'/export_badpro?'+q;
-    }
-    $('start').addEventListener('change',async()=>{await loadVariants();await loadPlans();await loadBadproducts();});
-    $('end').addEventListener('change',async()=>{await loadVariants();await loadPlans();await loadBadproducts();});
-    $('varian_uuid').addEventListener('change',async()=>{await loadPlans();await loadBadproducts();});
-    $('plan_uuid').addEventListener('change',async()=>{await loadBatches();await loadBadproducts();});
-    $('batch_uuid').addEventListener('change',loadBadproducts);
-    $('proses_uuid').addEventListener('change',loadBadproducts);
-    $('mode').addEventListener('change',()=>{ if($('mode').value!=='badpro') $('btnExport').classList.add('d-none'); });
-    $('btnAnalisa').addEventListener('click',render);
-    $('btnExport').addEventListener('click',exportBadpro);
-    // Saat halaman pertama selesai memuat filter, langsung tampilkan analisa.
-    Promise.all([loadProcesses(), loadVariants()])
-        .then(loadPlans)
-        .then(loadBadproducts)
-        .then(() => render())
-        .catch(e => {
-            console.error(e);
-            $('result').innerHTML = '<div class="alert alert-danger">Gagal memuat filter/analisa: ' + esc(e.message || e) + '</div>';
+            start:g('start').value,end:g('end').value,varian_uuid:g('varian_uuid').value,
+            batch_uuid:g('batch_uuid').value,proses_uuid:g('proses_uuid').value,
+            badpro_uuid:g('badpro_uuid').value,mesin_uuid:g('mesin_uuid').value,...extra
         });
+    }
+
+    function table(title,heads,rows){
+        return `<div class="card shadow mb-4"><div class="card-header"><b>${esc(title)}</b></div><div class="table-responsive"><table class="table table-sm table-hover mb-0"><thead><tr>${heads.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${heads.length}" class="text-center text-muted py-3">Tidak ada data</td></tr>`}</tbody></table></div></div>`;
+    }
+
+    function cards(a){
+        return `<div class="row">${a.map(x=>`<div class="col-md-3 mb-3"><div class="card shadow-sm"><div class="card-body"><div class="small text-uppercase text-primary font-weight-bold">${esc(x[0])}</div><div class="h5 mb-0">${esc(x[1])}</div></div></div></div>`).join('')}</div>`;
+    }
+
+    function setOptions(el,rows,first,selected,formatter){
+        el.innerHTML=`<option value="">${esc(first)}</option>`+rows.map(formatter).join('');
+        if(selected && [...el.options].some(o=>o.value===selected)) el.value=selected;
+    }
+
+    async function loadVariants(preserve=true){
+        const old=g('varian_uuid').value;
+        const v=await get(base+'/variants?'+qs());
+        setOptions(g('varian_uuid'),v,'Semua Varian',preserve?old:'',x=>`<option value="${esc(x.uuid)}">${esc(x.varian)}</option>`);
+    }
+
+    async function loadBatches(preserve=true){
+        const old=g('batch_uuid').value;
+        const b=await get(base+'/batches?'+qs());
+        setOptions(g('batch_uuid'),b,'Semua Batch',preserve?old:'',x=>`<option value="${esc(x.uuid)}">${esc(x.kode_batch)} - ${esc(x.varian||'-')}</option>`);
+    }
+
+    async function loadMachines(preserve=true){
+        const old=g('mesin_uuid').value;
+        const m=await get(base+'/machines?'+qs());
+        setOptions(g('mesin_uuid'),m,'Semua Mesin',preserve?old:'',x=>`<option value="${esc(x.uuid)}">${esc(x.nama_mesin)}</option>`);
+    }
+
+    async function loadBad(preserve=true){
+        const old=g('badpro_uuid').value;
+        const x=await get(base+'/badproducts?'+qs());
+        setOptions(g('badpro_uuid'),x,'Semua Bad Product',preserve?old:'',r=>`<option value="${esc(r.uuid)}">${esc(r.nama_badpro)} - ${n(r.total_kg)} kg</option>`);
+    }
+
+    async function loadInitial(){
+        const pr=await get(base+'/processes');
+        setOptions(g('proses_uuid'),pr,'Semua Proses','',x=>`<option value="${esc(x.uuid)}">${esc(x.kode||x.nama_proses)}</option>`);
+        await loadVariants(false);
+        await loadBatches(false);
+        await loadMachines(false);
+        await loadBad(false);
+    }
+
+    // Jika filter berubah, pilihan lain tidak boleh tiba-tiba kembali ke Semua.
+    async function refreshDependents(type){
+        if(type==='date'){
+            await loadVariants(false); await loadBatches(false); await loadMachines(false); await loadBad(false);
+            return;
+        }
+        if(type==='variant'){
+            g('batch_uuid').value=''; g('mesin_uuid').value=''; g('badpro_uuid').value='';
+            await loadBatches(false); await loadMachines(false); await loadBad(false); return;
+        }
+        if(type==='batch'){
+            g('mesin_uuid').value=''; g('badpro_uuid').value=''; await loadMachines(false); await loadBad(false); return;
+        }
+        if(type==='process'){
+            g('badpro_uuid').value=''; await loadBad(false); return;
+        }
+        if(type==='machine'){
+            g('badpro_uuid').value=''; await loadBad(false); return;
+        }
+    }
+
+    function line(rows){
+        if(!rows.length)return '<div class="text-muted text-center py-5">Tidak ada data trend.</div>';
+        let max=Math.max(...rows.map(x=>+x.total_kg),1),W=1100,H=320,L=60,B=50,T=20,R=20,dx=rows.length>1?(W-L-R)/(rows.length-1):0;
+        let pts=rows.map((x,i)=>[L+i*dx,T+(H-T-B)*(1-(+x.total_kg/max))]);
+        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:750px;height:320px;color:#007bff"><line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#999"/><polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="currentColor" stroke-width="3"/>${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="currentColor"><title>${esc(rows[i].tanggal_display||rows[i].tanggal)}: ${n(rows[i].total_kg)} kg</title></circle>`).join('')}${rows.map((x,i)=>i%Math.ceil(rows.length/12)===0?`<text x="${pts[i][0]}" y="${H-25}" font-size="10" text-anchor="middle">${esc(x.tanggal_display||x.tanggal)}</text>`:'').join('')}</svg>`;
+    }
+
+    async function journey(){
+        const x=await get(base+'/journey?'+qs()),r=x.batches||[],p=x.plans||[];
+        return cards([['Planning Produksi',p.length],['Batch',r.length],['MP Total',n(r.reduce((s,x)=>s+ +x.mp_total_kg,0))+' KG'],['Filkar',n(r.reduce((s,x)=>s+ +x.filkar_kg,0))+' KG'],['Bad Rework',n(r.reduce((s,x)=>s+ +x.bad_rework_kg,0))+' KG'],['Hasil Kupas',n(r.reduce((s,x)=>s+ +x.hasil_kupas_kg,0))+' KG'],['Belum Kupas',n(r.reduce((s,x)=>s+ +x.belum_kupas_kg,0))+' KG'],['Terpakai Rework',n(r.reduce((s,x)=>s+ +x.terpakai_rework_kg,0))+' KG']])
+        +table('Perjalanan Semua Planning Produksi',['Tanggal Planning','Varian','Jumlah Batch','MP Total KG','Counter','Filkar KG','Sortasi BOX','Bad KG','Tampung','Kasar','Cuci','Release','Sisa WIP','Bad Rework','Hasil Kupas','Belum Kupas','Terpakai','Sisa Kupas'],p.map(x=>`<tr><td>${esc(x.tanggal_plan_display||x.tanggal_plan)}</td><td>${esc(x.varian||'-')}</td><td>${n(x.jumlah_batch)}</td><td>${n(x.mp_total_kg)}</td><td>${n(x.counter)}</td><td>${n(x.filkar_kg)}</td><td>${n(x.sortasi_input_box)}</td><td>${n(x.bad_kg)}</td><td>${n(x.tampung_box)}</td><td>${n(x.kasar_box)}</td><td>${n(x.cuci_box)}</td><td>${n(x.release_box)}</td><td>${n(x.sisa_wip_box)}</td><td>${n(x.bad_rework_kg)}</td><td>${n(x.hasil_kupas_kg)}</td><td>${n(x.belum_kupas_kg)}</td><td>${n(x.terpakai_rework_kg)}</td><td>${n(x.sisa_kupas_kg)}</td></tr>`).join(''))
+        +table('Perjalanan Semua Batch',['Tanggal','Varian','Batch','MP Total KG','Counter','Filkar KG','Sortasi BOX','Bad KG','Tampung','Kasar','Cuci','Release','Sisa WIP','Bad Rework','Hasil Kupas','Belum Kupas','Terpakai','Sisa Kupas','Batch Hasil Cuci'],r.map(x=>`<tr><td>${esc(x.tanggal_produksi_display||x.tanggal_produksi)}</td><td>${esc(x.varian||'-')}</td><td><b>${esc(x.kode_batch)}</b></td><td>${n(x.mp_total_kg)}</td><td>${n(x.counter)}</td><td>${n(x.filkar_kg)}</td><td>${n(x.sortasi_input_box)}</td><td>${n(x.bad_kg)}</td><td>${n(x.tampung_box)}</td><td>${n(x.kasar_box)}</td><td>${n(x.cuci_box)}</td><td>${n(x.release_box)}</td><td>${n(x.sisa_wip_box)}</td><td>${n(x.bad_rework_kg)}</td><td>${n(x.hasil_kupas_kg)}</td><td>${n(x.belum_kupas_kg)}</td><td>${n(x.terpakai_rework_kg)}</td><td>${n(x.sisa_kupas_kg)}</td><td>${esc(x.batch_hasil_cuci||'-')}</td></tr>`).join(''));
+    }
+
+    async function yieldMode(){
+        const x=await get(base+'/yield_analysis?'+qs());
+        let html=cards([
+            ['Planning Produksi',x.jumlah_planning],['Batch',x.jumlah_batch],['MP Formula',n(x.mp_formula_kg)+' KG'],['MP Rework',n(x.mp_rework_kg)+' KG'],
+            ['MP Total',n(x.mp_total_kg)+' KG'],['Filkar',n(x.filkar_kg)+' KG'],['Yield Filkar',n(x.yield_filkar_pct)+'%'],
+            ['Release',n(x.release_box)+' BOX / '+n(x.release_kg)+' KG'],['Bad Product',n(x.bad_kg)+' KG'],['Yield Release',n(x.yield_release_pct)+'%'],
+            ['PVDC Dipakai',n(x.pvdc)+' ROLL'],['PVDC Onproduk',n(x.onproduk_pvdc)+' ROLL'],['PVDC Reject',n(x.reject_pvdc)+' ROLL / '+n(x.reject_pvdc_persen)+'%'],
+            ['Wire Dipakai',n(x.wire)+' ROLL'],['Wire Onproduk',n(x.onproduk_wire)+' ROLL'],['Wire Reject',n(x.reject_wire)+' ROLL / '+n(x.reject_wire_persen)+'%'],
+            ['Bad Rework',n(x.bad_rework_kg)+' KG'],['Hasil Kupas',n(x.hasil_kupas_kg)+' KG'],['Belum Kupas',n(x.belum_kupas_kg)+' KG'],['Terpakai Rework',n(x.terpakai_rework_kg)+' KG'],['Sisa Hasil Kupas',n(x.sisa_kupas_kg)+' KG'],
+            ['Tampung',n(x.tampung_box)+' BOX'],['Kasar',n(x.kasar_box)+' BOX'],['Cuci',n(x.cuci_box)+' BOX'],['Sisa WIP',n(x.sisa_wip_box)+' BOX']
+        ]);
+        html += table('Detail Yield per Planning Produksi',['Tanggal Planning','Varian','Jumlah Batch','MP Formula KG','MP Rework KG','Total MP KG','Filkar KG','Yield Filkar','Release BOX','Release KG','Bad Product KG','Yield Release','PVDC Dipakai (ROLL)','PVDC Onproduk','PVDC Reject','PVDC Reject %','Wire Dipakai (ROLL)','Wire Onproduk','Wire Reject','Wire Reject %'],(x.plans||[]).map(r=>`<tr><td>${esc(r.tanggal_plan_display||r.tanggal_plan)}</td><td>${esc(r.varian||'-')}</td><td>${n(r.jumlah_batch)}</td><td>${n(r.mp_formula_kg)}</td><td>${n(r.mp_rework_kg)}</td><td>${n(r.mp_total_kg)}</td><td>${n(r.filkar_kg)}</td><td>${n(r.yield_filkar_pct)}%</td><td>${n(r.release_box)}</td><td>${n(r.release_kg)}</td><td>${n(r.bad_kg)}</td><td>${n(r.yield_release_pct)}%</td><td>${n(r.pvdc)}</td><td>${n(r.onproduk_pvdc)}</td><td>${n(r.reject_pvdc)}</td><td>${n(r.reject_pvdc_persen)}%</td><td>${n(r.wire)}</td><td>${n(r.onproduk_wire)}</td><td>${n(r.reject_wire)}</td><td>${n(r.reject_wire_persen)}%</td></tr>`).join(''));
+        return html;
+    }
+
+    async function performance(){
+        const x=await get(base+'/performance?'+qs());
+        return table('Performa Mesin',['Mesin','Batch','Counter Aktual','Target Counter','Performa','Bad KG','Bad/Counter'],(x.machines||[]).map(x=>`<tr><td>${esc(x.nama_mesin||'-')}</td><td>${n(x.jumlah_batch)}</td><td>${n(x.total_counter)}</td><td>${n(x.total_target)}</td><td>${n(x.performance_pct)}%</td><td>${n(x.bad_kg)}</td><td>${n(x.bad_per_counter)}</td></tr>`).join(''))
+        +table('Bad Product per Mesin',['Mesin','Proses','Bad Product','KG'],(x.bad_by_machine||[]).map(x=>`<tr><td>${esc(x.nama_mesin||'-')}</td><td>${esc(x.proses||'-')}</td><td>${esc(x.nama_badpro||'-')}</td><td>${n(x.total_kg)}</td></tr>`).join(''));
+    }
+
+    async function badpro(){
+        const x=await get(base+'/badpro?'+qs()),t=await get(base+'/badpro_trend?'+qs());
+        const detail=x.detail||[];
+        const total=detail.reduce((s,r)=>s+ +r.berat,0);
+        const planCount=new Set(detail.map(r=>r.tanggal+'|'+r.varian)).size;
+        const machine=(x.ranking_mesin||[])[0]?.nama_mesin||'-';
+        let html=cards([['Total Bad',n(total)+' KG'],['Batch',new Set(detail.map(r=>r.kode_batch)).size],['Jumlah Planning Produksi',planCount],['Mesin Dominan',machine],['Bad Rework',n(x.rework?.bad_rework_kg)+' KG'],['Hasil Kupas',n(x.rework?.hasil_kupas_kg)+' KG'],['Belum Kupas',n(x.rework?.belum_kupas_kg)+' KG'],['Terpakai Rework',n(x.rework?.terpakai_kg)+' KG'],['Sisa Hasil Kupas',n(x.rework?.sisa_kupas_kg)+' KG']])
+            +`<div class="card shadow mb-4"><div class="card-header"><b>Trend Harian Bad Product</b><div class="small text-muted">Semua tanggal range, termasuk 0.</div></div><div class="card-body" style="overflow:auto">${line(t)}</div></div>`;
+        html+=table('Ranking Mesin',['Mesin','Total Bad Product (KG)','Jumlah Transaksi Bad Product','Jumlah Batch'],(x.ranking_mesin||[]).map((r,i)=>`<tr><td>${i+1}. ${esc(r.nama_mesin||'-')}</td><td>${n(r.total_kg)}</td><td>${n(r.jumlah_transaksi)}</td><td>${n(r.jumlah_batch)}</td></tr>`).join(''));
+        html+=table('Detail Bad Product per Planning Produksi',['Tanggal Planning','Varian','Jumlah Batch','Total Bad Product (KG)'],(x.journey_plan||[]).map(r=>`<tr><td>${esc(r.tanggal_plan_display||r.tanggal_plan)}</td><td>${esc(r.varian||'-')}</td><td>${n(r.jumlah_batch)}</td><td>${n(r.total_kg)}</td></tr>`).join(''));
+        html+=table('Detail Bad Product per Batch',['Tanggal','Varian','Batch','Total Bad Product (KG)'],(x.journey_batch||[]).map(r=>`<tr><td>${esc(r.tanggal_produksi_display||r.tanggal_produksi)}</td><td>${esc(r.varian||'-')}</td><td>${esc(r.kode_batch)}</td><td>${n(r.total_kg)}</td></tr>`).join(''));
+        html+=table('Detail Bad Product',['Tanggal','Varian','Proses','Batch','Mesin','Bad Product','Kategori','KG'],detail.map(r=>`<tr><td>${esc(r.tanggal_display||r.tanggal)}</td><td>${esc(r.varian||'-')}</td><td>${esc(r.proses||'-')}</td><td>${esc(r.kode_batch)}</td><td>${esc(r.mesin||'-')}</td><td>${esc(r.nama_badpro||'-')}</td><td>${esc(r.kategori||'-')}</td><td>${n(r.berat)}</td></tr>`).join(''));
+        return html;
+    }
+
+    async function render(){
+        g('result').innerHTML='<div class="text-center py-5"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>';
+        try{let m=g('mode').value,x=m==='journey'?await journey():m==='yield'?await yieldMode():m==='performance'?await performance():await badpro();g('result').innerHTML=x;g('exportBox').classList.remove('d-none')}
+        catch(e){console.error(e);g('result').innerHTML=`<div class="alert alert-danger">${esc(e.message)}</div>`}
+    }
+
+    g('btnAnalisa').onclick=render;
+    g('btnExport').onclick=()=>location.href=base+'/export?'+qs({mode:'all'});
+    g('start').onchange=async()=>{await refreshDependents('date');};
+    g('end').onchange=async()=>{await refreshDependents('date');};
+    g('varian_uuid').onchange=async()=>{await refreshDependents('variant');};
+    g('batch_uuid').onchange=async()=>{await refreshDependents('batch');};
+    g('proses_uuid').onchange=async()=>{await refreshDependents('process');};
+    g('mesin_uuid').onchange=async()=>{await refreshDependents('machine');};
+
+    (async()=>{try{await loadInitial();await render()}catch(e){console.error(e);g('result').innerHTML=`<div class="alert alert-danger">${esc(e.message)}</div>`}})();
 })();
 </script>

@@ -48,7 +48,7 @@ class Mpusage extends CI_Controller
 		$varian_uuid = $this->input->get('varian_uuid');
 		$total = $this->Mpusage_model->get_total_rework_available($varian_uuid);
 		echo json_encode([
-			'total' => round($total, 2)
+			'total' => round($total, 3)
 		]);
 	}
 }
